@@ -17,10 +17,10 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1722;--card:#18222F;--fg:#E7ECF2;--muted:#94A2B4;--line:#263345;--goodbg:#143426;--badbg:#3A1C1A;--good:#4CC38A;--bad:#F07A72;--soft:#1F2C3C;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#0F1722;--card:#18222F;--fg:#E7ECF2;--muted:#94A2B4;--line:#263345;--goodbg:#143426;--badbg:#3A1C1A;--good:#4CC38A;--bad:#F07A72;--soft:#1F2C3C;color-scheme:dark}
 *{box-sizing:border-box}
-html,body{overflow-x:hidden;max-width:100%}
+html,body{overflow-x:hidden;max-width:100%;overscroll-behavior-y:none}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;margin:0}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--navy)}
-header{position:sticky;top:0;z-index:15;background:var(--navy);color:#fff;padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{position:fixed;top:0;left:0;right:0;z-index:15;background:var(--navy);color:#fff;padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .brand{font-family:var(--display);font-size:30px;line-height:1;display:inline-block}
 .brand::after{content:"";display:block;height:4px;background:var(--orange);border-radius:2px;margin-top:4px}
 .sub{font-size:13px;opacity:.8;margin-top:8px}
@@ -388,11 +388,13 @@ function quranCard(){const n=S.qPage||1,done=(S.qLog||{})[td()];loadQ(n);
  ${done?`<button class="ghost" data-act="qMore">قراءة صفحة إضافية</button>`:`<button data-act="qDone">قرأت الصفحة ✓</button>`}
  <div class="form"><select id="qs" class="full" onchange="if(this.value){S.qPage=+this.value;save();render();scrollTo(0,0)}"><option value="">اختر سورة…</option>${SUR.map((x,k)=>`<option value="${x[1]}">${k+1}. ${x[0]} — ص ${x[1]}</option>`).join('')}</select><input id="qp" type="number" min="1" max="604" placeholder="أو رقم الصفحة"><button class="ghost" data-act="qGo">انتقال</button></div>
  <div class="form"><button class="ghost" data-act="qPrev">→ الصفحة السابقة</button><button class="ghost" data-act="qNext">الصفحة التالية ←</button></div></div>`}
+function padTop(){const h=document.querySelector('header');if(h)document.body.style.paddingTop=h.offsetHeight+'px'}
+addEventListener('resize',padTop);
 function tick(){const n=new Date(),t=document.getElementById('clkT'),h=document.getElementById('clkH');if(!t)return;t.textContent=n.toLocaleTimeString('ar-SA-u-nu-latn',{hour:'numeric',minute:'2-digit'});h.textContent=n.toLocaleDateString('ar-SA-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'long',year:'numeric'})}
 setInterval(tick,15000);
 const views={home,dash,money,faith,habits,goals};
 function render(){
- document.getElementById('nav').classList.remove('kb');tick();
+ document.getElementById('nav').classList.remove('kb');tick();requestAnimationFrame(padTop);
  document.getElementById('today').innerHTML=`<div class="hdr"><span>${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</span><span class="chip" id="sync"></span></div>`;
  paintSync();
  document.getElementById('app').innerHTML=views[tab]();
@@ -459,9 +461,9 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v18';
+const APPV='v19';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
-boot();
+padTop();boot();
 </script>
 </body></html>
