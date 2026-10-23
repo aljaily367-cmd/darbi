@@ -64,6 +64,10 @@ nav button.act::after{content:"";width:18px;height:3px;background:var(--orange);
 @media (prefers-reduced-motion:no-preference){.tasbih:active{transform:scale(.95)}}
 nav.kb{display:none}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:20;background:var(--navy)}
+.bar{display:flex;justify-content:flex-start}.bar i{flex:none}
+.score{display:flex;align-items:center;gap:14px}.ring{width:74px;height:74px;flex:none}
+.quick{display:flex;gap:6px;flex-wrap:wrap}.quick button{flex:1 1 30%;background:var(--soft);color:var(--fg);font-size:13px;padding:10px 4px}
+.ptimes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;text-align:center;font-size:12px}.ptimes div{padding:6px 0;border-radius:8px;background:var(--soft)}.ptimes .nx{background:var(--navy);color:#fff}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -94,7 +98,9 @@ const seed={
  habits:[{id:1,n:'تسجيل المصاريف قبل النوم'},{id:2,n:'أذكار الصباح والمساء'},{id:3,n:'ورد القرآن'},{id:4,n:'ساعة عمل على مشروعي'},{id:5,n:'تواصل مع عميل محتمل'}],
  goals:[{n:'صندوق طوارئ',t:5000,c:0},{n:'أول عميل استشارات',t:1,c:0},{n:'ثروة مستثمرة (2031)',t:300000,c:0}],
  debts:[{id:1,n:'التمويل البنكي',rem:80000,inst:1469,late:1469},{id:2,n:'متأخر الإيجار',rem:2500,inst:1250,late:2500}],
- debtStart:82500,leads:[]
+ debtStart:82500,leads:[],city:'Riyadh',paidFixed:{},salaryIn:{},
+ quick:[{n:'قهوة',a:15,cat:'أكل وشرب'},{n:'غداء',a:35,cat:'أكل وشرب'},{n:'بقالة',a:100,cat:'أكل وشرب'},{n:'بنزين',a:50,cat:'السيارة'}],
+ fixed:['إيجار السكن','قسط التمويل','السيارة','فواتير']
 };
 let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S)S=structuredClone(seed);
@@ -159,6 +165,8 @@ function home(){
  const hd=S.habits.filter(h=>(S.habitLog[td()]||{})[h.id]).length;
  const gap=S.salary-totalB(),st=dayStep(),ps=prayStreak();
  return `<div class="card" style="background:var(--navy);color:#fff;border:none"><span style="font-size:12px;opacity:.75">خاطرة اليوم</span><div style="font-size:17px;line-height:1.8;font-weight:500">${thought()}</div><span style="display:block;width:40px;height:3px;background:var(--orange);border-radius:2px"></span></div>
+ <div class="card score">${ring(dayScore())}<div><b style="font-size:16px">نقاط اليوم</b><div class="muted">صلوات 40 · عادات 30 · موازنة 20 · استغفار 10</div></div></div>
+ ${salaryCard()}
  <div class="step"><span style="font-size:12px">خطوة اليوم · يوم ${Math.max(st.n,0)} من 90 · مرحلة ${st.ph}</span><b>${st.t}</b></div>
  <div class="kpis">
  <div class="kpi"><small>دخل الشهر</small><b>${fmt(inc)}</b></div>
@@ -171,7 +179,8 @@ function home(){
  <div class="row"><span>الصلوات</span><span class="num">${p} / 5</span></div><div class="bar"><i style="width:${p*20}%"></i></div>
  <div class="row"><span>الاستغفار</span><span class="num">${fmt(ist)} / ${fmt(S.istGoal)}</span></div><div class="bar"><i style="width:${Math.min(100,ist/S.istGoal*100)}%"></i></div>
  <div class="row"><span>العادات</span><span class="num">${hd} / ${S.habits.length}</span></div><div class="bar"><i style="width:${S.habits.length?hd/S.habits.length*100:0}%"></i></div></div>
- <div class="card"><h2>تسجيل مصروف سريع</h2>${expForm()}</div>
+ <div class="card"><h2>مصروف بضغطة</h2><div class="quick">${S.quick.map((q,i)=>`<button data-act="qx" data-i="${i}">${q.n}<br><span class="num">${q.a}</span></button>`).join('')}</div><div class="muted">أو سجّل مبلغًا مختلفًا:</div>${expForm()}</div>
+ ${fixedCard()}
  <div class="card"><h2>تقرير الخميس</h2><div class="muted">أرقام آخر 7 أيام جاهزة لترسلها في المحاسبة الأسبوعية.</div><button data-act="rep">إنشاء التقرير</button><div id="repBox"></div></div>`;
 }
 function report(){const w=daysBack(7),inW=d=>w.includes(d);
@@ -214,13 +223,15 @@ const adhkar=['أستغفر الله وأتوب إليه','سبحان الله �
 function faith(){
  const p=S.prayers[td()]||[false,false,false,false,false],ist=S.ist[td()]||0,ps=prayStreak();
  const wk=daysBack(7).map(d=>(S.prayers[d]||[]).filter(Boolean).length);
- return `<div class="card"><h2>صلواتي اليوم <span class="num good">${p.filter(Boolean).length} / 5</span></h2>
+ loadPT();
+ return `<div class="card"><h2>أوقات الصلاة <button class="x" data-act="city" aria-label="تغيير المدينة">${S.city} ⚙️</button></h2>${ptCard()}<div id="cityBox"></div></div>
+ <div class="card"><h2>صلواتي اليوم <span class="num good">${p.filter(Boolean).length} / 5</span></h2>
  <div class="prayers">${prayNames.map((n,i)=>`<button class="pr ${p[i]?'on':''}" data-act="pray" data-i="${i}">${p[i]?'✓':'○'}<br>${n}</button>`).join('')}</div>
  <div class="row"><span class="muted">آخر 7 أيام: ${wk.reduce((a,b)=>a+b,0)} من 35</span>${ps?`<span class="streak">🔥 ${ps} يوم متتالي</span>`:''}</div></div>
- <div class="card"><h2>الاستغفار <span class="muted">الهدف ${fmt(S.istGoal)}</span></h2>
+ <div class="card"><h2>الاستغفار <button class="x" data-act="igT" aria-label="إعدادات الهدف">الهدف ${fmt(S.istGoal)} ⚙️</button></h2>
  <button class="tasbih" data-act="ist" aria-label="أستغفر الله">${fmt(ist)}</button>
  <div class="bar"><i style="width:${Math.min(100,ist/S.istGoal*100)}%;background:var(--good)"></i></div>
- <div class="form"><button class="ghost" data-act="ist10">+10</button><button class="ghost" data-act="ist100">+100</button><input id="ig" type="number" value="${S.istGoal}"><button class="ghost" data-act="setIg">تعديل الهدف</button></div></div>
+ <div class="form"><button class="ghost" data-act="ist10">+10</button><button class="ghost" data-act="ist100">+100</button>${showIg?`<input id="ig" type="number" value="${S.istGoal}"><button class="ghost" data-act="setIg">حفظ الهدف</button>`:''}</div></div>
  <div class="card"><h2>أذكار</h2>${adhkar.map(a=>`<div style="line-height:1.9;border-bottom:1px solid var(--line);padding-bottom:6px">${a}</div>`).join('')}</div>`;
 }
 function habits(){
@@ -273,6 +284,27 @@ function dash(){
  <div class="card"><h2>الالتزام بالعادات — آخر 30 يومًا</h2>${hab.map(h=>`<div><div class="row"><span>${h.n}</span><span class="num">${h.r} / 30</span></div><div class="bar"><i style="width:${h.r/30*100}%;background:var(--good)"></i></div></div>`).join('')}</div>
  <div class="card"><h2>الأهداف</h2>${S.goals.map(g=>`<div><div class="row"><span>${g.n}</span><span class="num muted">${Math.round(Math.min(100,g.c/g.t*100))}%</span></div><div class="bar"><i style="width:${Math.min(100,g.c/g.t*100)}%;background:var(--orange)"></i></div></div>`).join('')}</div>`;
 }
+
+let showIg=false,PT=null,ptCity=null;
+async function loadPT(){if(ptCity===S.city&&PT)return;ptCity=S.city;try{const r=await fetch('https://api.aladhan.com/v1/timingsByCity?city='+encodeURIComponent(S.city)+'&country=Saudi%20Arabia&method=4');const j=await r.json();const t=j.data.timings;PT=[t.Fajr,t.Dhuhr,t.Asr,t.Maghrib,t.Isha];if(tab==='faith'||tab==='home')render()}catch(e){PT=null}}
+function nextPrayer(){if(!PT)return -1;const n=new Date(),m=n.getHours()*60+n.getMinutes();for(let i=0;i<5;i++){const[h,mm]=PT[i].split(':').map(Number);if(h*60+mm>m)return i}return 0}
+function untilNext(i){const[h,mm]=PT[i].split(':').map(Number);const n=new Date();let d=h*60+mm-(n.getHours()*60+n.getMinutes());if(d<0)d+=1440;return d>=60?`${Math.floor(d/60)} س ${d%60} د`:`${d} دقيقة`}
+function ptCard(){if(!PT)return `<div class="muted">جارٍ تحميل أوقات الصلاة لمدينة ${S.city}…</div>`;const nx=nextPrayer();
+ return `<div class="ptimes">${prayNames.map((n,i)=>`<div class="${i===nx?'nx':''}">${n}<br><b class="num">${PT[i]}</b></div>`).join('')}</div><div class="muted">الصلاة القادمة: ${prayNames[nx]} بعد ${untilNext(nx)}</div>`}
+function dayScore(){const d=td(),p=(S.prayers[d]||[]).filter(Boolean).length*8;
+ const h=S.habits.length?S.habits.filter(x=>(S.habitLog[d]||{})[x.id]).length/S.habits.length*30:0;
+ const food=sum(S.expenses.filter(e=>e.d===d&&e.cat==='أكل وشرب')),over=S.budgets.some(b=>spentBy(b.n)>b.b);
+ const bud=(food<=64?12:0)+(over?0:8),ist=Math.min(1,(S.ist[d]||0)/S.istGoal)*10;return Math.round(p+h+bud+ist)}
+function ring(v){const c=2*Math.PI*30,col=v>=80?'var(--good)':v>=50?'var(--orange)':'var(--bad)';return `<svg class="ring" viewBox="0 0 74 74"><circle cx="37" cy="37" r="30" fill="none" stroke="var(--soft)" stroke-width="8"/><circle cx="37" cy="37" r="30" fill="none" stroke="${col}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c*v/100} ${c}" transform="rotate(-90 37 37)"/><text x="37" y="43" text-anchor="middle" font-size="18" font-weight="700" fill="var(--fg)">${v}</text></svg>`}
+function fixedCard(){const m=mon(),pf=S.paidFixed[m]||{},items=S.budgets.filter(b=>S.fixed.includes(b.n));const left=items.filter(b=>!pf[b.n]);
+ return `<div class="card"><h2>مستحقات الشهر <span class="num ${left.length?'bad':'good'}">${items.length-left.length} / ${items.length}</span></h2>
+ ${items.map(b=>`<div class="row" style="align-items:center"><span>${pf[b.n]?'✓ ':''}${b.n} · <span class="num">${fmt(b.b)}</span></span>${pf[b.n]?'<span class="good">مدفوع</span>':`<button class="ghost" data-act="payFix" data-n="${b.n}" style="padding:6px 12px">دفعت</button>`}</div>`).join('')}
+ <div class="muted">«دفعت» يسجّل المبلغ مصروفًا في بنده تلقائيًا.</div></div>`}
+function salaryCard(){const m=mon();if(S.salaryIn[m])return'';const day=new Date().getDate();if(day<20&&day>5)return'';
+ return `<div class="card" style="border:2px solid var(--orange)"><h2>نزل الراتب؟</h2><div class="muted">وزّعه فور نزوله، وادفع لنفسك أولًا:</div>
+ ${S.budgets.map(b=>`<div class="row"><span>${b.n}</span><span class="num">${fmt(b.b)}</span></div>`).join('')}
+ <div class="row"><b>المتبقي بعد التوزيع</b><b class="num ${S.salary-totalB()<0?'bad':'good'}">${fmt(S.salary-totalB())}</b></div>
+ <button data-act="salIn">نزل الراتب ✓ ووزّعته</button></div>`}
 const views={home,dash,money,faith,habits,goals};
 function render(){
  document.getElementById('today').innerHTML=`<div class="hdr"><span>${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{weekday:'long',day:'numeric',month:'long'})}</span><span class="chip" id="sync"></span></div>`;
@@ -290,6 +322,13 @@ document.addEventListener('click',async e=>{
   if(r.error){loginView(a==='login'?'البريد أو كلمة المرور غير صحيحة، أو لم تؤكد بريدك بعد.':'تعذّر إنشاء الحساب: '+r.error.message);return}
   if(a==='signup'&&!r.data.session){loginView('تم إنشاء الحساب. افتح بريدك واضغط رابط التأكيد، ثم ارجع هنا وسجّل الدخول.');return}
   boot();return}
+ if(a==='igT'){showIg=!showIg;render();return}
+ if(a==='city'){document.getElementById('cityBox').innerHTML=`<div class="form"><select id="cs">${['Riyadh','Jeddah','Makkah','Madinah','Dammam','Khobar','Taif','Abha','Tabuk','Buraydah','Hail','Jazan','Najran','Al Ahsa'].map(c=>`<option ${c===S.city?'selected':''}>${c}</option>`).join('')}</select><button data-act="setCity">حفظ</button></div>`;return}
+ if(a==='setCity'){S.city=v('cs');PT=null;save();render();return}
+ if(a==='qx'){const q=S.quick[i];S.expenses.push({id:Date.now(),d,a:q.a,cat:q.cat,n:q.n});mark(d,1);save();render();return}
+ if(a==='payFix'){const n=b.dataset.n,bb=S.budgets.find(x=>x.n===n),m=mon();S.paidFixed[m]=S.paidFixed[m]||{};S.paidFixed[m][n]=true;S.expenses.push({id:Date.now(),d,a:bb.b,cat:n,n:'مستحق شهري'});mark(d,1);
+  if(n==='قسط التمويل'){const debt=S.debts.find(x=>x.n.includes('التمويل'));if(debt){debt.rem=Math.max(0,debt.rem-bb.b);debt.late=Math.max(0,debt.late-bb.b)}}save();render();return}
+ if(a==='salIn'){S.salaryIn[mon()]=true;save();render();return}
  if(a==='unlock'){try{await unlockFace();unlocked=true;boot()}catch(_){lockView('لم يتم التحقق. حاول مرة أخرى.')}return}
  if(a==='face'){const m=document.getElementById('fMsg');if(lockOn()){try{localStorage.removeItem(LK)}catch(_){}m.textContent='تم إيقاف القفل.';b.textContent='تفعيل القفل ببصمة الوجه';return}
   try{await enableFace();m.textContent='تم التفعيل ✓ سيُطلب منك Face ID عند فتح التطبيق.';b.textContent='إيقاف القفل ببصمة الوجه'}catch(_){m.textContent='تعذّر التفعيل. تأكد أن Face ID مفعّل في جوالك.'}return}
