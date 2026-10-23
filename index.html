@@ -89,6 +89,10 @@ html{-webkit-text-size-adjust:100%;touch-action:manipulation}
 .brand{font-size:24px!important}.sub{margin-top:6px!important}
 .clk{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:12px;opacity:.9}.clk b{font-size:20px;font-variant-numeric:tabular-nums;letter-spacing:.5px}
 .hrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.cmpTop{display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:12px;padding:10px}
+.ct{width:100%;border-collapse:collapse;font-size:13px}.ct th{font-weight:500;color:var(--muted);font-size:12px;text-align:start;padding:6px 4px;border-bottom:1px solid var(--line)}.ct td{padding:8px 4px;border-bottom:1px solid var(--line)}.ct td.mu{color:var(--muted)}.ct tr.gh td{background:var(--soft);font-weight:500;font-size:12px;color:var(--navy);padding:5px 8px;border:none}
+.pl{display:inline-block;font-size:11px;padding:2px 7px;border-radius:20px;white-space:nowrap;font-variant-numeric:tabular-nums}.pl.g{background:var(--goodbg);color:var(--good)}.pl.r{background:var(--badbg);color:var(--bad)}.pl.n{background:var(--soft);color:var(--muted)}
+.mbars{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;align-items:end;height:130px}.mb{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:100%}.mcol{width:100%;border-radius:6px 6px 2px 2px}.mcol.empty{border:1.5px dashed var(--line);background:none}.mv{font-size:10px;color:var(--fg)}.ml{font-size:10px;color:var(--muted)}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -297,17 +301,23 @@ function mStats(m){const ds=monthDays(m),n=ds.length||1,ex=monthExp(m);
  ist:Math.round(ds.reduce((a,d)=>a+(S.ist[d]||0),0)/n),q:ds.reduce((a,d)=>a+((S.qLog||{})[d]||0),0),
  ct:S.contacts.filter(d=>d.startsWith(m)).length}}
 const mName=m=>new Date(m+'-15').toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{month:'long'});
-function compareCard(){const c=mStats(mon()),p=mStats(mon(-1)),has=sum(monthExp(mon(-1)))||Object.keys(S.prayers).some(d=>d.startsWith(mon(-1)));
- const rows=[['متوسط المصروف اليومي',c.spendD,p.spendD,'down',' ر'],['متوسط الأكل اليومي',c.food,p.food,'down',' ر'],['الدخل الإضافي',c.inc,p.inc,'up',' ر'],['سداد الديون',c.debt,p.debt,'up',' ر'],['مواظبة الصلاة',c.pray,p.pray,'up','%'],['الالتزام بالعادات',c.hab,p.hab,'up','%'],['استغفار يومي',c.ist,p.ist,'up',''],['صفحات القرآن',c.q,p.q,'up',''],['تواصل مع عملاء',c.ct,p.ct,'up','']];
- let better=0,worse=0;
- const html=rows.map(([l,a,b,dir,u])=>{const diff=a-b,good=dir==='up'?diff>0:diff<0,bad=dir==='up'?diff<0:diff>0;if(has){if(good)better++;if(bad)worse++}
-  return `<div class="row" style="align-items:center"><span style="min-width:0">${l}</span><span class="num">${fmt(b)}${u} ← <b>${fmt(a)}${u}</b> ${has&&diff?`<span class="${good?'good':'bad'}">${good?'▲':'▼'}</span>`:''}</span></div>`}).join('');
- const verdict=!has?'<div class="muted">المقارنة تبدأ الشهر القادم، بعد أن يكتمل شهر من البيانات.</div>':`<div class="${better>=worse?'ok':'alert'}">${better>=worse?`تحسّنت في ${better} من ${rows.length} مؤشرات مقارنة بشهر ${mName(mon(-1))}.`:`تراجعت في ${worse} من ${rows.length} مؤشرات مقارنة بشهر ${mName(mon(-1))}. راجع الأحمر.`}</div>`;
+function compareCard(){const c=mStats(mon()),p=mStats(mon(-1)),has=sum(monthExp(mon(-1)))>0||Object.keys(S.prayers).some(d=>d.startsWith(mon(-1)));
+ const G=[['المال',[['متوسط المصروف اليومي',c.spendD,p.spendD,'down','ر'],['متوسط الأكل اليومي',c.food,p.food,'down','ر'],['الدخل الإضافي',c.inc,p.inc,'up','ر'],['سداد الديون',c.debt,p.debt,'up','ر']]],
+  ['العبادات',[['مواظبة الصلاة',c.pray,p.pray,'up','%'],['الاستغفار اليومي',c.ist,p.ist,'up',''],['صفحات القرآن',c.q,p.q,'up','']]],
+  ['الانضباط والعمل',[['الالتزام بالعادات',c.hab,p.hab,'up','%'],['تواصل مع عملاء',c.ct,p.ct,'up','']]]];
+ let better=0,worse=0,total=0;
+ const pill=(a,b,dir)=>{if(!has)return'<span class="pl n">—</span>';const d=a-b;if(!d)return'<span class="pl n">ثابت</span>';const good=dir==='up'?d>0:d<0;good?better++:worse++;const pc=b?Math.round(Math.abs(d)/b*100):100;return `<span class="pl ${good?'g':'r'}">${d>0?'▲':'▼'} ${pc}%</span>`};
+ const body=G.map(([t,rows])=>`<tr class="gh"><td colspan="4">${t}</td></tr>`+rows.map(([l,a,b,dir,u])=>{total++;return `<tr><td>${l}</td><td class="num mu">${fmt(b)}${u?' '+u:''}</td><td class="num"><b>${fmt(a)}${u?' '+u:''}</b></td><td>${pill(a,b,dir)}</td></tr>`}).join('')).join('');
+ const sc=has?Math.round(better/total*100):0,col=!has?'var(--muted)':better>=worse?'var(--good)':'var(--bad)',C=2*Math.PI*26;
  const hist=[-5,-4,-3,-2,-1,0].map(o=>mStats(mon(o))),mx=Math.max(1,...hist.map(h=>h.spend));
- return `<div class="card"><h2>مقارنة شهرية <span class="muted">${mName(mon(-1))} ← ${mName(mon())}</span></h2>
- <div class="muted">${mName(mon())} حتى اليوم (${c.n} يوم)؛ المقارنة بالمتوسطات اليومية لتكون عادلة.</div>${html}${verdict}
- <div class="muted" style="margin-top:6px">المصروف آخر 6 أشهر</div>
- <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;align-items:end;height:90px">${hist.map((h,k)=>`<div style="display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:3px;text-align:center"><div style="height:${Math.max(3,h.spend/mx*70)}px;background:${k===5?'var(--orange)':'var(--navy)'};border-radius:4px"></div><span style="font-size:10px;color:var(--muted)">${mName(h.m)}</span></div>`).join('')}</div></div>`}
+ return `<div class="card cmp"><h2>مقارنة شهرية <span class="muted" style="font-weight:400">${mName(mon(-1))} ← ${mName(mon())}</span></h2>
+ <div class="cmpTop"><svg viewBox="0 0 64 64" width="64" height="64"><circle cx="32" cy="32" r="26" fill="none" stroke="var(--soft)" stroke-width="7"/><circle cx="32" cy="32" r="26" fill="none" stroke="${col}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C*sc/100} ${C}" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle" font-size="14" font-weight="700" fill="var(--fg)">${has?better+'/'+total:'—'}</text></svg>
+ <div style="min-width:0"><b style="font-size:15px">${!has?'بانتظار اكتمال شهر':better>=worse?'شهر أفضل من سابقه':'شهر أضعف من سابقه'}</b><div class="muted">${!has?`أول مقارنة حقيقية بداية ${mName(mon(1))}. البيانات الحالية تُجمع الآن.`:`تحسّن ${better} · تراجع ${worse} · ثابت ${total-better-worse}`}</div></div></div>
+ <div style="overflow-x:auto"><table class="ct"><thead><tr><th>المؤشر</th><th>${mName(mon(-1))}</th><th>${mName(mon())}</th><th>التغيّر</th></tr></thead><tbody>${body}</tbody></table></div>
+ <div class="muted">${mName(mon())} حتى اليوم (${c.n} يوم). المصروف والأكل والاستغفار متوسطات يومية لتكون المقارنة عادلة.</div>
+ <div style="font-weight:500;margin-top:4px">المصروف الشهري — آخر 6 أشهر</div>
+ <div class="mbars">${hist.map((h,k)=>`<div class="mb"><span class="num mv">${h.spend?fmt(h.spend):''}</span><div class="mcol ${h.spend?'':'empty'}" style="height:${h.spend?Math.max(6,h.spend/mx*90):90}px;${h.spend?`background:${k===5?'var(--orange)':'var(--navy)'}`:''}"></div><span class="ml">${mName(h.m)}</span></div>`).join('')}</div>
+ <div class="muted">العمود المنقّط = لا بيانات مسجّلة.</div></div>`}
 function dash(){
  const inc=S.salary+sum(monthInc()),spent=sum(monthExp()),left=inc-spent;
  const d30=daysBack(30),byDay=d30.map(d=>sum(S.expenses.filter(e=>e.d===d)));
@@ -461,7 +471,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v19';
+const APPV='v20';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 padTop();boot();
