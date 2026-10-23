@@ -102,6 +102,8 @@ nav button.act::after{display:none}
 .shopd summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px}.shopd summary::-webkit-details-marker{display:none}
 .shopd summary h2{flex:1}.shopd summary::after{content:"▾";color:var(--muted);font-size:18px;transition:transform .2s}.shopd[open] summary::after{transform:rotate(180deg)}
 .shopd[open]{gap:10px}.shopd:not([open]){gap:0}
+nav::after{content:"";position:absolute;left:0;right:0;top:100%;height:300px;background:var(--navy)}
+html{min-height:100%;background:var(--bg)}body{min-height:100vh;min-height:100dvh}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -497,7 +499,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v23';
+const APPV='v24';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 padTop();boot();
