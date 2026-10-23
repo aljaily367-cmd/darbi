@@ -1,5 +1,5 @@
 <!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>دربي وكفاحي</title>
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="دربي وكفاحي"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -78,6 +78,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .dlist{display:flex;flex-direction:column;gap:6px}.dk{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--soft);color:var(--fg);text-align:start;font-weight:400;font-size:14px;line-height:1.6;padding:10px 12px}.dk.on{background:var(--navy);color:#fff}.dk.done span.c{color:var(--good)}.dk.on.done span.c{color:#9fe0bd}.dk span.c{flex:none;font-variant-numeric:tabular-nums;font-size:12px}
 .lcd .t{font-family:var(--body);font-size:12px;font-weight:500;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rst{background:#3a3a3a;color:#ddd;font-size:12px;border-radius:20px;padding:6px 14px}.rst.warn{background:#C2413A;color:#fff}
+input,select,textarea{font-size:16px!important}
+html{-webkit-text-size-adjust:100%;touch-action:manipulation}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -385,7 +387,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,select,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,select,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v8';
+const APPV='v9';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 boot();
