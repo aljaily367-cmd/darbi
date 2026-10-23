@@ -69,12 +69,14 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .quick{display:flex;gap:6px;flex-wrap:wrap}.quick button{flex:1 1 30%;background:var(--soft);color:var(--fg);font-size:13px;padding:10px 4px}
 .ptimes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;text-align:center;font-size:12px}.ptimes div{padding:6px 0;border-radius:8px;background:var(--soft)}.ptimes .nx{background:var(--navy);color:#fff}
 .bar i{margin-left:auto}
-.dev{align-self:center;width:220px;background:linear-gradient(160deg,#2a2a2a,#0d0d0d);border-radius:46px 46px 60px 60px;padding:22px 20px 26px;display:flex;flex-direction:column;align-items:center;gap:16px;box-shadow:0 10px 24px rgba(0,0,0,.35),inset 0 2px 0 rgba(255,255,255,.08)}
+.dev{align-self:center;width:170px;background:linear-gradient(160deg,#2a2a2a,#0d0d0d);border-radius:46px 46px 60px 60px;padding:16px 14px 18px;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 10px 24px rgba(0,0,0,.35),inset 0 2px 0 rgba(255,255,255,.08)}
 .lcd{width:100%;background:#9fb59a;border-radius:12px;padding:10px 12px;box-shadow:inset 0 3px 8px rgba(0,0,0,.45);text-align:center;color:#1d2a1b;font-family:"Courier New",ui-monospace,monospace;font-weight:700}
-.lcd .n{font-size:46px;letter-spacing:2px;line-height:1.1;font-variant-numeric:tabular-nums}.lcd small{font-size:11px;display:flex;justify-content:space-between;opacity:.75}
-.gold{width:96px;height:96px;border-radius:24px;background:linear-gradient(145deg,#f3d27a,#b98a2c);display:grid;place-items:center;box-shadow:0 4px 0 #7d5c18,0 8px 14px rgba(0,0,0,.4);padding:0}
+.lcd .n{font-size:34px;letter-spacing:2px;line-height:1.1;font-variant-numeric:tabular-nums}.lcd small{font-size:11px;display:flex;justify-content:space-between;opacity:.75}
+.gold{width:72px;height:72px;border-radius:20px;background:linear-gradient(145deg,#f3d27a,#b98a2c);display:grid;place-items:center;box-shadow:0 4px 0 #7d5c18,0 8px 14px rgba(0,0,0,.4);padding:0}
 .gold:active{transform:translateY(3px);box-shadow:0 1px 0 #7d5c18,0 4px 8px rgba(0,0,0,.4)}
-.gold svg{width:46px;height:46px}
+.gold svg{width:34px;height:34px}
+.dlist{display:flex;flex-direction:column;gap:6px}.dk{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--soft);color:var(--fg);text-align:start;font-weight:400;font-size:14px;line-height:1.6;padding:10px 12px}.dk.on{background:var(--navy);color:#fff}.dk.done span.c{color:var(--good)}.dk.on.done span.c{color:#9fe0bd}.dk span.c{flex:none;font-variant-numeric:tabular-nums;font-size:12px}
+.lcd .t{font-family:var(--body);font-size:12px;font-weight:500;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rst{background:#3a3a3a;color:#ddd;font-size:12px;border-radius:20px;padding:6px 14px}.rst.warn{background:#C2413A;color:#fff}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
@@ -236,13 +238,14 @@ function faith(){
  <div class="card"><h2>صلواتي اليوم <span class="num good">${p.filter(Boolean).length} / 5</span></h2>
  <div class="prayers">${prayNames.map((n,i)=>`<button class="pr ${p[i]?'on':''}" data-act="pray" data-i="${i}">${p[i]?'✓':'○'}<br>${n}</button>`).join('')}</div>
  <div class="row"><span class="muted">آخر 7 أيام: ${wk.reduce((a,b)=>a+b,0)} من 35</span>${ps?`<span class="streak">🔥 ${ps} يوم متتالي</span>`:''}</div></div>
- <div class="card"><h2>الاستغفار <button class="x" data-act="igT" aria-label="إعدادات الهدف">الهدف ${fmt(S.istGoal)} ⚙️</button></h2>
- <div class="dev"><div class="lcd"><small><span>اليوم</span><span>الهدف ${fmt(S.istGoal)}</span></small><div class="n">${String(ist).padStart(4,'0')}</div></div>
- <button class="gold" data-act="ist" aria-label="أستغفر الله"><svg viewBox="0 0 48 48" fill="#3b2a08"><path d="M24 6c-3 4-7 6-7 11h14c0-5-4-7-7-11zM15 19h18v4H15zM13 25h22v15H13zm9 5v10h4V30a2 2 0 0 0-4 0zM8 22h4v18H8zm28 0h4v18h-4z"/></svg></button>
+ <div class="card"><h2>التسبيح ${curDh==='ist'?`<button class="x" data-act="igT" aria-label="إعدادات الهدف">هدف الاستغفار ${fmt(S.istGoal)} ⚙️</button>`:''}</h2>
+ ${(()=>{const x=DH.find(y=>y.k===curDh),c=dhGet(curDh),g=dhGoal(x);return `<div class="dev"><div class="lcd"><small><span>اليوم</span><span>${fmt(c)} / ${fmt(g)}</span></small><div class="n">${String(c).padStart(4,'0')}</div><div class="t">${x.t}</div></div>
+ <button class="gold" data-act="ist" aria-label="${x.t}"><svg viewBox="0 0 48 48" fill="#3b2a08"><path d="M24 6c-3 4-7 6-7 11h14c0-5-4-7-7-11zM15 19h18v4H15zM13 25h22v15H13zm9 5v10h4V30a2 2 0 0 0-4 0zM8 22h4v18H8zm28 0h4v18h-4z"/></svg></button>
  <button class="rst ${confirmRst?'warn':''}" data-act="rst">${confirmRst?'اضغط مرة ثانية للتصفير':'إعادة تعيين'}</button></div>
- <div class="bar"><i style="width:${Math.min(100,ist/S.istGoal*100)}%;background:var(--good)"></i></div>
- <div class="form"><button class="ghost" data-act="ist10">+10</button><button class="ghost" data-act="ist100">+100</button>${showIg?`<input id="ig" type="number" value="${S.istGoal}"><button class="ghost" data-act="setIg">حفظ الهدف</button>`:''}</div></div>
- <div class="card"><h2>أذكار</h2>${adhkar.map(a=>`<div style="line-height:1.9;border-bottom:1px solid var(--line);padding-bottom:6px">${a}</div>`).join('')}</div>`;
+ <div class="bar"><i style="width:${Math.min(100,c/g*100)}%;background:var(--good)"></i></div>`})()}
+ <div class="form"><button class="ghost" data-act="ist10">+10</button><button class="ghost" data-act="ist100">+100</button>${showIg&&curDh==='ist'?`<input id="ig" type="number" value="${S.istGoal}"><button class="ghost" data-act="setIg">حفظ الهدف</button>`:''}</div>
+ <div class="muted">اختر الذكر ثم سبّح:</div>
+ <div class="dlist">${DH.map(x=>{const c=dhGet(x.k),g=dhGoal(x);return `<button class="dk ${x.k===curDh?'on':''} ${c>=g?'done':''}" data-act="pickDh" data-k="${x.k}"><span>${x.t}</span><span class="c">${c>=g?'✓ ':''}${fmt(c)}/${fmt(g)}</span></button>`}).join('')}</div></div>`;
 }
 function habits(){
  const log=S.habitLog[td()]||{},wd=daysBack(7);
@@ -295,6 +298,12 @@ function dash(){
  <div class="card"><h2>الأهداف</h2>${S.goals.map(g=>`<div><div class="row"><span>${g.n}</span><span class="num muted">${Math.round(Math.min(100,g.c/g.t*100))}%</span></div><div class="bar"><i style="width:${Math.min(100,g.c/g.t*100)}%;background:var(--orange)"></i></div></div>`).join('')}</div>`;
 }
 
+const DH=[{k:'ist',t:'أستغفر الله وأتوب إليه'},{k:'sub',t:'سبحان الله',g:33},{k:'ham',t:'الحمد لله',g:33},{k:'akb',t:'الله أكبر',g:34},{k:'sbh',t:'سبحان الله وبحمده، سبحان الله العظيم',g:100},{k:'tah',t:'لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير',g:100},{k:'sal',t:'اللهم صلِّ وسلم على نبينا محمد',g:100},{k:'haw',t:'لا حول ولا قوة إلا بالله',g:100},{k:'has',t:'حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم',g:7}];
+let curDh='ist';
+const dhGoal=x=>x.k==='ist'?S.istGoal:x.g;
+function dhGet(k,d=td()){return k==='ist'?(S.ist[d]||0):((S.dh=S.dh||{})[d]||{})[k]||0}
+function dhAdd(k,n,d=td()){if(k==='ist'){S.ist[d]=Math.max(0,(S.ist[d]||0)+n);return}S.dh=S.dh||{};S.dh[d]=S.dh[d]||{};S.dh[d][k]=Math.max(0,(S.dh[d][k]||0)+n)}
+function dhSet0(k,d=td()){if(k==='ist')S.ist[d]=0;else if(S.dh&&S.dh[d])S.dh[d][k]=0}
 let confirmRst=false,showIg=false,PT=null,ptCity=null;
 async function loadPT(){if(ptCity===S.city&&PT)return;ptCity=S.city;try{const r=await fetch('https://api.aladhan.com/v1/timingsByCity?city='+encodeURIComponent(S.city)+'&country=Saudi%20Arabia&method=4');const j=await r.json();const t=j.data.timings;PT=[t.Fajr,t.Dhuhr,t.Asr,t.Maghrib,t.Isha];if(tab==='faith'||tab==='home')render()}catch(e){PT=null}}
 function nextPrayer(){if(!PT)return -1;const n=new Date(),m=n.getHours()*60+n.getMinutes();for(let i=0;i<5;i++){const[h,mm]=PT[i].split(':').map(Number);if(h*60+mm>m)return i}return 0}
@@ -332,7 +341,8 @@ document.addEventListener('click',async e=>{
   if(r.error){loginView(a==='login'?'البريد أو كلمة المرور غير صحيحة، أو لم تؤكد بريدك بعد.':'تعذّر إنشاء الحساب: '+r.error.message);return}
   if(a==='signup'&&!r.data.session){loginView('تم إنشاء الحساب. افتح بريدك واضغط رابط التأكيد، ثم ارجع هنا وسجّل الدخول.');return}
   boot();return}
- if(a==='rst'){if(!confirmRst){confirmRst=true;render();setTimeout(()=>{if(confirmRst){confirmRst=false;if(tab==='faith')render()}},3000);return}confirmRst=false;S.ist[d]=0;save();render();return}
+ if(a==='rst'){if(!confirmRst){confirmRst=true;render();setTimeout(()=>{if(confirmRst){confirmRst=false;if(tab==='faith')render()}},3000);return}confirmRst=false;dhSet0(curDh);save();render();return}
+ if(a==='pickDh'){curDh=b.dataset.k;confirmRst=false;render();return}
  if(a==='igT'){showIg=!showIg;render();return}
  if(a==='city'){document.getElementById('cityBox').innerHTML=`<div class="form"><select id="cs">${['Riyadh','Jeddah','Makkah','Madinah','Dammam','Khobar','Taif','Abha','Tabuk','Buraydah','Hail','Jazan','Najran','Al Ahsa'].map(c=>`<option ${c===S.city?'selected':''}>${c}</option>`).join('')}</select><button data-act="setCity">حفظ</button></div>`;return}
  if(a==='setCity'){S.city=v('cs');PT=null;save();render();return}
@@ -359,9 +369,9 @@ document.addEventListener('click',async e=>{
  if(a==='addD'&&v('dn')&&+v('dr')){S.debts.push({id:Date.now(),n:v('dn'),rem:+v('dr'),inst:+v('di')||0,late:0});S.debtStart+= +v('dr')}
  if(a==='delD')S.debts.splice(i,1);
  if(a==='pray'){S.prayers[d]=S.prayers[d]||[false,false,false,false,false];S.prayers[d][i]=!S.prayers[d][i]}
- if(a==='ist')S.ist[d]=(S.ist[d]||0)+1;
- if(a==='ist10')S.ist[d]=(S.ist[d]||0)+10;
- if(a==='ist100')S.ist[d]=(S.ist[d]||0)+100;
+ if(a==='ist')dhAdd(curDh,1);
+ if(a==='ist10')dhAdd(curDh,10);
+ if(a==='ist100')dhAdd(curDh,100);
  if(a==='setIg')S.istGoal=+v('ig')||S.istGoal;
  if(a==='hab'){S.habitLog[d]=S.habitLog[d]||{};S.habitLog[d][id]=!S.habitLog[d][id]}
  if(a==='addH'&&v('hn'))S.habits.push({id:Date.now(),n:v('hn')});
@@ -375,7 +385,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,select,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,select,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v7';
+const APPV='v8';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 boot();
