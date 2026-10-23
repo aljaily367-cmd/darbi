@@ -9,7 +9,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
 /* تطبيق جوال: شريط علوي كحلي، محتوى بطاقات، تنقّل سفلي بخمسة أقسام */
-:root{padding-top:env(safe-area-inset-top,0px)}
 :root{
  --navy:#1D3A5F;--orange:#F0A030;--bg:#F3F5F8;--card:#FFFFFF;--fg:#15202E;--muted:#617085;--line:#E1E6ED;
  --good:#1E8A5A;--goodbg:#E3F4EC;--bad:#C2413A;--badbg:#FBE7E5;--soft:#EAF0F7;
@@ -21,7 +20,7 @@
 html,body{overflow-x:hidden;max-width:100%}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;margin:0}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--navy)}
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;background:var(--navy);color:#fff;padding-block:10px 12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{position:sticky;top:0;z-index:15;background:var(--navy);color:#fff;padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .brand{font-family:var(--display);font-size:30px;line-height:1;display:inline-block}
 .brand::after{content:"";display:block;height:4px;background:var(--orange);border-radius:2px;margin-top:4px}
 .sub{font-size:13px;opacity:.8;margin-top:8px}
@@ -460,7 +459,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v17';
+const APPV='v18';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 boot();
