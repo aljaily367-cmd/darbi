@@ -5,7 +5,7 @@
 <meta name="apple-mobile-web-app-title" content="دربي وكفاحي"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1D3A5F">
 <link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-192.png"><link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&family=Amiri+Quran&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
 /* تطبيق جوال: شريط علوي كحلي، محتوى بطاقات، تنقّل سفلي بخمسة أقسام */
@@ -80,6 +80,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .rst{background:#3a3a3a;color:#ddd;font-size:12px;border-radius:20px;padding:6px 14px}.rst.warn{background:#C2413A;color:#fff}
 input,select,textarea{font-size:16px!important}
 html{-webkit-text-size-adjust:100%;touch-action:manipulation}
+.mushaf{background:#FBF7EE;color:#1a1a1a;border:1px solid #E6DCC6;border-radius:12px;padding:14px 12px;font-family:"Amiri Quran","Amiri",serif;font-size:22px;line-height:2.3;text-align:justify;max-height:62vh;overflow-y:auto}
+.mushaf .sura{display:block;text-align:center;font-size:18px;background:#EFE5CF;border-radius:8px;margin:6px 0;line-height:1.9}
+.mushaf .an{font-size:15px;color:#8a6d2b}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -110,7 +114,7 @@ const seed={
  habits:[{id:1,n:'تسجيل المصاريف قبل النوم'},{id:2,n:'أذكار الصباح والمساء'},{id:3,n:'ورد القرآن'},{id:4,n:'ساعة عمل على مشروعي'},{id:5,n:'تواصل مع عميل محتمل'}],
  goals:[{n:'صندوق طوارئ',t:5000,c:0},{n:'أول عميل استشارات',t:1,c:0},{n:'ثروة مستثمرة (2031)',t:300000,c:0}],
  debts:[{id:1,n:'التمويل البنكي',rem:80000,inst:1469,late:1469},{id:2,n:'متأخر الإيجار',rem:2500,inst:1250,late:2500}],
- debtStart:82500,leads:[],city:'Riyadh',paidFixed:{},salaryIn:{},
+ debtStart:82500,qPage:1,qLog:{},leads:[],city:'Riyadh',paidFixed:{},salaryIn:{},
  quick:[{n:'قهوة',a:15,cat:'أكل وشرب'},{n:'غداء',a:35,cat:'أكل وشرب'},{n:'بقالة',a:100,cat:'أكل وشرب'},{n:'بنزين',a:50,cat:'السيارة'}],
  fixed:['إيجار السكن','قسط التمويل','السيارة','فواتير']
 };
@@ -236,7 +240,7 @@ function faith(){
  const p=S.prayers[td()]||[false,false,false,false,false],ist=S.ist[td()]||0,ps=prayStreak();
  const wk=daysBack(7).map(d=>(S.prayers[d]||[]).filter(Boolean).length);
  loadPT();
- return `<div class="card"><h2>أوقات الصلاة <button class="x" data-act="city" aria-label="تغيير المدينة">${S.city} ⚙️</button></h2>${ptCard()}<div id="cityBox"></div></div>
+ return quranCard()+`<div class="card"><h2>أوقات الصلاة <button class="x" data-act="city" aria-label="تغيير المدينة">${S.city} ⚙️</button></h2>${ptCard()}<div id="cityBox"></div></div>
  <div class="card"><h2>صلواتي اليوم <span class="num good">${p.filter(Boolean).length} / 5</span></h2>
  <div class="prayers">${prayNames.map((n,i)=>`<button class="pr ${p[i]?'on':''}" data-act="pray" data-i="${i}">${p[i]?'✓':'○'}<br>${n}</button>`).join('')}</div>
  <div class="row"><span class="muted">آخر 7 أيام: ${wk.reduce((a,b)=>a+b,0)} من 35</span>${ps?`<span class="streak">🔥 ${ps} يوم متتالي</span>`:''}</div></div>
@@ -326,6 +330,22 @@ function salaryCard(){const m=mon();if(S.salaryIn[m])return'';const day=new Date
  ${S.budgets.map(b=>`<div class="row"><span>${b.n}</span><span class="num">${fmt(b.b)}</span></div>`).join('')}
  <div class="row"><b>المتبقي بعد التوزيع</b><b class="num ${S.salary-totalB()<0?'bad':'good'}">${fmt(S.salary-totalB())}</b></div>
  <button data-act="salIn">نزل الراتب ✓ ووزّعته</button></div>`}
+
+let QP=null,QN=0;
+async function loadQ(n){if(QN===n&&QP)return;QN=n;QP=null;try{const j=await (await fetch('https://api.alquran.cloud/v1/page/'+n+'/quran-uthmani')).json();QP=j.data.ayahs;if(tab==='faith')render()}catch(e){QP='err';if(tab==='faith')render()}}
+const anum=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+function quranCard(){const n=S.qPage||1,done=(S.qLog||{})[td()];loadQ(n);
+ let body='<div class="muted">جارٍ تحميل الصفحة…</div>';
+ if(QP==='err')body=`<div class="muted">تعذّر تحميل الصفحة. <a href="https://quran.com/page/${n}" target="_blank" rel="noopener">افتحها في Quran.com</a></div>`;
+ else if(QP){body='<div class="mushaf">'+QP.map(a=>(a.numberInSurah===1?`<span class="sura">سورة ${a.surah.name.replace('سُورَةُ ','')}</span>`:'')+a.text+` <span class="an">﴿${anum(a.numberInSurah)}﴾</span> `).join('')+'</div>'}
+ const sura=QP&&QP!=='err'?QP[0].surah.name.replace('سُورَةُ ',''):'',juz=QP&&QP!=='err'?QP[0].juz:'';
+ const days=Object.keys(S.qLog||{}).length,left=604-n+1;
+ return `<div class="card"><h2>ورد اليوم ${done?'<span class="good">✓ قرأت</span>':''}</h2>
+ <div class="qhead"><span>${sura} · الجزء ${juz}</span><span class="num">صفحة ${n} من 604</span></div>${body}
+ <div class="bar"><i style="width:${(n-1)/604*100}%;background:var(--orange)"></i></div>
+ <div class="muted">باقي ${left} صفحة على الختمة · بصفحة يوميًا تختم بعد ${Math.ceil(left/30)} شهر تقريبًا · قرأت ${days} يوم</div>
+ ${done?`<button class="ghost" data-act="qMore">قراءة صفحة إضافية</button>`:`<button data-act="qDone">قرأت الصفحة ✓</button>`}
+ <div class="form"><input id="qp" type="number" min="1" max="604" placeholder="الانتقال لصفحة"><button class="ghost" data-act="qGo">انتقال</button></div></div>`}
 const views={home,dash,money,faith,habits,goals};
 function render(){
  document.getElementById('today').innerHTML=`<div class="hdr"><span>${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{weekday:'long',day:'numeric',month:'long'})}</span><span class="chip" id="sync"></span></div>`;
@@ -344,6 +364,8 @@ document.addEventListener('click',async e=>{
   if(a==='signup'&&!r.data.session){loginView('تم إنشاء الحساب. افتح بريدك واضغط رابط التأكيد، ثم ارجع هنا وسجّل الدخول.');return}
   boot();return}
  if(a==='rst'){if(!confirmRst){confirmRst=true;render();setTimeout(()=>{if(confirmRst){confirmRst=false;if(tab==='faith')render()}},3000);return}confirmRst=false;dhSet0(curDh);save();render();return}
+ if(a==='qDone'||a==='qMore'){S.qLog=S.qLog||{};S.qLog[d]=(S.qLog[d]||0)+1;S.qPage=(S.qPage||1)>=604?1:(S.qPage||1)+1;mark(d,3);save();render();scrollTo(0,0);return}
+ if(a==='qGo'){const n=+v('qp');if(n>=1&&n<=604){S.qPage=n;save();render()}return}
  if(a==='pickDh'){curDh=b.dataset.k;confirmRst=false;render();return}
  if(a==='igT'){showIg=!showIg;render();return}
  if(a==='city'){document.getElementById('cityBox').innerHTML=`<div class="form"><select id="cs">${['Riyadh','Jeddah','Makkah','Madinah','Dammam','Khobar','Taif','Abha','Tabuk','Buraydah','Hail','Jazan','Najran','Al Ahsa'].map(c=>`<option ${c===S.city?'selected':''}>${c}</option>`).join('')}</select><button data-act="setCity">حفظ</button></div>`;return}
@@ -387,7 +409,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,select,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,select,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v9';
+const APPV='v10';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 boot();
