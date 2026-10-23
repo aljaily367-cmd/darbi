@@ -123,7 +123,7 @@ const seed={
  habits:[{id:1,n:'تسجيل المصاريف قبل النوم'},{id:2,n:'أذكار الصباح والمساء'},{id:3,n:'ورد القرآن'},{id:4,n:'ساعة عمل على مشروعي'},{id:5,n:'تواصل مع عميل محتمل'}],
  goals:[{n:'صندوق طوارئ',t:5000,c:0},{n:'أول عميل استشارات',t:1,c:0},{n:'ثروة مستثمرة (2031)',t:300000,c:0}],
  debts:[{id:1,n:'التمويل البنكي',rem:80000,inst:1469,late:1469},{id:2,n:'متأخر الإيجار',rem:2500,inst:1250,late:2500}],
- debtStart:82500,qPage:1,qLog:{},leads:[],city:'Riyadh',paidFixed:{},salaryIn:{},
+ debtStart:82500,shop:[{n:'سكر',p:0},{n:'دقيق',p:0},{n:'زيت',p:0},{n:'رز',p:0},{n:'شاي',p:0},{n:'حليب',p:0},{n:'بيض',p:0},{n:'معكرونة',p:0}],shopOn:{},trips:[],qPage:1,qLog:{},leads:[],city:'Riyadh',paidFixed:{},salaryIn:{},
  quick:[{n:'قهوة',a:15,cat:'أكل وشرب'},{n:'غداء',a:35,cat:'أكل وشرب'},{n:'بقالة',a:100,cat:'أكل وشرب'},{n:'بنزين',a:50,cat:'السيارة'}],
  fixed:['إيجار السكن','قسط التمويل','السيارة','فواتير']
 };
@@ -229,9 +229,19 @@ function report(){const w=daysBack(7),inW=d=>w.includes(d);
 ما لم أنفّذه وسببه:
 الإجراء التصحيحي للأسبوع القادم: `}
 function expForm(){const custom=[...new Set(S.expenses.map(e=>e.cat).filter(c=>!S.budgets.some(b=>b.n===c)))];return `<div class="form"><input id="ea" type="number" inputmode="decimal" placeholder="المبلغ"><select id="ec" onchange="document.getElementById('ecx').hidden=this.value!=='__w'">${S.budgets.map(b=>`<option>${b.n}</option>`).join('')}${custom.map(c=>`<option>${c}</option>`).join('')}<option value="__w">✍️ اكتب نوع المصروف</option></select><input id="ecx" class="full" placeholder="نوع المصروف (مثال: ملابس، هدية، علاج)" hidden><input id="en" class="full" placeholder="ملاحظة (اختياري)"><button class="full" data-act="addExp">تسجيل</button></div>`}
+
+function shopCard(){S.shop=S.shop||[];S.shopOn=S.shopOn||{};S.trips=S.trips||[];
+ const on=S.shop.filter((x,i)=>S.shopOn[i]),tot=on.reduce((a,x)=>a+(+x.p||0),0),tm=S.trips.filter(t=>t.d.startsWith(mon()));
+ return `<div class="card"><h2>قائمة المشتريات <span class="muted" style="font-weight:400">مشاوير الشهر: ${tm.length}</span></h2>
+ <div class="muted">في المول: أشّر ✓ على ما اشتريته، واكتب سعره، ثم اضغط «إنهاء المشوار».</div>
+ <div class="list">${S.shop.map((x,i)=>`<div class="habit"><button class="chk ${S.shopOn[i]?'on':''}" data-act="shT" data-i="${i}" aria-label="${x.n}">✓</button><span style="flex:1;min-width:0;${S.shopOn[i]?'text-decoration:line-through;color:var(--muted)':''}">${x.n}</span><input id="sp${i}" type="number" inputmode="decimal" value="${x.p||''}" placeholder="السعر" style="width:84px;padding:6px 8px" onchange="S.shop[${i}].p=+this.value||0;save()"><button class="x" data-act="shD" data-i="${i}" aria-label="حذف">✕</button></div>`).join('')}</div>
+ <div class="form"><input id="shN" class="full" placeholder="أضف صنفًا (مثال: عدس، صابون)"><button class="full ghost" data-act="shA">إضافة للقائمة</button></div>
+ <div class="row"><b>مجموع المختار (${on.length} صنف)</b><b class="num">${fmt(tot)} ريال</b></div>
+ <button data-act="shDone">إنهاء المشوار وتسجيله على «أكل وشرب»</button>
+ ${tm.length?`<div class="muted">${tm.map(t=>`${t.d.slice(5)}: ${fmt(t.a)} ريال (${t.k} صنف)`).join(' · ')}</div>`:''}</div>`}
 function money(){
  const tb=totalB(),cm=sum(monthExp()),pm=sum(monthExp(mon(-1))),diff=cm-pm;
- return `<div class="card"><h2>الراتب الشهري</h2><div class="form"><input id="sal" type="number" value="${S.salary}"><button data-act="setSal">حفظ</button></div></div>
+ return shopCard()+`<div class="card"><h2>الراتب الشهري</h2><div class="form"><input id="sal" type="number" value="${S.salary}"><button data-act="setSal">حفظ</button></div></div>
  <div class="card"><h2>تقسيم الراتب</h2><div class="bar" style="height:12px;display:flex">${S.budgets.map((b,i)=>`<i style="width:${b.b/Math.max(tb,S.salary)*100}%;background:hsl(${210+i*35} 50% ${45+i*4}%);border-radius:0"></i>`).join('')}</div>
  ${S.budgets.map((b,i)=>`<div class="row"><span><span style="color:hsl(${210+i*35} 50% ${45+i*4}%)">●</span> ${b.n}</span><span class="num">${fmt(b.b)} · ${Math.round(b.b/S.salary*100)}%</span></div>`).join('')}</div>
  <div class="card"><h2>الموازنة مقابل الفعلي</h2>${S.budgets.map((b,i)=>{const s=spentBy(b.n),pc=b.b?s/b.b*100:0;return `<div><div class="row"><span>${b.n}</span><span class="num ${s>b.b?'bad':''}">${fmt(s)} / ${fmt(b.b)} <button class="x" data-act="delB" data-i="${i}" aria-label="حذف البند">✕</button></span></div><div class="bar"><i style="width:${Math.min(100,pc)}%;background:${s>b.b?'var(--bad)':'var(--good)'}"></i></div></div>`}).join('')}
@@ -424,6 +434,12 @@ document.addEventListener('click',async e=>{
   boot();return}
  if(a==='rst'){if(!confirmRst){confirmRst=true;render();setTimeout(()=>{if(confirmRst){confirmRst=false;if(tab==='faith')render()}},3000);return}confirmRst=false;dhSet0(curDh);save();render();return}
  if(a==='qDone'||a==='qMore'){S.qLog=S.qLog||{};S.qLog[d]=(S.qLog[d]||0)+1;S.qPage=(S.qPage||1)>=604?1:(S.qPage||1)+1;mark(d,3);save();render();scrollTo(0,0);return}
+ if(a==='shT'){S.shopOn[i]=!S.shopOn[i];save();render();return}
+ if(a==='shA'){const n=v('shN');if(n){S.shop.push({n,p:0});save();render()}return}
+ if(a==='shD'){S.shop.splice(i,1);S.shopOn={};save();render();return}
+ if(a==='shDone'){S.shop.forEach((x,k)=>{const el=document.getElementById('sp'+k);if(el)x.p=+el.value||0});const on=S.shop.filter((x,k)=>S.shopOn[k]);if(!on.length){toast('أشّر على الأصناف التي اشتريتها أولًا');return}
+  const tot=on.reduce((a2,x)=>a2+(+x.p||0),0);if(!tot){toast('اكتب أسعار الأصناف أولًا');return}
+  undoSnap=JSON.stringify(S);S.expenses.push({id:Date.now(),d,a:tot,cat:'أكل وشرب',n:'مشوار المول: '+on.map(x=>x.n).join('، ')});S.trips.push({d,a:tot,k:on.length});S.shopOn={};mark(d,1);save();render();toast('سُجّل المشوار '+fmt(tot)+' ريال');return}
  if(a==='qPrev'||a==='qNext'){S.qPage=Math.min(604,Math.max(1,(S.qPage||1)+(a==='qNext'?1:-1)));save();render();scrollTo(0,0);return}
  if(a==='qGo'){const n=+v('qp');if(n>=1&&n<=604){S.qPage=n;save();render()}return}
  if(a==='pickDh'){curDh=b.dataset.k;confirmRst=false;render();return}
@@ -471,7 +487,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v20';
+const APPV='v21';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 padTop();boot();
