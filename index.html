@@ -93,6 +93,12 @@ html{-webkit-text-size-adjust:100%;touch-action:manipulation}
 .ct{width:100%;border-collapse:collapse;font-size:13px}.ct th{font-weight:500;color:var(--muted);font-size:12px;text-align:start;padding:6px 4px;border-bottom:1px solid var(--line)}.ct td{padding:8px 4px;border-bottom:1px solid var(--line)}.ct td.mu{color:var(--muted)}.ct tr.gh td{background:var(--soft);font-weight:500;font-size:12px;color:var(--navy);padding:5px 8px;border:none}
 .pl{display:inline-block;font-size:11px;padding:2px 7px;border-radius:20px;white-space:nowrap;font-variant-numeric:tabular-nums}.pl.g{background:var(--goodbg);color:var(--good)}.pl.r{background:var(--badbg);color:var(--bad)}.pl.n{background:var(--soft);color:var(--muted)}
 .mbars{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;align-items:end;height:130px}.mb{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:100%}.mcol{width:100%;border-radius:6px 6px 2px 2px}.mcol.empty{border:1.5px dashed var(--line);background:none}.mv{font-size:10px;color:var(--fg)}.ml{font-size:10px;color:var(--muted)}
+nav{background:var(--navy)!important;border-top:none!important;border-radius:20px 20px 0 0;box-shadow:0 -4px 16px rgba(21,32,46,.18)}
+nav button{color:rgba(255,255,255,.62)!important;font-family:var(--body)}
+nav button.act{color:#fff!important}
+nav button.act svg{background:var(--orange);color:var(--navy);border-radius:12px;padding:5px;width:34px!important;height:30px!important;stroke:var(--navy)}
+nav button.act::after{display:none}
+.card.score{flex-direction:row}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -487,7 +493,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v21';
+const APPV='v22';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 padTop();boot();
