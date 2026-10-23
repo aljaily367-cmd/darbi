@@ -1,0 +1,283 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>دربي وكفاحي</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="دربي وكفاحي"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1D3A5F">
+<link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-192.png"><link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Lalezar&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+/* تطبيق جوال: شريط علوي كحلي، محتوى بطاقات، تنقّل سفلي بخمسة أقسام */
+:root{padding-top:env(safe-area-inset-top,0px)}
+:root{
+ --navy:#1D3A5F;--orange:#F0A030;--bg:#F3F5F8;--card:#FFFFFF;--fg:#15202E;--muted:#617085;--line:#E1E6ED;
+ --good:#1E8A5A;--goodbg:#E3F4EC;--bad:#C2413A;--badbg:#FBE7E5;--soft:#EAF0F7;
+ --display:"Lalezar","IBM Plex Sans Arabic",system-ui,sans-serif;--body:"IBM Plex Sans Arabic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1722;--card:#18222F;--fg:#E7ECF2;--muted:#94A2B4;--line:#263345;--goodbg:#143426;--badbg:#3A1C1A;--good:#4CC38A;--bad:#F07A72;--soft:#1F2C3C;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1722;--card:#18222F;--fg:#E7ECF2;--muted:#94A2B4;--line:#263345;--goodbg:#143426;--badbg:#3A1C1A;--good:#4CC38A;--bad:#F07A72;--soft:#1F2C3C;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--navy)}
+header{background:var(--navy);color:#fff;padding-block:18px 22px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.brand{font-family:var(--display);font-size:30px;line-height:1;display:inline-block}
+.brand::after{content:"";display:block;height:4px;background:var(--orange);border-radius:2px;margin-top:4px}
+.sub{font-size:13px;opacity:.8;margin-top:8px}
+main{padding-block:16px 110px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+h2{font-size:16px;margin:0;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.kpi small{color:var(--muted);font-size:12px}.kpi b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--soft);border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--navy);border-radius:4px}
+.row{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.muted{color:var(--muted);font-size:13px}
+.good{color:var(--good)}.bad{color:var(--bad)}
+.alert{background:var(--badbg);color:var(--bad);border-radius:10px;padding:10px;font-size:13px}
+.ok{background:var(--goodbg);color:var(--good);border-radius:10px;padding:10px;font-size:13px}
+input,select{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;width:100%;min-width:0}
+button{font:inherit;cursor:pointer;border:none;border-radius:10px;padding:10px 14px;background:var(--navy);color:#fff;font-weight:500}
+button.ghost{background:var(--soft);color:var(--fg)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:8px}.form .full{grid-column:1/-1}
+.prayers{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.pr{background:var(--soft);color:var(--muted);padding:10px 0;font-size:13px;border-radius:10px}
+.pr.on{background:var(--goodbg);color:var(--good)}
+.tasbih{width:120px;height:120px;border-radius:50%;font-size:34px;font-family:var(--display);align-self:center;background:var(--navy);box-shadow:0 0 0 6px var(--soft)}
+.habit{display:flex;align-items:center;gap:10px;font-size:14px}
+.chk{width:30px;height:30px;padding:0;border-radius:8px;background:var(--soft);color:var(--good);font-size:16px;flex:none}
+.chk.on{background:var(--good);color:#fff}
+.week{display:flex;gap:3px;margin-inline-start:auto}.week i{width:8px;height:8px;border-radius:2px;background:var(--soft)}.week i.on{background:var(--good)}
+.x{background:none;color:var(--muted);padding:4px 8px}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);z-index:5}
+nav button{background:none;color:var(--muted);border-radius:0;padding:10px 2px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button svg{width:22px;height:22px}
+nav button.act{color:var(--navy)}
+:root[data-theme="dark"] nav button.act{color:var(--orange)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) nav button.act{color:var(--orange)}}
+nav button.act::after{content:"";width:18px;height:3px;background:var(--orange);border-radius:2px}
+.list{display:flex;flex-direction:column;gap:6px}
+.exp{display:flex;justify-content:space-between;font-size:14px;border-bottom:1px solid var(--line);padding-bottom:6px}
+@media (prefers-reduced-motion:no-preference){.tasbih:active{transform:scale(.95)}}
+</style><style>
+.chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.stages{display:flex;gap:4px;flex-wrap:wrap}
+.st{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--soft);color:var(--muted)}
+.st.on{background:var(--navy);color:#fff}
+.big{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+.streak{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--orange);font-weight:500}
+pre.rep{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;font-size:13px;margin:0;user-select:all}
+.step{background:var(--goodbg);color:var(--good);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.step b{font-size:16px}
+</style>
+</head><body>
+
+<header><div class="brand">دربي وكفاحي</div><div class="sub" id="today"></div></header>
+<main id="app"></main>
+<nav id="nav"></nav>
+
+<script>
+const KEY='hayati-v1';
+const iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10)};
+const td=()=>iso(new Date());
+const fmt=n=>Math.round(n||0).toLocaleString('en-US');
+const seed={
+ salary:7000,istGoal:1000,
+ budgets:[{n:'إيجار السكن',b:1250},{n:'قسط التمويل',b:1469},{n:'السيارة',b:1900},{n:'أكل وشرب',b:1800},{n:'فواتير',b:600}],
+ expenses:[],income:[],prayers:{},ist:{},habitLog:{},contacts:[],
+ habits:[{id:1,n:'تسجيل المصاريف قبل النوم'},{id:2,n:'أذكار الصباح والمساء'},{id:3,n:'ورد القرآن'},{id:4,n:'ساعة عمل على مشروعي'},{id:5,n:'تواصل مع عميل محتمل'}],
+ goals:[{n:'صندوق طوارئ',t:5000,c:0},{n:'أول عميل استشارات',t:1,c:0},{n:'ثروة مستثمرة (2031)',t:300000,c:0}],
+ debts:[{id:1,n:'التمويل البنكي',rem:80000,inst:1469,late:1469},{id:2,n:'متأخر الإيجار',rem:2500,inst:1250,late:2500}],
+ debtStart:82500,leads:[]
+};
+let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!S)S=structuredClone(seed);
+for(const k in seed)if(S[k]===undefined)S[k]=structuredClone(seed[k]);
+let tab='home',sb=null,uid=null,sync='local',saveT=null;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+ if(sb&&uid){clearTimeout(saveT);sync='saving';paintSync();saveT=setTimeout(async()=>{const {error}=await sb.from('darbi_data').upsert({user_id:uid,state:S,updated_at:new Date().toISOString()});sync=error?'err':'ok';paintSync()},700)}}
+function paintSync(){const el=document.getElementById('sync');if(!el)return;el.textContent={local:'محفوظ على الجهاز',saving:'جارٍ الحفظ…',ok:'محفوظ في السحابة',err:'تعذّر الحفظ السحابي'}[sync]}
+const SB_URL='https://gzhfzgmphuftwlfmrxdh.supabase.co',SB_KEY='sb_publishable_oOVJuAl5bhqsPo1Ynek7KA_t5iM1lvJ';
+async function loadCloud(){const {data,error}=await sb.from('darbi_data').select('state').eq('user_id',uid).maybeSingle();
+ if(error){sync='err';return}
+ if(data&&data.state&&Object.keys(data.state).length){const c=data.state;for(const k in seed)if(c[k]===undefined)c[k]=structuredClone(seed[k]);S=c;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}sync='ok'}
+ else save()}
+function loginView(msg=''){document.getElementById('nav').hidden=true;document.getElementById('app').innerHTML=`<div class="card"><h2>تسجيل الدخول</h2><div class="muted">بياناتك محمية بحسابك ولا يراها أحد غيرك.</div>
+ <input id="le" type="email" placeholder="البريد الإلكتروني" autocomplete="email"><input id="lp" type="password" placeholder="كلمة المرور (6 أحرف على الأقل)" autocomplete="current-password">
+ <button data-act="login">دخول</button><button class="ghost" data-act="signup">إنشاء حساب جديد</button>${msg?`<div class="alert" style="background:var(--soft);color:var(--fg)">${msg}</div>`:''}</div>`}
+async function boot(){sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
+ const {data:{session}}=await sb.auth.getSession();
+ if(!session){loginView();return}
+ uid=session.user.id;document.getElementById('nav').hidden=false;await loadCloud();render()}
+const ic={home:'<path d="M3 11l9-8 9 8v10H3z"/>',money:'<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="3"/>',faith:'<path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z"/>',habits:'<path d="M4 12l5 5L20 6"/>',goals:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>'};
+const tabs=[['home','الرئيسية'],['money','المال'],['faith','عباداتي'],['habits','عاداتي'],['goals','أهدافي']];
+const mon=(off=0)=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+off);return iso(d).slice(0,7)};
+const monthExp=(m=mon())=>S.expenses.filter(e=>e.d.startsWith(m));
+const monthInc=(m=mon())=>S.income.filter(e=>e.d.startsWith(m));
+const sum=a=>a.reduce((x,e)=>x+e.a,0);
+const spentBy=n=>sum(monthExp().filter(e=>e.cat===n));
+const totalB=()=>S.budgets.reduce((a,b)=>a+b.b,0);
+const prayNames=['الفجر','الظهر','العصر','المغرب','العشاء'];
+const daysBack=n=>{const r=[];for(let i=n-1;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);r.push(iso(d))}return r};
+function streak(test){let n=0;const d=new Date();if(!test(iso(d)))d.setDate(d.getDate()-1);while(test(iso(d))){n++;d.setDate(d.getDate()-1)}return n}
+const prayStreak=()=>streak(k=>(S.prayers[k]||[]).filter(Boolean).length===5);
+const habStreak=id=>streak(k=>(S.habitLog[k]||{})[id]);
+const debtTotal=()=>S.debts.reduce((a,d)=>a+d.rem,0);
+function freeDate(){const t=debtTotal(),pay=S.debts.reduce((a,d)=>a+(d.rem>0?d.inst:0),0)+sum(monthInc());if(!t)return'تحررت ✓';if(!pay)return'—';const d=new Date();d.setMonth(d.getMonth()+Math.ceil(t/pay));return d.toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{month:'long',year:'numeric'})}
+
+// خطة الـ90 يومًا
+const START=new Date(2026,9,24);
+const rhythm={6:'تخطيط الأسبوع + تحديد 5 عملاء محتملين بالأسماء',0:'تواصل مع عميلَين + ساعة عمل على المشروع',1:'ساعة ونصف عمل على المشروع',2:'تواصل مع عميلَين + متابعة الردود',3:'ساعة ونصف مشروع + تواصل مع عميل واحد',4:'ساعتان مشروع + المحاسبة الأسبوعية 7:43 م',5:'يوم المال: مراجعة المصروفات + خطوة في المتأخرات أو السيارة'};
+function dayStep(){const now=new Date();const n=Math.floor((new Date(now.getFullYear(),now.getMonth(),now.getDate())-START)/864e5)+1;
+ const ph=n<1?'قبل البداية':n<=30?'التأسيس':n<=60?'السوق':n<=90?'الإغلاق':'ما بعد الـ90';
+ return{n,ph,t:rhythm[now.getDay()]}}
+
+const thoughts=['كل ريال تسجّله اليوم هو ريال تتحكم فيه غدًا.','الثروة لا تُبنى في يوم، لكنها تُهدم في يوم إهمال.','أنت لا تحتاج دافعًا، تحتاج نظامًا. والنظام بين يديك الآن.','«أحب الأعمال إلى الله أدومها وإن قلّ». خطوة صغيرة كل يوم تكفي.','الدَّين قيد. كل قسط تسدده يفك حلقة من السلسلة.','لا تقارن بدايتك بنهاية غيرك. قارن نفسك بأمسك فقط.','الصلاة في وقتها أول انتصار في يومك. ابدأ به.','العميل الأول هو الأصعب. بعده يصبح الطريق أوضح.','كل «لا» تقولها لمصروف غير ضروري هي «نعم» لهدفك.','السنوات الخمس ستمر في كل الأحوال. اجعلها سنوات بناء.','الاستغفار يفتح الأبواب المغلقة. أكثِر منه وأنت تسعى.','الانضباط اليوم هو الحرية بعد خمس سنوات.','لا تنتظر أن تشعر بالرغبة. ابدأ، والرغبة تلحق بك.','دخلك من الوظيفة يكفي لتعيش. دخلك من مشروعك هو ما يغيّر حياتك.','ما لا يُقاس لا يُدار. سجّل، راقب، عدّل.','التعب المؤقت أخف من ندم دائم.','«ومن يتق الله يجعل له مخرجًا ويرزقه من حيث لا يحتسب». اتقِ واجتهد.','يوم واحد ضعيف لا يهدم خطة. لا تفوّت مرتين.','اكتب رسالة لعميل محتمل اليوم. أسوأ رد هو «لا»، وهو نفس ما عندك الآن.','الغني ليس من يكسب أكثر، بل من يحتفظ بأكثر ويستثمره أحسن.','مهارتك المالية أصل. أصحاب المعارض يحتاجونها. اعرضها.','لا تصرف ما لم تكسبه بعد.','صدقة اليوم ولو قليلة تبارك في مالك كله.','ساعة واحدة يوميًا على مشروعك = 365 ساعة في السنة. هذا مشروع كامل.','أنت أقرب لهدفك مما كنت أمس، إن عملت اليوم.','المتأخرات لا تختفي بالتجاهل. اتصال واحد صريح يخفف نصف الحمل.','خطتك واضحة. الذي ينقص فقط هو التنفيذ.','كل صلاة تحافظ عليها تدريب على الالتزام في كل شيء آخر.','من صبر ظفر. هذه سنوات الكفاح، وبعدها سنوات الحصاد.','راجع يومك قبل النوم: ماذا أنجزت؟ ماذا ستفعل غدًا أفضل؟','الحمد لله على ما رزق، والسعي لما هو خير. توكّل واعمل.'];
+function thought(){const n=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/864e5);return thoughts[n%thoughts.length]}
+
+function home(){
+ const inc=S.salary+sum(monthInc()),spent=sum(monthExp()),left=inc-spent;
+ const now=new Date(),dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),dl=dim-now.getDate()+1;
+ const p=(S.prayers[td()]||[]).filter(Boolean).length,ist=S.ist[td()]||0;
+ const hd=S.habits.filter(h=>(S.habitLog[td()]||{})[h.id]).length;
+ const gap=S.salary-totalB(),st=dayStep(),ps=prayStreak();
+ return `<div class="card" style="background:var(--navy);color:#fff;border:none"><span style="font-size:12px;opacity:.75">خاطرة اليوم</span><div style="font-size:17px;line-height:1.8;font-weight:500">${thought()}</div><span style="display:block;width:40px;height:3px;background:var(--orange);border-radius:2px"></span></div>
+ <div class="step"><span style="font-size:12px">خطوة اليوم · يوم ${Math.max(st.n,0)} من 90 · مرحلة ${st.ph}</span><b>${st.t}</b></div>
+ <div class="kpis">
+ <div class="kpi"><small>دخل الشهر</small><b>${fmt(inc)}</b></div>
+ <div class="kpi"><small>المصروف</small><b>${fmt(spent)}</b></div>
+ <div class="kpi"><small>المتبقي</small><b class="${left<0?'bad':'good'}">${fmt(left)}</b></div>
+ <div class="kpi"><small>مسموح يوميًا</small><b>${fmt(Math.max(0,left)/dl)}</b></div></div>
+ ${gap<0?`<div class="alert">الموازنة أكبر من الراتب بـ ${fmt(-gap)} ريال. هذا العجز لازم يُغلق.</div>`:`<div class="ok">الموازنة متوازنة، فائض ${fmt(gap)} ريال.</div>`}
+ <div class="card"><h2>باقي على صفر ديون</h2><div class="big bad">${fmt(debtTotal())} ريال</div><div class="bar"><i style="width:${Math.min(100,(1-debtTotal()/S.debtStart)*100)}%;background:var(--good)"></i></div><div class="muted">التاريخ المتوقع للتحرر بالوتيرة الحالية: ${freeDate()}</div></div>
+ <div class="card"><h2>يومي ${ps?`<span class="streak">🔥 ${ps} يوم صلوات كاملة</span>`:''}</h2>
+ <div class="row"><span>الصلوات</span><span class="num">${p} / 5</span></div><div class="bar"><i style="width:${p*20}%"></i></div>
+ <div class="row"><span>الاستغفار</span><span class="num">${fmt(ist)} / ${fmt(S.istGoal)}</span></div><div class="bar"><i style="width:${Math.min(100,ist/S.istGoal*100)}%"></i></div>
+ <div class="row"><span>العادات</span><span class="num">${hd} / ${S.habits.length}</span></div><div class="bar"><i style="width:${S.habits.length?hd/S.habits.length*100:0}%"></i></div></div>
+ <div class="card"><h2>تسجيل مصروف سريع</h2>${expForm()}</div>
+ <div class="card"><h2>تقرير الخميس</h2><div class="muted">أرقام آخر 7 أيام جاهزة لترسلها في المحاسبة الأسبوعية.</div><button data-act="rep">إنشاء التقرير</button><div id="repBox"></div></div>`;
+}
+function report(){const w=daysBack(7),inW=d=>w.includes(d);
+ const food=sum(S.expenses.filter(e=>inW(e.d)&&e.cat==='أكل وشرب')),all=sum(S.expenses.filter(e=>inW(e.d)));
+ const logged=w.filter(d=>S.expenses.some(e=>e.d===d)||(S.habitLog[d]||{})[1]).length;
+ const pr=w.reduce((a,d)=>a+(S.prayers[d]||[]).filter(Boolean).length,0),ist=w.reduce((a,d)=>a+(S.ist[d]||0),0);
+ const ct=S.contacts.filter(inW).length,proj=w.filter(d=>(S.habitLog[d]||{})[4]).length,inc=sum(S.income.filter(e=>inW(e.d)));
+ return `تقرير الأسبوع — ${w[0]} إلى ${w[6]}
+1. تسجيل المصاريف: ${logged} من 7 أيام
+2. الأكل: ${fmt(food)} ريال (الحد 450) ${food>450?'— تجاوز':'— ضمن الحد'}
+3. التواصل مع عملاء: ${ct} (الهدف 5)
+4. أيام عمل على المشروع: ${proj}
+5. إجمالي المصروف: ${fmt(all)} ريال
+6. دخل إضافي: ${fmt(inc)} ريال
+7. الصلوات: ${pr} من 35 · الاستغفار: ${fmt(ist)}
+8. باقي على صفر ديون: ${fmt(debtTotal())} ريال
+ما لم أنفّذه وسببه:
+الإجراء التصحيحي للأسبوع القادم: `}
+function expForm(){return `<div class="form"><input id="ea" type="number" inputmode="decimal" placeholder="المبلغ"><select id="ec">${S.budgets.map(b=>`<option>${b.n}</option>`).join('')}<option>أخرى</option></select><input id="en" class="full" placeholder="ملاحظة (اختياري)"><button class="full" data-act="addExp">تسجيل</button></div>`}
+function money(){
+ const tb=totalB(),cm=sum(monthExp()),pm=sum(monthExp(mon(-1))),diff=cm-pm;
+ return `<div class="card"><h2>الراتب الشهري</h2><div class="form"><input id="sal" type="number" value="${S.salary}"><button data-act="setSal">حفظ</button></div></div>
+ <div class="card"><h2>تقسيم الراتب</h2><div class="bar" style="height:12px;display:flex">${S.budgets.map((b,i)=>`<i style="width:${b.b/Math.max(tb,S.salary)*100}%;background:hsl(${210+i*35} 50% ${45+i*4}%);border-radius:0"></i>`).join('')}</div>
+ ${S.budgets.map((b,i)=>`<div class="row"><span><span style="color:hsl(${210+i*35} 50% ${45+i*4}%)">●</span> ${b.n}</span><span class="num">${fmt(b.b)} · ${Math.round(b.b/S.salary*100)}%</span></div>`).join('')}</div>
+ <div class="card"><h2>الموازنة مقابل الفعلي</h2>${S.budgets.map((b,i)=>{const s=spentBy(b.n),pc=b.b?s/b.b*100:0;return `<div><div class="row"><span>${b.n}</span><span class="num ${s>b.b?'bad':''}">${fmt(s)} / ${fmt(b.b)} <button class="x" data-act="delB" data-i="${i}" aria-label="حذف البند">✕</button></span></div><div class="bar"><i style="width:${Math.min(100,pc)}%;background:${s>b.b?'var(--bad)':'var(--good)'}"></i></div></div>`}).join('')}
+ <div class="form"><input id="bn" placeholder="بند جديد (استثمار، صدقة...)"><input id="bb" type="number" placeholder="المبلغ"><button class="full ghost" data-act="addB">إضافة بند</button></div></div>
+ <div class="card"><h2>تسجيل مصروف</h2>${expForm()}</div>
+ <div class="card"><h2>الدخل الإضافي <span class="num good">${fmt(sum(monthInc()))}</span></h2><div class="muted">أي دخل من الاستشارات أو المنصة، منفصل عن الراتب.</div>
+ <div class="form"><input id="ia" type="number" placeholder="المبلغ"><input id="is" placeholder="المصدر"><button class="full" data-act="addInc">تسجيل دخل</button></div>
+ ${monthInc().map(e=>`<div class="exp"><span>${e.s||'دخل'}<br><span class="muted">${e.d}</span></span><span class="num good">${fmt(e.a)} <button class="x" data-act="delI" data-id="${e.id}" aria-label="حذف">✕</button></span></div>`).join('')}</div>
+ <div class="card"><h2>الديون والالتزامات</h2><div class="muted">عدّل المتبقي الفعلي لكل التزام. كل سداد يُخصم مباشرة.</div>
+ ${S.debts.map((d,i)=>`<div><div class="row"><b>${d.n}</b><span class="num">${fmt(d.rem)} <button class="x" data-act="delD" data-i="${i}" aria-label="حذف">✕</button></span></div><div class="muted">القسط ${fmt(d.inst)} · ${d.late?`<span class="bad">متأخر ${fmt(d.late)}</span>`:'لا متأخرات'}</div>
+ <div class="form" style="margin-top:6px"><input id="dp${i}" type="number" placeholder="مبلغ السداد"><button class="ghost" data-act="pay" data-i="${i}">سداد</button></div></div>`).join('')}
+ <div class="form"><input id="dn" class="full" placeholder="التزام جديد"><input id="dr" type="number" placeholder="المتبقي"><input id="di" type="number" placeholder="القسط الشهري"><button class="full ghost" data-act="addD">إضافة التزام</button></div></div>
+ <div class="card"><h2>مقارنة شهرية</h2><div class="row"><span>هذا الشهر</span><span class="num">${fmt(cm)}</span></div><div class="row"><span>الشهر الماضي</span><span class="num">${fmt(pm)}</span></div>
+ <div class="${diff>0?'alert':'ok'}">${pm?`المصروف ${diff>0?'أعلى':'أقل'} بـ ${fmt(Math.abs(diff))} ريال من الشهر الماضي.`:'المقارنة تبدأ من الشهر القادم.'}</div></div>
+ <div class="card"><h2>مصاريف الشهر</h2><div class="list">${monthExp().slice().reverse().map(e=>`<div class="exp"><span>${e.cat}${e.n?' · '+e.n:''}<br><span class="muted">${e.d}</span></span><span class="num">${fmt(e.a)} <button class="x" data-act="delE" data-id="${e.id}" aria-label="حذف">✕</button></span></div>`).join('')||'<span class="muted">لا مصاريف بعد. سجّل أول مصروف من الأعلى.</span>'}</div></div>`;
+}
+const adhkar=['أستغفر الله وأتوب إليه','سبحان الله وبحمده، سبحان الله العظيم','لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير','حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم','اللهم إني أسألك علمًا نافعًا ورزقًا طيبًا وعملًا متقبلًا'];
+function faith(){
+ const p=S.prayers[td()]||[false,false,false,false,false],ist=S.ist[td()]||0,ps=prayStreak();
+ const wk=daysBack(7).map(d=>(S.prayers[d]||[]).filter(Boolean).length);
+ return `<div class="card"><h2>صلواتي اليوم <span class="num good">${p.filter(Boolean).length} / 5</span></h2>
+ <div class="prayers">${prayNames.map((n,i)=>`<button class="pr ${p[i]?'on':''}" data-act="pray" data-i="${i}">${p[i]?'✓':'○'}<br>${n}</button>`).join('')}</div>
+ <div class="row"><span class="muted">آخر 7 أيام: ${wk.reduce((a,b)=>a+b,0)} من 35</span>${ps?`<span class="streak">🔥 ${ps} يوم متتالي</span>`:''}</div></div>
+ <div class="card"><h2>الاستغفار <span class="muted">الهدف ${fmt(S.istGoal)}</span></h2>
+ <button class="tasbih" data-act="ist" aria-label="أستغفر الله">${fmt(ist)}</button>
+ <div class="bar"><i style="width:${Math.min(100,ist/S.istGoal*100)}%;background:var(--good)"></i></div>
+ <div class="form"><button class="ghost" data-act="ist10">+10</button><button class="ghost" data-act="ist100">+100</button><input id="ig" type="number" value="${S.istGoal}"><button class="ghost" data-act="setIg">تعديل الهدف</button></div></div>
+ <div class="card"><h2>أذكار</h2>${adhkar.map(a=>`<div style="line-height:1.9;border-bottom:1px solid var(--line);padding-bottom:6px">${a}</div>`).join('')}</div>`;
+}
+function habits(){
+ const log=S.habitLog[td()]||{},wd=daysBack(7);
+ return `<div class="card"><h2>عادات اليوم</h2>${S.habits.map(h=>{const s=habStreak(h.id);return `<div class="habit"><button class="chk ${log[h.id]?'on':''}" data-act="hab" data-id="${h.id}" aria-label="${h.n}">✓</button><span style="min-width:0">${h.n}${s>1?` <span class="streak">🔥${s}</span>`:''}</span><span class="week">${wd.map(d=>`<i class="${(S.habitLog[d]||{})[h.id]?'on':''}"></i>`).join('')}</span><button class="x" data-act="delH" data-id="${h.id}" aria-label="حذف العادة">✕</button></div>`}).join('')}
+ <div class="form"><input id="hn" class="full" placeholder="عادة جديدة"><button class="full" data-act="addH">إضافة عادة</button></div></div>`;
+}
+const stages=['جديد','تم التواصل','اجتماع','عرض سعر','عميل ✓'];
+function goals(){
+ const wc=S.contacts.filter(d=>daysBack(7).includes(d)).length;
+ return `<div class="card"><h2>العملاء المحتملون <span class="num ${wc>=5?'good':'bad'}">${wc} / 5 هذا الأسبوع</span></h2>
+ ${S.leads.map((l,i)=>`<div style="display:flex;flex-direction:column;gap:6px;border-bottom:1px solid var(--line);padding-bottom:8px"><div class="row"><b>${l.n}</b><button class="x" data-act="delL" data-i="${i}" aria-label="حذف">✕</button></div>
+ <div class="stages">${stages.map((s,k)=>`<span class="st ${k<=l.s?'on':''}">${s}</span>`).join('')}</div>
+ ${l.s<4?`<button class="ghost" data-act="adv" data-i="${i}">نقل إلى: ${stages[l.s+1]}</button>`:''}</div>`).join('')||'<span class="muted">أضف أول معرض سيارات تستهدفه.</span>'}
+ <div class="form"><input id="ln" class="full" placeholder="اسم المعرض أو صاحب القرار"><button class="full" data-act="addL">إضافة عميل محتمل</button></div></div>
+ <div class="card"><h2>أهدافي</h2>${S.goals.map((g,i)=>`<div><div class="row"><span>${g.n}</span><span class="num muted">${fmt(g.c)} / ${fmt(g.t)}</span></div><div class="bar"><i style="width:${Math.min(100,g.c/g.t*100)}%;background:var(--orange)"></i></div><div class="form" style="margin-top:6px"><input id="gc${i}" type="number" placeholder="أضف تقدّمًا"><button class="ghost" data-act="gAdd" data-i="${i}">إضافة</button></div></div>`).join('')}
+ <div class="form"><input id="gn" class="full" placeholder="هدف جديد"><input id="gt" type="number" placeholder="المستهدف"><button data-act="addG">إضافة</button></div></div>
+ <div class="card"><h2>خطة الخمس سنوات</h2>
+ <div class="row"><b>السنة 1</b><span class="muted">إيقاف النزيف وأول عميل</span></div>
+ <div class="row"><b>السنة 2</b><span class="muted">دخل إضافي 6,000+</span></div>
+ <div class="row"><b>السنة 3</b><span class="muted">صفر ديون وطوارئ 6 أشهر</span></div>
+ <div class="row"><b>السنة 4–5</b><span class="muted">ثروة 300,000+</span></div>
+ <div class="ok">كل زيادة في الدخل تذهب للديون حتى السنة 3.</div></div>
+ <button class="ghost" data-act="logout">تسجيل الخروج</button>`;
+}
+const views={home,money,faith,habits,goals};
+function render(){
+ document.getElementById('today').innerHTML=`<div class="hdr"><span>${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{weekday:'long',day:'numeric',month:'long'})}</span><span class="chip" id="sync"></span></div>`;
+ paintSync();
+ document.getElementById('app').innerHTML=views[tab]();
+ document.getElementById('nav').innerHTML=tabs.map(([k,l])=>`<button class="${k===tab?'act':''}" data-tab="${k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">${ic[k]}</svg>${l}</button>`).join('');
+}
+const v=id=>document.getElementById(id)?.value?.trim();
+const mark=(d,h)=>{S.habitLog[d]=S.habitLog[d]||{};S.habitLog[d][h]=true};
+document.addEventListener('click',async e=>{
+ const t=e.target.closest('[data-tab]');if(t){tab=t.dataset.tab;render();scrollTo(0,0);return}
+ const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,i=+b.dataset.i,id=+b.dataset.id,d=td();
+ if(a==='login'||a==='signup'){const em=v('le'),pw=document.getElementById('lp').value;if(!em||pw.length<6){loginView('اكتب البريد وكلمة مرور من 6 أحرف على الأقل.');return}
+  b.textContent='لحظة…';const r=a==='login'?await sb.auth.signInWithPassword({email:em,password:pw}):await sb.auth.signUp({email:em,password:pw});
+  if(r.error){loginView(a==='login'?'البريد أو كلمة المرور غير صحيحة، أو لم تؤكد بريدك بعد.':'تعذّر إنشاء الحساب: '+r.error.message);return}
+  if(a==='signup'&&!r.data.session){loginView('تم إنشاء الحساب. افتح بريدك واضغط رابط التأكيد، ثم ارجع هنا وسجّل الدخول.');return}
+  boot();return}
+ if(a==='logout'){await sb.auth.signOut();uid=null;loginView();return}
+ if(a==='rep'){const txt=report();document.getElementById('repBox').innerHTML=`<pre class="rep" id="repTxt"></pre><button class="ghost" data-act="copy">نسخ التقرير</button>`;document.getElementById('repTxt').textContent=txt;return}
+ if(a==='copy'){const txt=document.getElementById('repTxt').textContent;try{await navigator.clipboard.writeText(txt);b.textContent='تم النسخ'}catch(_){const r=document.createRange();r.selectNodeContents(document.getElementById('repTxt'));getSelection().removeAllRanges();getSelection().addRange(r);b.textContent='حدّد النص وانسخه'}return}
+ if(a==='addExp'){const n=+v('ea');if(!n)return;S.expenses.push({id:Date.now(),d,a:n,cat:v('ec'),n:v('en')});mark(d,1);
+  const debt=S.debts.find(x=>x.n.includes('التمويل')&&v('ec')==='قسط التمويل');if(debt){debt.rem=Math.max(0,debt.rem-n);debt.late=Math.max(0,debt.late-n)}}
+ if(a==='delE')S.expenses=S.expenses.filter(x=>x.id!==id);
+ if(a==='addInc'&&+v('ia'))S.income.push({id:Date.now(),d,a:+v('ia'),s:v('is')});
+ if(a==='delI')S.income=S.income.filter(x=>x.id!==id);
+ if(a==='setSal')S.salary=+v('sal')||S.salary;
+ if(a==='addB'&&v('bn')&&+v('bb'))S.budgets.push({n:v('bn'),b:+v('bb')});
+ if(a==='delB')S.budgets.splice(i,1);
+ if(a==='pay'){const n=+v('dp'+i);if(n){const x=S.debts[i];x.rem=Math.max(0,x.rem-n);x.late=Math.max(0,x.late-n)}}
+ if(a==='addD'&&v('dn')&&+v('dr')){S.debts.push({id:Date.now(),n:v('dn'),rem:+v('dr'),inst:+v('di')||0,late:0});S.debtStart+= +v('dr')}
+ if(a==='delD')S.debts.splice(i,1);
+ if(a==='pray'){S.prayers[d]=S.prayers[d]||[false,false,false,false,false];S.prayers[d][i]=!S.prayers[d][i]}
+ if(a==='ist')S.ist[d]=(S.ist[d]||0)+1;
+ if(a==='ist10')S.ist[d]=(S.ist[d]||0)+10;
+ if(a==='ist100')S.ist[d]=(S.ist[d]||0)+100;
+ if(a==='setIg')S.istGoal=+v('ig')||S.istGoal;
+ if(a==='hab'){S.habitLog[d]=S.habitLog[d]||{};S.habitLog[d][id]=!S.habitLog[d][id]}
+ if(a==='addH'&&v('hn'))S.habits.push({id:Date.now(),n:v('hn')});
+ if(a==='delH')S.habits=S.habits.filter(h=>h.id!==id);
+ if(a==='gAdd')S.goals[i].c+=+v('gc'+i)||0;
+ if(a==='addG'&&v('gn')&&+v('gt'))S.goals.push({n:v('gn'),t:+v('gt'),c:0});
+ if(a==='addL'&&v('ln'))S.leads.push({n:v('ln'),s:0});
+ if(a==='delL')S.leads.splice(i,1);
+ if(a==='adv'){const l=S.leads[i];l.s++;if(l.s===1){S.contacts.push(d);mark(d,5)}if(l.s===4){const g=S.goals.find(g=>g.n.includes('عميل'));if(g)g.c++}}
+ save();render();
+});
+boot();
+</script>
+</body></html>
