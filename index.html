@@ -52,8 +52,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .chk.on{background:var(--good);color:#fff}
 .week{display:flex;gap:3px;margin-inline-start:auto}.week i{width:8px;height:8px;border-radius:2px;background:var(--soft)}.week i.on{background:var(--good)}
 .x{background:none;color:var(--muted);padding:4px 8px}
-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);z-index:5}
-nav button{background:none;color:var(--muted);border-radius:0;padding:10px 2px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(6,minmax(0,1fr));padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);z-index:5}
+nav button{background:none;color:var(--muted);border-radius:0;padding:10px 0;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px}
 nav button svg{width:22px;height:22px}
 nav button.act{color:var(--navy)}
 :root[data-theme="dark"] nav button.act{color:var(--orange)}
@@ -124,8 +124,8 @@ async function boot(){sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSessi
  if(!session){loginView();return}
  if(lockOn()&&!unlocked){lockView();return}
  uid=session.user.id;document.getElementById('nav').hidden=false;await loadCloud();render()}
-const ic={home:'<path d="M3 11l9-8 9 8v10H3z"/>',money:'<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="3"/>',faith:'<path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z"/>',habits:'<path d="M4 12l5 5L20 6"/>',goals:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>'};
-const tabs=[['home','الرئيسية'],['money','المال'],['faith','عباداتي'],['habits','عاداتي'],['goals','أهدافي']];
+const ic={home:'<path d="M3 11l9-8 9 8v10H3z"/>',dash:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',money:'<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="3"/>',faith:'<path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z"/>',habits:'<path d="M4 12l5 5L20 6"/>',goals:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>'};
+const tabs=[['home','الرئيسية'],['dash','اللوحة'],['money','المال'],['faith','عباداتي'],['habits','عاداتي'],['goals','أهدافي']];
 const mon=(off=0)=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+off);return iso(d).slice(0,7)};
 const monthExp=(m=mon())=>S.expenses.filter(e=>e.d.startsWith(m));
 const monthInc=(m=mon())=>S.income.filter(e=>e.d.startsWith(m));
@@ -244,7 +244,34 @@ function goals(){
  <div class="ok">كل زيادة في الدخل تذهب للديون حتى السنة 3.</div></div>
  <div class="card"><h2>الحساب</h2><input id="np" type="password" placeholder="كلمة مرور جديدة (6 أحرف على الأقل)" autocomplete="new-password"><button class="ghost" data-act="chpw">تغيير كلمة المرور</button><div id="pwMsg" class="muted"></div><button class="ghost" data-act="face">${lockOn()?'إيقاف القفل ببصمة الوجه':'تفعيل القفل ببصمة الوجه'}</button><div id="fMsg" class="muted"></div><button class="ghost" data-act="logout">تسجيل الخروج</button></div>`;
 }
-const views={home,money,faith,habits,goals};
+
+function dash(){
+ const inc=S.salary+sum(monthInc()),spent=sum(monthExp()),left=inc-spent;
+ const d30=daysBack(30),byDay=d30.map(d=>sum(S.expenses.filter(e=>e.d===d)));
+ const mx=Math.max(1,...byDay),W=320,H=110,bw=W/30;
+ const cats=S.budgets.map(b=>({n:b.n,s:spentBy(b.n),b:b.b})).sort((a,b)=>b.s-a.s);
+ const d14=daysBack(14),pr=d14.map(d=>(S.prayers[d]||[]).filter(Boolean).length);
+ const hab=S.habits.map(h=>({n:h.n,r:d30.filter(d=>(S.habitLog[d]||{})[h.id]).length}));
+ const paid=S.debtStart-debtTotal(),dp=S.debtStart?paid/S.debtStart*100:0;
+ const prRate=Math.round(d30.reduce((a,d)=>a+(S.prayers[d]||[]).filter(Boolean).length,0)/150*100);
+ const ist30=d30.reduce((a,d)=>a+(S.ist[d]||0),0);
+ const wc=S.contacts.filter(d=>daysBack(7).includes(d)).length,clients=S.leads.filter(l=>l.s===4).length;
+ const tile=(l,v,c='')=>`<div class="kpi"><small>${l}</small><b class="${c}">${v}</b></div>`;
+ return `<div class="card"><h2>لوحة القيادة <span class="muted">${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{month:'long',year:'numeric'})}</span></h2>
+ <div class="kpis">${tile('دخل الشهر',fmt(inc))}${tile('المصروف',fmt(spent))}${tile('المتبقي',fmt(left),left<0?'bad':'good')}${tile('الدخل الإضافي',fmt(sum(monthInc())),'good')}
+ ${tile('باقي الديون',fmt(debtTotal()),'bad')}${tile('سُدّد من الديون',Math.round(dp)+'%')}${tile('مواظبة الصلاة 30 يوم',prRate+'%',prRate>=90?'good':'bad')}${tile('استغفار 30 يوم',fmt(ist30))}
+ ${tile('تواصلات الأسبوع',wc+' / 5',wc>=5?'good':'bad')}${tile('عملاء مكتسبون',clients)}</div></div>
+ <div class="card"><h2>المصروف اليومي — آخر 30 يومًا</h2>
+ <svg viewBox="0 0 ${W} ${H+18}" style="width:100%;height:auto">${[0,.5,1].map(t=>`<line x1="0" x2="${W}" y1="${H-t*H}" y2="${H-t*H}" stroke="var(--line)"/>`).join('')}
+ ${byDay.map((v,i)=>`<rect x="${i*bw+1}" y="${H-v/mx*H}" width="${bw-2}" height="${v/mx*H}" rx="1.5" fill="${i===29?'var(--orange)':'var(--navy)'}"/>`).join('')}
+ <text x="${W}" y="${H+14}" font-size="9" fill="var(--muted)" text-anchor="end">قبل 30 يوم</text><text x="0" y="${H+14}" font-size="9" fill="var(--muted)">اليوم</text></svg>
+ <div class="muted">أعلى يوم: ${fmt(mx===1&&!byDay.some(Boolean)?0:mx)} ريال · متوسط يومي: ${fmt(sum(S.expenses.filter(e=>d30.includes(e.d)))/30)} ريال</div></div>
+ <div class="card"><h2>المصروف حسب البند</h2>${cats.map(c=>`<div><div class="row"><span>${c.n}</span><span class="num ${c.s>c.b?'bad':''}">${fmt(c.s)} من ${fmt(c.b)}</span></div><div class="bar"><i style="width:${c.b?Math.min(100,c.s/c.b*100):0}%;background:${c.s>c.b?'var(--bad)':'var(--navy)'}"></i></div></div>`).join('')}</div>
+ <div class="card"><h2>الصلوات — آخر 14 يومًا</h2><div style="display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:3px;align-items:end;height:70px">${pr.map((n,i)=>`<div title="${d14[i]}" style="height:${Math.max(4,n*20)}%;background:${n===5?'var(--good)':n>=3?'var(--orange)':'var(--bad)'};border-radius:3px"></div>`).join('')}</div><div class="muted">أخضر = 5 صلوات · برتقالي = 3–4 · أحمر = أقل</div></div>
+ <div class="card"><h2>الالتزام بالعادات — آخر 30 يومًا</h2>${hab.map(h=>`<div><div class="row"><span>${h.n}</span><span class="num">${h.r} / 30</span></div><div class="bar"><i style="width:${h.r/30*100}%;background:var(--good)"></i></div></div>`).join('')}</div>
+ <div class="card"><h2>الأهداف</h2>${S.goals.map(g=>`<div><div class="row"><span>${g.n}</span><span class="num muted">${Math.round(Math.min(100,g.c/g.t*100))}%</span></div><div class="bar"><i style="width:${Math.min(100,g.c/g.t*100)}%;background:var(--orange)"></i></div></div>`).join('')}</div>`;
+}
+const views={home,dash,money,faith,habits,goals};
 function render(){
  document.getElementById('today').innerHTML=`<div class="hdr"><span>${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{weekday:'long',day:'numeric',month:'long'})}</span><span class="chip" id="sync"></span></div>`;
  paintSync();
