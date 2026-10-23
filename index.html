@@ -285,6 +285,27 @@ function goals(){
  <div class="card"><h2>الحساب</h2><input id="np" type="password" placeholder="كلمة مرور جديدة (6 أحرف على الأقل)" autocomplete="new-password"><button class="ghost" data-act="chpw">تغيير كلمة المرور</button><div id="pwMsg" class="muted"></div><button class="ghost" data-act="face">${lockOn()?'إيقاف القفل ببصمة الوجه':'تفعيل القفل ببصمة الوجه'}</button><div id="fMsg" class="muted"></div><button class="ghost" data-act="logout">تسجيل الخروج</button></div>`;
 }
 
+
+function monthDays(m){const[y,mo]=m.split('-').map(Number),dim=new Date(y,mo,0).getDate();const cur=m===mon()?new Date().getDate():dim;const r=[];for(let d=1;d<=cur;d++)r.push(m+'-'+String(d).padStart(2,'0'));return r}
+function mStats(m){const ds=monthDays(m),n=ds.length||1,ex=monthExp(m);
+ return{m,n,spend:sum(ex),spendD:sum(ex)/n,food:sum(ex.filter(e=>e.cat==='أكل وشرب'))/n,inc:sum(monthInc(m)),
+ debt:sum(ex.filter(e=>e.cat==='سداد ديون'||e.cat==='قسط التمويل')),
+ pray:Math.round(ds.reduce((a,d)=>a+(S.prayers[d]||[]).filter(Boolean).length,0)/(n*5)*100),
+ hab:S.habits.length?Math.round(ds.reduce((a,d)=>a+S.habits.filter(h=>(S.habitLog[d]||{})[h.id]).length,0)/(n*S.habits.length)*100):0,
+ ist:Math.round(ds.reduce((a,d)=>a+(S.ist[d]||0),0)/n),q:ds.reduce((a,d)=>a+((S.qLog||{})[d]||0),0),
+ ct:S.contacts.filter(d=>d.startsWith(m)).length}}
+const mName=m=>new Date(m+'-15').toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{month:'long'});
+function compareCard(){const c=mStats(mon()),p=mStats(mon(-1)),has=sum(monthExp(mon(-1)))||Object.keys(S.prayers).some(d=>d.startsWith(mon(-1)));
+ const rows=[['متوسط المصروف اليومي',c.spendD,p.spendD,'down',' ر'],['متوسط الأكل اليومي',c.food,p.food,'down',' ر'],['الدخل الإضافي',c.inc,p.inc,'up',' ر'],['سداد الديون',c.debt,p.debt,'up',' ر'],['مواظبة الصلاة',c.pray,p.pray,'up','%'],['الالتزام بالعادات',c.hab,p.hab,'up','%'],['استغفار يومي',c.ist,p.ist,'up',''],['صفحات القرآن',c.q,p.q,'up',''],['تواصل مع عملاء',c.ct,p.ct,'up','']];
+ let better=0,worse=0;
+ const html=rows.map(([l,a,b,dir,u])=>{const diff=a-b,good=dir==='up'?diff>0:diff<0,bad=dir==='up'?diff<0:diff>0;if(has){if(good)better++;if(bad)worse++}
+  return `<div class="row" style="align-items:center"><span style="min-width:0">${l}</span><span class="num">${fmt(b)}${u} ← <b>${fmt(a)}${u}</b> ${has&&diff?`<span class="${good?'good':'bad'}">${good?'▲':'▼'}</span>`:''}</span></div>`}).join('');
+ const verdict=!has?'<div class="muted">المقارنة تبدأ الشهر القادم، بعد أن يكتمل شهر من البيانات.</div>':`<div class="${better>=worse?'ok':'alert'}">${better>=worse?`تحسّنت في ${better} من ${rows.length} مؤشرات مقارنة بشهر ${mName(mon(-1))}.`:`تراجعت في ${worse} من ${rows.length} مؤشرات مقارنة بشهر ${mName(mon(-1))}. راجع الأحمر.`}</div>`;
+ const hist=[-5,-4,-3,-2,-1,0].map(o=>mStats(mon(o))),mx=Math.max(1,...hist.map(h=>h.spend));
+ return `<div class="card"><h2>مقارنة شهرية <span class="muted">${mName(mon(-1))} ← ${mName(mon())}</span></h2>
+ <div class="muted">${mName(mon())} حتى اليوم (${c.n} يوم)؛ المقارنة بالمتوسطات اليومية لتكون عادلة.</div>${html}${verdict}
+ <div class="muted" style="margin-top:6px">المصروف آخر 6 أشهر</div>
+ <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;align-items:end;height:90px">${hist.map((h,k)=>`<div style="display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:3px;text-align:center"><div style="height:${Math.max(3,h.spend/mx*70)}px;background:${k===5?'var(--orange)':'var(--navy)'};border-radius:4px"></div><span style="font-size:10px;color:var(--muted)">${mName(h.m)}</span></div>`).join('')}</div></div>`}
 function dash(){
  const inc=S.salary+sum(monthInc()),spent=sum(monthExp()),left=inc-spent;
  const d30=daysBack(30),byDay=d30.map(d=>sum(S.expenses.filter(e=>e.d===d)));
@@ -301,6 +322,7 @@ function dash(){
  <div class="kpis">${tile('دخل الشهر',fmt(inc))}${tile('المصروف',fmt(spent))}${tile('المتبقي',fmt(left),left<0?'bad':'good')}${tile('الدخل الإضافي',fmt(sum(monthInc())),'good')}
  ${tile('باقي الديون',fmt(debtTotal()),'bad')}${tile('سُدّد من الديون',Math.round(dp)+'%')}${tile('مواظبة الصلاة 30 يوم',prRate+'%',prRate>=90?'good':'bad')}${tile('استغفار 30 يوم',fmt(ist30))}
  ${tile('تواصلات الأسبوع',wc+' / 5',wc>=5?'good':'bad')}${tile('عملاء مكتسبون',clients)}</div></div>
+ ${compareCard()}
  <div class="card"><h2>المصروف اليومي — آخر 30 يومًا</h2>
  <svg viewBox="0 0 ${W} ${H+18}" style="width:100%;height:auto">${[0,.5,1].map(t=>`<line x1="0" x2="${W}" y1="${H-t*H}" y2="${H-t*H}" stroke="var(--line)"/>`).join('')}
  ${byDay.map((v,i)=>`<rect x="${i*bw+1}" y="${H-v/mx*H}" width="${bw-2}" height="${v/mx*H}" rx="1.5" fill="${i===29?'var(--orange)':'var(--navy)'}"/>`).join('')}
@@ -429,7 +451,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,select,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,select,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v13';
+const APPV='v14';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 boot();
