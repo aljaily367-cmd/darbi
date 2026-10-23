@@ -230,7 +230,7 @@ function goals(){
  <div class="row"><b>السنة 3</b><span class="muted">صفر ديون وطوارئ 6 أشهر</span></div>
  <div class="row"><b>السنة 4–5</b><span class="muted">ثروة 300,000+</span></div>
  <div class="ok">كل زيادة في الدخل تذهب للديون حتى السنة 3.</div></div>
- <button class="ghost" data-act="logout">تسجيل الخروج</button>`;
+ <div class="card"><h2>الحساب</h2><input id="np" type="password" placeholder="كلمة مرور جديدة (6 أحرف على الأقل)" autocomplete="new-password"><button class="ghost" data-act="chpw">تغيير كلمة المرور</button><div id="pwMsg" class="muted"></div><button class="ghost" data-act="logout">تسجيل الخروج</button></div>`;
 }
 const views={home,money,faith,habits,goals};
 function render(){
@@ -249,6 +249,7 @@ document.addEventListener('click',async e=>{
   if(r.error){loginView(a==='login'?'البريد أو كلمة المرور غير صحيحة، أو لم تؤكد بريدك بعد.':'تعذّر إنشاء الحساب: '+r.error.message);return}
   if(a==='signup'&&!r.data.session){loginView('تم إنشاء الحساب. افتح بريدك واضغط رابط التأكيد، ثم ارجع هنا وسجّل الدخول.');return}
   boot();return}
+ if(a==='chpw'){const pw=document.getElementById('np').value,m=document.getElementById('pwMsg');if(pw.length<6){m.textContent='كلمة المرور 6 أحرف على الأقل.';return}const r=await sb.auth.updateUser({password:pw});m.textContent=r.error?'تعذّر التغيير، حاول مرة أخرى.':'تم تغيير كلمة المرور ✓';if(!r.error)document.getElementById('np').value='';return}
  if(a==='logout'){await sb.auth.signOut();uid=null;loginView();return}
  if(a==='rep'){const txt=report();document.getElementById('repBox').innerHTML=`<pre class="rep" id="repTxt"></pre><button class="ghost" data-act="copy">نسخ التقرير</button>`;document.getElementById('repTxt').textContent=txt;return}
  if(a==='copy'){const txt=document.getElementById('repTxt').textContent;try{await navigator.clipboard.writeText(txt);b.textContent='تم النسخ'}catch(_){const r=document.createRange();r.selectNodeContents(document.getElementById('repTxt'));getSelection().removeAllRanges();getSelection().addRange(r);b.textContent='حدّد النص وانسخه'}return}
