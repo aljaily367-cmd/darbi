@@ -215,7 +215,7 @@ function report(){const w=daysBack(7),inW=d=>w.includes(d);
 8. باقي على صفر ديون: ${fmt(debtTotal())} ريال
 ما لم أنفّذه وسببه:
 الإجراء التصحيحي للأسبوع القادم: `}
-function expForm(){return `<div class="form"><input id="ea" type="number" inputmode="decimal" placeholder="المبلغ"><select id="ec">${S.budgets.map(b=>`<option>${b.n}</option>`).join('')}<option>أخرى</option></select><input id="en" class="full" placeholder="ملاحظة (اختياري)"><button class="full" data-act="addExp">تسجيل</button></div>`}
+function expForm(){const custom=[...new Set(S.expenses.map(e=>e.cat).filter(c=>!S.budgets.some(b=>b.n===c)))];return `<div class="form"><input id="ea" type="number" inputmode="decimal" placeholder="المبلغ"><select id="ec" onchange="document.getElementById('ecx').hidden=this.value!=='__w'">${S.budgets.map(b=>`<option>${b.n}</option>`).join('')}${custom.map(c=>`<option>${c}</option>`).join('')}<option value="__w">✍️ اكتب نوع المصروف</option></select><input id="ecx" class="full" placeholder="نوع المصروف (مثال: ملابس، هدية، علاج)" hidden><input id="en" class="full" placeholder="ملاحظة (اختياري)"><button class="full" data-act="addExp">تسجيل</button></div>`}
 function money(){
  const tb=totalB(),cm=sum(monthExp()),pm=sum(monthExp(mon(-1))),diff=cm-pm;
  return `<div class="card"><h2>الراتب الشهري</h2><div class="form"><input id="sal" type="number" value="${S.salary}"><button data-act="setSal">حفظ</button></div></div>
@@ -223,6 +223,7 @@ function money(){
  ${S.budgets.map((b,i)=>`<div class="row"><span><span style="color:hsl(${210+i*35} 50% ${45+i*4}%)">●</span> ${b.n}</span><span class="num">${fmt(b.b)} · ${Math.round(b.b/S.salary*100)}%</span></div>`).join('')}</div>
  <div class="card"><h2>الموازنة مقابل الفعلي</h2>${S.budgets.map((b,i)=>{const s=spentBy(b.n),pc=b.b?s/b.b*100:0;return `<div><div class="row"><span>${b.n}</span><span class="num ${s>b.b?'bad':''}">${fmt(s)} / ${fmt(b.b)} <button class="x" data-act="delB" data-i="${i}" aria-label="حذف البند">✕</button></span></div><div class="bar"><i style="width:${Math.min(100,pc)}%;background:${s>b.b?'var(--bad)':'var(--good)'}"></i></div></div>`}).join('')}
  <div class="form"><input id="bn" placeholder="بند جديد (استثمار، صدقة...)"><input id="bb" type="number" placeholder="المبلغ"><button class="full ghost" data-act="addB">إضافة بند</button></div></div>
+ ${(()=>{const o={};monthExp().filter(e=>!S.budgets.some(b=>b.n===e.cat)).forEach(e=>o[e.cat]=(o[e.cat]||0)+e.a);const k=Object.keys(o);return k.length?`<div class="card"><h2>مصاريف خارج الموازنة <span class="num bad">${fmt(Object.values(o).reduce((a,b)=>a+b,0))}</span></h2>${k.map(c=>`<div class="row"><span>${c}</span><span class="num">${fmt(o[c])}</span></div>`).join('')}<div class="muted">إذا تكرر نوع منها، أضفه بندًا في الموازنة.</div></div>`:''})()}
  <div class="card"><h2>تسجيل مصروف</h2>${expForm()}</div>
  <div class="card"><h2>الدخل الإضافي <span class="num good">${fmt(sum(monthInc()))}</span></h2><div class="muted">أي دخل من الاستشارات أو المنصة، منفصل عن الراتب.</div>
  <div class="form"><input id="ia" type="number" placeholder="المبلغ"><input id="is" placeholder="المصدر"><button class="full" data-act="addInc">تسجيل دخل</button></div>
@@ -381,7 +382,7 @@ document.addEventListener('click',async e=>{
  if(a==='logout'){await sb.auth.signOut();uid=null;loginView();return}
  if(a==='rep'){const txt=report();document.getElementById('repBox').innerHTML=`<pre class="rep" id="repTxt"></pre><button class="ghost" data-act="copy">نسخ التقرير</button>`;document.getElementById('repTxt').textContent=txt;return}
  if(a==='copy'){const txt=document.getElementById('repTxt').textContent;try{await navigator.clipboard.writeText(txt);b.textContent='تم النسخ'}catch(_){const r=document.createRange();r.selectNodeContents(document.getElementById('repTxt'));getSelection().removeAllRanges();getSelection().addRange(r);b.textContent='حدّد النص وانسخه'}return}
- if(a==='addExp'){const n=+v('ea');if(!n)return;S.expenses.push({id:Date.now(),d,a:n,cat:v('ec'),n:v('en')});mark(d,1);
+ if(a==='addExp'){const n=+v('ea');if(!n)return;let cat=v('ec');if(cat==='__w'){cat=v('ecx');if(!cat)return}S.expenses.push({id:Date.now(),d,a:n,cat,n:v('en')});mark(d,1);
   const debt=S.debts.find(x=>x.n.includes('التمويل')&&v('ec')==='قسط التمويل');if(debt){debt.rem=Math.max(0,debt.rem-n);debt.late=Math.max(0,debt.late-n)}}
  if(a==='delE')S.expenses=S.expenses.filter(x=>x.id!==id);
  if(a==='addInc'&&+v('ia'))S.income.push({id:Date.now(),d,a:+v('ia'),s:v('is')});
@@ -409,7 +410,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,select,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,select,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v10';
+const APPV='v11';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 boot();
