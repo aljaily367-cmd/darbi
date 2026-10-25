@@ -140,7 +140,7 @@ const seed={
 };
 let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S)S=structuredClone(seed);
-for(const k in seed)if(S[k]===undefined)S[k]=structuredClone(seed[k]);
+for(const k in seed)if(S[k]===undefined)S[k]=structuredClone(seed[k]);if(!S.finStart)S.finStart='2026-11-01';
 let tab='home',sb=null,uid=null,sync='local',saveT=null;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
  if(sb&&uid){clearTimeout(saveT);sync='saving';paintSync();saveT=setTimeout(async()=>{const {error}=await sb.from('darbi_data').upsert({user_id:uid,state:S,updated_at:new Date().toISOString()});sync=error?'err':'ok';paintSync()},700)}}
@@ -148,7 +148,7 @@ function paintSync(){const el=document.getElementById('sync');if(!el)return;el.t
 const SB_URL='https://gzhfzgmphuftwlfmrxdh.supabase.co',SB_KEY='sb_publishable_oOVJuAl5bhqsPo1Ynek7KA_t5iM1lvJ';
 async function loadCloud(){const {data,error}=await sb.from('darbi_data').select('state').eq('user_id',uid).maybeSingle();
  if(error){sync='err';return}
- if(data&&data.state&&Object.keys(data.state).length){const c=data.state;for(const k in seed)if(c[k]===undefined)c[k]=structuredClone(seed[k]);S=c;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}sync='ok'}
+ if(data&&data.state&&Object.keys(data.state).length){const c=data.state;for(const k in seed)if(c[k]===undefined)c[k]=structuredClone(seed[k]);if(!c.finStart)c.finStart='2026-11-01';S=c;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}sync='ok'}
  else save()}
 function loginView(msg=''){document.getElementById('nav').hidden=true;document.getElementById('app').innerHTML=`<div class="card"><h2>تسجيل الدخول</h2><div class="muted">بياناتك محمية بحسابك ولا يراها أحد غيرك.</div>
  <input id="le" type="email" placeholder="البريد الإلكتروني" autocomplete="email"><input id="lp" type="password" placeholder="كلمة المرور (6 أحرف على الأقل)" autocomplete="current-password">
@@ -171,8 +171,8 @@ async function boot(){sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSessi
 const ic={home:'<path d="M3 11l9-8 9 8v10H3z"/>',dash:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',money:'<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="3"/>',faith:'<path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z"/>',habits:'<path d="M4 12l5 5L20 6"/>',goals:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>'};
 const tabs=[['home','الرئيسية'],['dash','اللوحة'],['money','المال'],['faith','عباداتي'],['habits','عاداتي'],['goals','أهدافي']];
 const mon=(off=0)=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+off);return iso(d).slice(0,7)};
-const monthExp=(m=mon())=>S.expenses.filter(e=>e.d.startsWith(m));
-const monthInc=(m=mon())=>S.income.filter(e=>e.d.startsWith(m));
+const monthExp=(m=mon())=>FE().filter(e=>e.d.startsWith(m));
+const monthInc=(m=mon())=>FI().filter(e=>e.d.startsWith(m));
 const sum=a=>a.reduce((x,e)=>x+e.a,0);
 const spentBy=n=>sum(monthExp().filter(e=>e.cat===n));
 const totalB=()=>S.budgets.reduce((a,b)=>a+b.b,0);
@@ -201,6 +201,7 @@ function home(){
  const hd=S.habits.filter(h=>(S.habitLog[td()]||{})[h.id]).length;
  const gap=S.salary-totalB(),st=dayStep(),ps=prayStreak();
  return `<div class="card score">${ring(dayScore())}<div style="min-width:0"><b style="font-size:16px">نقاط اليوم</b><div class="muted">صلوات 40 · عادات 30 · موازنة 20 · استغفار 10</div><div style="font-size:13px;margin-top:6px;color:var(--fg)">💡 ${thought()}</div></div></div>
+ ${preStart()?startCard():''}<div class="list" ${preStart()?'hidden':''} style="gap:14px">
  <div class="card" style="gap:6px"><span class="muted">المتاح لك فعلًا للصرف</span><div class="big ${avail<0?'bad':'good'}">${fmt(avail)} ريال</div>
  <div class="row"><span class="muted">مسموح يوميًا حتى آخر الشهر</span><b class="num ${avail<0?'bad':''}">${fmt(Math.max(0,avail)/dl)}</b></div>
  ${avail<0?`<div class="alert">ما معك لا يغطي مستحقات الشهر. أوقف أي صرف غير ضروري.</div>`:''}</div>
@@ -209,12 +210,13 @@ function home(){
  <div class="kpi"><small>مستحقات لم تُدفع</small><b class="${u?'bad':'good'}">${fmt(u)}</b></div>
  <div class="kpi"><small>دخل الشهر</small><b>${fmt(inc)}</b></div>
  <div class="kpi"><small>المصروف</small><b>${fmt(spent)}</b></div></div>
+ </div>
  <div class="card"><h2>مصروف بضغطة</h2><div class="quick">${S.quick.map((q,i)=>`<button data-act="qx" data-i="${i}">${q.n}<br><span class="num">${q.a}</span></button>`).join('')}</div>
  <details><summary class="muted" style="cursor:pointer">تعديل الأزرار</summary><div class="list" style="margin-top:8px">${S.quick.map((q,i)=>`<div class="form"><input id="qn${i}" value="${q.n}"><input id="qa${i}" type="number" value="${q.a}"></div>`).join('')}<button class="ghost" data-act="qSave">حفظ الأزرار</button></div></details>
  <div class="muted">أو سجّل مبلغًا مختلفًا:</div>${expForm()}</div>
  <div class="step"><span style="font-size:12px">خطوة اليوم · يوم ${Math.max(st.n,0)} من 90 · مرحلة ${st.ph}</span><b>${st.t}</b></div>
  ${salaryCard()}
- ${fixedCard()}
+ ${preStart()?'':fixedCard()}
  ${gap<0?`<div class="alert">الموازنة أكبر من الراتب بـ ${fmt(-gap)} ريال. هذا العجز لازم يُغلق.</div>`:''}
  <div class="card"><h2>باقي على صفر ديون</h2><div class="big bad">${fmt(debtTotal())} ريال</div><div class="bar"><i style="width:${Math.min(100,(1-debtTotal()/S.debtStart)*100)}%;background:var(--good)"></i></div><div class="muted">التاريخ المتوقع للتحرر بالوتيرة الحالية: ${freeDate()}</div></div>
  <div class="card"><h2>يومي ${ps?`<span class="streak">🔥 ${ps} يوم صلوات كاملة</span>`:''}</h2>
@@ -224,10 +226,10 @@ function home(){
  <div class="card"><h2>تقرير الخميس</h2><div class="muted">أرقام آخر 7 أيام جاهزة لترسلها في المحاسبة الأسبوعية.</div><button data-act="rep">إنشاء التقرير</button><div id="repBox"></div></div>`;
 }
 function report(){const w=daysBack(7),inW=d=>w.includes(d);
- const food=sum(S.expenses.filter(e=>inW(e.d)&&e.cat==='أكل وشرب')),all=sum(S.expenses.filter(e=>inW(e.d)));
- const logged=w.filter(d=>S.expenses.some(e=>e.d===d)||(S.habitLog[d]||{})[1]).length;
+ const food=sum(FE().filter(e=>inW(e.d)&&e.cat==='أكل وشرب')),all=sum(FE().filter(e=>inW(e.d)));
+ const logged=w.filter(d=>FE().some(e=>e.d===d)||(S.habitLog[d]||{})[1]).length;
  const pr=w.reduce((a,d)=>a+(S.prayers[d]||[]).filter(Boolean).length,0),ist=w.reduce((a,d)=>a+(S.ist[d]||0),0);
- const ct=S.contacts.filter(inW).length,proj=w.filter(d=>(S.habitLog[d]||{})[4]).length,inc=sum(S.income.filter(e=>inW(e.d)));
+ const ct=S.contacts.filter(inW).length,proj=w.filter(d=>(S.habitLog[d]||{})[4]).length,inc=sum(FI().filter(e=>inW(e.d)));
  return `تقرير الأسبوع — ${w[0]} إلى ${w[6]}
 1. تسجيل المصاريف: ${logged} من 7 أيام
 2. الأكل: ${fmt(food)} ريال (الحد 450) ${food>450?'— تجاوز':'— ضمن الحد'}
@@ -239,10 +241,10 @@ function report(){const w=daysBack(7),inW=d=>w.includes(d);
 8. باقي على صفر ديون: ${fmt(debtTotal())} ريال
 ما لم أنفّذه وسببه:
 الإجراء التصحيحي للأسبوع القادم: `}
-function expForm(){const custom=[...new Set(S.expenses.map(e=>e.cat).filter(c=>!S.budgets.some(b=>b.n===c)))];return `<div class="form"><input id="ea" type="number" inputmode="decimal" placeholder="المبلغ"><select id="ec" onchange="document.getElementById('ecx').hidden=this.value!=='__w'">${S.budgets.map(b=>`<option>${b.n}</option>`).join('')}${custom.map(c=>`<option>${c}</option>`).join('')}<option value="__w">✍️ اكتب نوع المصروف</option></select><input id="ecx" class="full" placeholder="نوع المصروف (مثال: ملابس، هدية، علاج)" hidden><input id="en" class="full" placeholder="ملاحظة (اختياري)"><button class="full" data-act="addExp">تسجيل</button></div>`}
+function expForm(){const custom=[...new Set(FE().map(e=>e.cat).filter(c=>!S.budgets.some(b=>b.n===c)))];return `<div class="form"><input id="ea" type="number" inputmode="decimal" placeholder="المبلغ"><select id="ec" onchange="document.getElementById('ecx').hidden=this.value!=='__w'">${S.budgets.map(b=>`<option>${b.n}</option>`).join('')}${custom.map(c=>`<option>${c}</option>`).join('')}<option value="__w">✍️ اكتب نوع المصروف</option></select><input id="ecx" class="full" placeholder="نوع المصروف (مثال: ملابس، هدية، علاج)" hidden><input id="en" class="full" placeholder="ملاحظة (اختياري)"><button class="full" data-act="addExp">تسجيل</button></div>`}
 
 function shopCard(){S.shop=S.shop||[];S.shopOn=S.shopOn||{};S.trips=S.trips||[];
- const on=S.shop.filter((x,i)=>S.shopOn[i]),tot=on.reduce((a,x)=>a+(+x.p||0),0),tm=S.trips.filter(t=>t.d.startsWith(mon()));
+ const on=S.shop.filter((x,i)=>S.shopOn[i]),tot=on.reduce((a,x)=>a+(+x.p||0),0),tm=(S.trips||[]).filter(t=>t.d>=FS()).filter(t=>t.d.startsWith(mon()));
  let op=false;try{op=localStorage.getItem('darbi-shop')==='1'}catch(e){}
  return `<details class="card shopd" ${op?'open':''} ontoggle="try{localStorage.setItem('darbi-shop',this.open?'1':'0')}catch(e){}"><summary><h2 style="margin:0">🛒 قائمة المشتريات <span class="muted" style="font-weight:400">${on.length?`${on.length} مختار · `:''}مشاوير الشهر: ${tm.length}</span></h2></summary>
  <div class="muted">في المول: أشّر ✓ على ما اشتريته، واكتب سعره، ثم اضغط «إنهاء المشوار».</div>
@@ -310,7 +312,7 @@ function goals(){
  <div class="row"><b>السنة 3</b><span class="muted">صفر ديون وطوارئ 6 أشهر</span></div>
  <div class="row"><b>السنة 4–5</b><span class="muted">ثروة 300,000+</span></div>
  <div class="ok">كل زيادة في الدخل تذهب للديون حتى السنة 3.</div></div>
- <div class="card"><h2>الحساب</h2><input id="np" type="password" placeholder="كلمة مرور جديدة (6 أحرف على الأقل)" autocomplete="new-password"><button class="ghost" data-act="chpw">تغيير كلمة المرور</button><div id="pwMsg" class="muted"></div><button class="ghost" data-act="face">${lockOn()?'إيقاف القفل ببصمة الوجه':'تفعيل القفل ببصمة الوجه'}</button><div id="fMsg" class="muted"></div><button class="ghost" data-act="logout">تسجيل الخروج</button></div>`;
+ <div class="card"><h2>الحساب</h2><input id="np" type="password" placeholder="كلمة مرور جديدة (6 أحرف على الأقل)" autocomplete="new-password"><button class="ghost" data-act="chpw">تغيير كلمة المرور</button><div id="pwMsg" class="muted"></div><div class="form"><input id="fsd" type="date" value="${S.finStart||''}"><button class="ghost" data-act="setFS">تاريخ بداية المتابعة المالية</button></div><button class="ghost" data-act="face">${lockOn()?'إيقاف القفل ببصمة الوجه':'تفعيل القفل ببصمة الوجه'}</button><div id="fMsg" class="muted"></div><button class="ghost" data-act="logout">تسجيل الخروج</button></div>`;
 }
 
 
@@ -342,7 +344,7 @@ function compareCard(){const c=mStats(mon()),p=mStats(mon(-1)),has=sum(monthExp(
  <div class="muted">العمود المنقّط = لا بيانات مسجّلة.</div></div>`}
 function dash(){
  const inc=S.salary+sum(monthInc()),spent=sum(monthExp()),left=inc-spent;
- const d30=daysBack(30),byDay=d30.map(d=>sum(S.expenses.filter(e=>e.d===d)));
+ const d30=daysBack(30),byDay=d30.map(d=>sum(FE().filter(e=>e.d===d)));
  const mx=Math.max(1,...byDay),W=320,H=110,bw=W/30;
  const cats=S.budgets.map(b=>({n:b.n,s:spentBy(b.n),b:b.b})).sort((a,b)=>b.s-a.s);
  const d14=daysBack(14),pr=d14.map(d=>(S.prayers[d]||[]).filter(Boolean).length);
@@ -361,7 +363,7 @@ function dash(){
  <svg viewBox="0 0 ${W} ${H+18}" style="width:100%;height:auto">${[0,.5,1].map(t=>`<line x1="0" x2="${W}" y1="${H-t*H}" y2="${H-t*H}" stroke="var(--line)"/>`).join('')}
  ${byDay.map((v,i)=>`<rect x="${i*bw+1}" y="${H-v/mx*H}" width="${bw-2}" height="${v/mx*H}" rx="1.5" fill="${i===29?'var(--orange)':'var(--navy)'}"/>`).join('')}
  <text x="${W}" y="${H+14}" font-size="9" fill="var(--muted)" text-anchor="end">قبل 30 يوم</text><text x="0" y="${H+14}" font-size="9" fill="var(--muted)">اليوم</text></svg>
- <div class="muted">أعلى يوم: ${fmt(mx===1&&!byDay.some(Boolean)?0:mx)} ريال · متوسط يومي: ${fmt(sum(S.expenses.filter(e=>d30.includes(e.d)))/30)} ريال</div></div>
+ <div class="muted">أعلى يوم: ${fmt(mx===1&&!byDay.some(Boolean)?0:mx)} ريال · متوسط يومي: ${fmt(sum(FE().filter(e=>d30.includes(e.d)))/30)} ريال</div></div>
  <div class="card"><h2>المصروف حسب البند</h2>${cats.map(c=>`<div><div class="row"><span>${c.n}</span><span class="num ${c.s>c.b?'bad':''}">${fmt(c.s)} من ${fmt(c.b)}</span></div><div class="bar"><i style="width:${c.b?Math.min(100,c.s/c.b*100):0}%;background:${c.s>c.b?'var(--bad)':'var(--navy)'}"></i></div></div>`).join('')}</div>
  <div class="card"><h2>الصلوات — آخر 14 يومًا</h2><div style="display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:3px;align-items:end;height:70px">${pr.map((n,i)=>`<div title="${d14[i]}" style="height:${Math.max(4,n*20)}%;background:${n===5?'var(--good)':n>=3?'var(--orange)':'var(--bad)'};border-radius:3px"></div>`).join('')}</div><div class="muted">أخضر = 5 صلوات · برتقالي = 3–4 · أحمر = أقل</div></div>
  <div class="card"><h2>الالتزام بالعادات — آخر 30 يومًا</h2>${hab.map(h=>`<div><div class="row"><span>${h.n}</span><span class="num">${h.r} / 30</span></div><div class="bar"><i style="width:${h.r/30*100}%;background:var(--good)"></i></div></div>`).join('')}</div>
@@ -384,10 +386,13 @@ function ptCard(){if(!PT)return `<div class="muted">جارٍ تحميل أوقا
  return `<div class="ptimes">${prayNames.map((n,i)=>`<div class="${i===nx?'nx':''}">${n}<br><b class="num">${PT[i]}</b></div>`).join('')}</div><div class="muted">الصلاة القادمة: ${prayNames[nx]} بعد ${untilNext(nx)}</div>`}
 function dayScore(){const d=td(),p=(S.prayers[d]||[]).filter(Boolean).length*8;
  const h=S.habits.length?S.habits.filter(x=>(S.habitLog[d]||{})[x.id]).length/S.habits.length*30:0;
- const food=sum(S.expenses.filter(e=>e.d===d&&e.cat==='أكل وشرب')),over=S.budgets.some(b=>spentBy(b.n)>b.b);
+ const food=sum(FE().filter(e=>e.d===d&&e.cat==='أكل وشرب')),over=S.budgets.some(b=>spentBy(b.n)>b.b);
  const bud=(food<=64?12:0)+(over?0:8),ist=Math.min(1,(S.ist[d]||0)/S.istGoal)*10;return Math.round(p+h+bud+ist)}
 function ring(v){const c=2*Math.PI*30,col=v>=80?'var(--good)':v>=50?'var(--orange)':'var(--bad)';return `<svg class="ring" viewBox="0 0 74 74"><circle cx="37" cy="37" r="30" fill="none" stroke="var(--soft)" stroke-width="8"/><circle cx="37" cy="37" r="30" fill="none" stroke="${col}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c*v/100} ${c}" transform="rotate(-90 37 37)"/><text x="37" y="43" text-anchor="middle" font-size="18" font-weight="700" fill="var(--fg)">${v}</text></svg>`}
 
+const FS=()=>S.finStart||'0000';const FE=()=>S.expenses.filter(e=>e.d>=FS());const FI=()=>S.income.filter(e=>e.d>=FS());
+const preStart=()=>td()<FS();
+function startCard(){const d=Math.ceil((new Date(FS())-new Date(td()))/864e5);return `<div class="card" style="border:2px solid var(--orange);gap:6px"><span class="muted">بداية جديدة للمتابعة المالية</span><div class="big">${new Date(FS()).toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{day:'numeric',month:'long',year:'numeric'})}</div><div class="muted">باقي ${d} ${d===1?'يوم':'أيام'}. من ذلك اليوم سجّل كل مصروف ودخل، وتبدأ الأرقام والموازنة من الصفر. العبادات والعادات تستمر كما هي.</div></div>`}
 const paidAmt=(n,m=mon())=>{const v=(S.paidFixed[m]||{})[n];if(v===true){const b=S.budgets.find(x=>x.n===n);return b?b.b:0}return +v||0};
 const fixedItems=()=>S.budgets.filter(b=>S.fixed.includes(b.n));
 const unpaidFixed=()=>fixedItems().reduce((a,b)=>a+Math.max(0,b.b-paidAmt(b.n)),0);
@@ -455,6 +460,7 @@ document.addEventListener('click',async e=>{
  if(a==='qPrev'||a==='qNext'){S.qPage=Math.min(604,Math.max(1,(S.qPage||1)+(a==='qNext'?1:-1)));save();render();scrollTo(0,0);return}
  if(a==='qGo'){const n=+v('qp');if(n>=1&&n<=604){S.qPage=n;save();render()}return}
  if(a==='pickDh'){curDh=b.dataset.k;confirmRst=false;render();return}
+ if(a==='setFS'){const x=v('fsd');if(x){S.finStart=x;save();render()}return}
  if(a==='igT'){showIg=!showIg;render();return}
  if(a==='city'){document.getElementById('cityBox').innerHTML=`<div class="form"><select id="cs">${['Riyadh','Jeddah','Makkah','Madinah','Dammam','Khobar','Taif','Abha','Tabuk','Buraydah','Hail','Jazan','Najran','Al Ahsa'].map(c=>`<option ${c===S.city?'selected':''}>${c}</option>`).join('')}</select><button data-act="setCity">حفظ</button></div>`;return}
  if(a==='setCity'){S.city=v('cs');PT=null;save();render();return}
@@ -499,7 +505,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v24';
+const APPV='v25';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 padTop();boot();
