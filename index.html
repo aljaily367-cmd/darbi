@@ -115,6 +115,7 @@ html{min-height:100%;background:var(--bg)}body{min-height:100vh;min-height:100dv
 .al{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 10px;border-radius:10px;font-size:14px}.al.bad{background:var(--badbg);color:var(--bad)}.al.warn{background:#FFF4E0;color:#9A5B00}
 input[type=date]{-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;width:100%;display:block;text-align:start;line-height:1.2;height:44px}
 input[type=date]::-webkit-date-and-time-value{text-align:start}
+.pl.o{background:#FFF4E0;color:#9A5B00}.warnc{color:#9A5B00}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -247,6 +248,25 @@ function home(){
  <div class="row"><span>العادات</span><span class="num">${hd} / ${S.habits.length}</span></div><div class="bar"><i style="width:${S.habits.length?hd/S.habits.length*100:0}%"></i></div></div>
  <div class="card"><h2>تقرير الخميس</h2><div class="muted">أرقام آخر 7 أيام جاهزة لترسلها في المحاسبة الأسبوعية.</div><button data-act="rep">إنشاء التقرير</button><div id="repBox"></div></div>`;
 }
+function repData(){const w=daysBack(7),inW=d=>w.includes(d),E=FE().filter(e=>inW(e.d));
+ const food=sum(E.filter(e=>e.cat==='أكل وشرب')),all=sum(E),inc=sum(FI().filter(e=>inW(e.d)));
+ const logged=w.filter(d=>S.expenses.some(e=>e.d===d)||(S.habitLog[d]||{})[1]).length;
+ const pr=w.reduce((a,d)=>a+(S.prayers[d]||[]).filter(Boolean).length,0),ist=w.reduce((a,d)=>a+(S.ist[d]||0),0),q=w.reduce((a,d)=>a+((S.qLog||{})[d]||0),0);
+ const ct=S.contacts.filter(inW).length,proj=w.filter(d=>(S.habitLog[d]||{})[4]).length;
+ const hab=S.habits.length?Math.round(w.reduce((a,d)=>a+S.habits.filter(h=>(S.habitLog[d]||{})[h.id]).length,0)/(7*S.habits.length)*100):0;
+ const tb=S.budgets.reduce((a,b)=>a+b.b,0),pd=S.budgets.reduce((a,b)=>a+Math.min(b.b,paidAmt(b.n)),0);
+ const P=(v,t)=>t?Math.min(100,Math.round(v/t*100)):0;
+ const sec=[['💰 المالي',[['تسجيل المصاريف',logged+' يوم','7 أيام',P(logged,7)],['الأكل',fmt(food),'≤ 450',food<=450?100:Math.round(450/food*100)],['سداد مستحقات الشهر',fmt(pd),fmt(tb),P(pd,tb)],['إجمالي المصروف',fmt(all),'—',null],['الدخل الإضافي',fmt(inc),'—',null],['باقي الديون',fmt(debtTotal()),'0',null]]],
+  ['🕌 العبادات',[['الصلوات',pr,'35',P(pr,35)],['الاستغفار',fmt(ist),fmt(S.istGoal*7),P(ist,S.istGoal*7)],['ورد القرآن',q+' صفحة','7',P(q,7)]]],
+  ['🎯 العمل والعادات',[['التواصل مع عملاء',ct,'5',P(ct,5)],['أيام العمل على المشروع',proj,'5',P(proj,5)],['الالتزام بالعادات',hab+'%','100%',hab]]]];
+ const secP=sec.map(([t,r])=>{const x=r.filter(y=>y[3]!==null);return Math.round(x.reduce((a,y)=>a+y[3],0)/(x.length||1))});
+ const overall=Math.round(secP.reduce((a,b)=>a+b,0)/secP.length);return{w,sec,secP,overall}}
+function repHTML(){const r=repData(),col=p=>p>=80?'good':p>=50?'warnc':'bad';
+ return `<div class="cmpTop"><svg viewBox="0 0 64 64" width="64" height="64"><circle cx="32" cy="32" r="26" fill="none" stroke="var(--soft)" stroke-width="7"/><circle cx="32" cy="32" r="26" fill="none" stroke="${r.overall>=80?'var(--good)':r.overall>=50?'var(--orange)':'var(--bad)'}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${2*Math.PI*26*r.overall/100} 999" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle" font-size="14" font-weight="700" fill="var(--fg)">${r.overall}%</text></svg><div><b>نسبة الإنجاز الأسبوعية</b><div class="muted">${r.w[0]} ← ${r.w[6]}</div><div class="muted">${r.sec.map((x,i)=>`${x[0].split(' ')[1]} ${r.secP[i]}%`).join(' · ')}</div></div></div>
+ <div style="overflow-x:auto"><table class="ct"><thead><tr><th>المؤشر</th><th>الفعلي</th><th>الهدف</th><th>الإنجاز</th></tr></thead><tbody>${r.sec.map(([t,rows],i)=>`<tr class="gh"><td colspan="3">${t}</td><td><b class="${col(r.secP[i])}">${r.secP[i]}%</b></td></tr>`+rows.map(y=>`<tr><td>${y[0]}</td><td class="num"><b>${y[1]}</b></td><td class="num mu">${y[2]}</td><td>${y[3]===null?'<span class="pl n">—</span>':`<span class="pl ${y[3]>=80?'g':y[3]>=50?'o':'r'}">${y[3]}%</span>`}</td></tr>`).join('')).join('')}</tbody></table></div>`}
+function repText(){const r=repData();let t=`📋 تقرير الأسبوع — دربي وكفاحي\n${r.w[0]} إلى ${r.w[6]}\n⭐ نسبة الإنجاز: ${r.overall}%\n`;
+ r.sec.forEach(([n,rows],i)=>{t+=`\n${n} — ${r.secP[i]}%\n`;rows.forEach(y=>{t+=`▫️ ${y[0]}: ${y[1]}${y[2]!=='—'?' / '+y[2]:''}${y[3]===null?'':` (${y[3]}%)`}\n`})});
+ return t+`\nما لم أنفّذه وسببه: \nالإجراء التصحيحي للأسبوع القادم: `}
 function report(){const w=daysBack(7),inW=d=>w.includes(d);
  const food=sum(FE().filter(e=>inW(e.d)&&e.cat==='أكل وشرب')),all=sum(FE().filter(e=>inW(e.d)));
  const logged=w.filter(d=>FE().some(e=>e.d===d)||(S.habitLog[d]||{})[1]).length;
@@ -563,7 +583,8 @@ document.addEventListener('click',async e=>{
   try{await enableFace();m.textContent='تم التفعيل ✓ سيُطلب منك Face ID عند فتح التطبيق.';b.textContent='إيقاف القفل ببصمة الوجه'}catch(_){m.textContent='تعذّر التفعيل. تأكد أن Face ID مفعّل في جوالك.'}return}
  if(a==='chpw'){const pw=document.getElementById('np').value,m=document.getElementById('pwMsg');if(pw.length<6){m.textContent='كلمة المرور 6 أحرف على الأقل.';return}const r=await sb.auth.updateUser({password:pw});m.textContent=r.error?'تعذّر التغيير، حاول مرة أخرى.':'تم تغيير كلمة المرور ✓';if(!r.error)document.getElementById('np').value='';return}
  if(a==='logout'){await sb.auth.signOut();uid=null;loginView();return}
- if(a==='rep'){const txt=report();document.getElementById('repBox').innerHTML=`<pre class="rep" id="repTxt"></pre><button class="ghost" data-act="copy">نسخ التقرير</button>`;document.getElementById('repTxt').textContent=txt;return}
+ if(a==='rep'){document.getElementById('repBox').innerHTML=repHTML()+`<pre class="rep" id="repTxt" hidden></pre><div class="form"><button data-act="share">📤 إرسال التقرير</button><button class="ghost" data-act="copy">نسخ</button></div>`;document.getElementById('repTxt').textContent=repText();return}
+ if(a==='share'){const txt=repText();if(navigator.share){try{await navigator.share({title:'تقرير الأسبوع',text:txt})}catch(_){}}else{try{await navigator.clipboard.writeText(txt);toast('نُسخ التقرير')}catch(_){}}return}
  if(a==='copy'){const txt=document.getElementById('repTxt').textContent;try{await navigator.clipboard.writeText(txt);b.textContent='تم النسخ'}catch(_){const r=document.createRange();r.selectNodeContents(document.getElementById('repTxt'));getSelection().removeAllRanges();getSelection().addRange(r);b.textContent='حدّد النص وانسخه'}return}
  if(a==='addExp'){const n=+v('ea');if(!n)return;let cat=v('ec');if(cat==='__w'){cat=v('ecx');if(!cat)return}{const dd=v('ed')||d;S.expenses.push({id:Date.now(),d:dd,a:n,cat,n:v('en')});if(dd<FS())setTimeout(()=>toast('⚠️ التاريخ قبل بداية المتابعة ('+FS()+')، فلن يظهر في الأرقام'),50)}mark(d,1);
   const debt=S.debts.find(x=>x.n.includes('التمويل')&&v('ec')==='قسط التمويل');if(debt){debt.rem=Math.max(0,debt.rem-n);debt.late=Math.max(0,debt.late-n)}}
@@ -594,7 +615,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v34';
+const APPV='v35';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
