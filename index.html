@@ -106,6 +106,11 @@ nav::after{content:"";position:absolute;left:0;right:0;top:100%;height:300px;bac
 html{min-height:100%;background:var(--bg)}body{min-height:100vh;min-height:100dvh}
 .tot{display:flex;justify-content:space-between;gap:8px;border-top:2px solid var(--fg);padding-top:8px;margin-top:2px;font-weight:700;font-variant-numeric:tabular-nums}
 .tot.sub{border-top:1px dashed var(--line);font-weight:500;padding-top:6px}
+.bt{width:100%;border-collapse:collapse;font-size:14px}.bt th{font-size:12px;font-weight:500;color:var(--muted);text-align:start;padding:6px 4px;border-bottom:1px solid var(--line)}.bt th:nth-child(n+2){text-align:center}
+.bt td{padding:9px 4px;border-bottom:1px solid var(--line)}.bt td:nth-child(n+2){text-align:center}.bt td.mu{color:var(--muted);font-size:12px}
+.bt tr.paid td{background:var(--goodbg);color:var(--good)}.bt tr.part td:first-child{box-shadow:inset -3px 0 0 var(--orange)}
+.bt tfoot td{font-weight:600;border-bottom:none;padding-top:8px}
+.pchk{width:30px;height:30px;padding:0;border-radius:8px;background:var(--bg);border:2px solid var(--line);color:#fff;font-size:16px;font-weight:700}.pchk.on{background:var(--good);border-color:var(--good)}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -264,7 +269,8 @@ function money(){
  <div class="tot sub"><span>إجمالي الإيرادات</span><span class="num good">${fmt(ti)}</span></div>
  <div style="font-weight:500;margin-top:6px">المصروفات</div>
  <div class="bar" style="height:10px;display:flex">${S.budgets.map((b,i)=>`<i style="width:${b.b/Math.max(tb,ti,1)*100}%;background:hsl(${210+i*35} 50% ${45+i*4}%);border-radius:0"></i>`).join('')}</div>
- ${S.budgets.map((b,i)=>bEdit?`<div class="form"><input id="bpn${i}" value="${b.n}"><input id="bpa${i}" type="number" inputmode="decimal" value="${b.b}"></div><button class="x" data-act="delB" data-i="${i}" style="align-self:flex-start">✕ حذف «${b.n}»</button>`:`<div class="row"><span><span style="color:hsl(${210+i*35} 50% ${45+i*4}%)">●</span> ${b.n}</span><span class="num">${fmt(b.b)} · ${ti?Math.round(b.b/ti*100):0}%</span></div>`).join('')}
+ ${bEdit?S.budgets.map((b,i)=>`<div class="form"><input id="bpn${i}" value="${b.n}"><input id="bpa${i}" type="number" inputmode="decimal" value="${b.b}"></div><button class="x" data-act="delB" data-i="${i}" style="align-self:flex-start">✕ حذف «${b.n}»</button>`).join(''):`<div style="overflow-x:auto"><table class="bt"><thead><tr><th>البند</th><th>المبلغ</th><th>%</th><th>سداد</th></tr></thead><tbody>${S.budgets.map((b,i)=>{const pd=paidAmt(b.n),full=b.b>0&&pd>=b.b,part=pd>0&&!full;return `<tr class="${full?'paid':part?'part':''}"><td><span style="color:hsl(${210+i*35} 50% ${45+i*4}%)">●</span> ${b.n}${part?`<div class="muted" style="font-size:11px">مدفوع ${fmt(pd)}</div>`:''}</td><td class="num">${fmt(b.b)}</td><td class="num mu">${ti?Math.round(b.b/ti*100):0}%</td><td><button class="pchk ${full?'on':''}" data-act="bPay" data-i="${i}" aria-label="سداد ${b.n}">${full?'✓':''}</button></td></tr>`}).join('')}</tbody>
+ <tfoot><tr><td>المدفوع</td><td class="num good" colspan="3">${fmt(S.budgets.reduce((a,b)=>a+Math.min(b.b,paidAmt(b.n)),0))}</td></tr><tr><td>المتبقي للسداد</td><td class="num bad" colspan="3">${fmt(S.budgets.reduce((a,b)=>a+Math.max(0,b.b-paidAmt(b.n)),0))}</td></tr></tfoot></table></div>`}
  ${bEdit?`<div class="form"><input id="bpnN" placeholder="بند جديد"><input id="bpaN" type="number" placeholder="المبلغ"></div><button data-act="bSave">حفظ التعديلات</button>`:''}
  <div class="tot sub"><span>إجمالي المصروفات</span><span class="num">${fmt(tb)}</span></div>
  <div class="tot"><span>${ti-tb<0?'العجز':'الفائض'}</span><span class="num ${ti-tb<0?'bad':'good'}">${ti-tb<0?'−':''}${fmt(Math.abs(ti-tb))}</span></div>
@@ -489,6 +495,16 @@ document.addEventListener('click',async e=>{
  if(a==='qGo'){const n=+v('qp');if(n>=1&&n<=604){S.qPage=n;save();render()}return}
  if(a==='pickDh'){curDh=b.dataset.k;confirmRst=false;render();return}
  if(a==='setFS'){const x=v('fsd');if(x){S.finStart=x;save();render()}return}
+ if(a==='bPay'){const bb=S.budgets[i],n=bb.n,m=mon();S.paidFixed[m]=S.paidFixed[m]||{};S.payRef=S.payRef||{};S.payRef[m]=S.payRef[m]||{};undoSnap=JSON.stringify(S);
+  if(paidAmt(n)>=bb.b&&bb.b>0){const ids=S.payRef[m][n]||[];S.expenses=S.expenses.filter(e=>!ids.includes(e.id));delete S.paidFixed[m][n];delete S.payRef[m][n];
+   if(n==='قسط التمويل'||n==='سداد متأخر الإيجار'){const debt=S.debts.find(x=>x.n.includes(n==='قسط التمويل'?'التمويل':'الإيجار'));if(debt)debt.rem+=bb.b}
+   if(n==='صندوق الطوارئ'){const g=S.goals.find(g=>g.n.includes('طوارئ'));if(g)g.c=Math.max(0,g.c-bb.b)}
+   save();render();toast('أُلغي سداد '+n);return}
+  const amt=Math.max(0,bb.b-paidAmt(n));if(!amt)return;const eid=Date.now();S.expenses.push({id:eid,d,a:amt,cat:n,n:'سداد من الموازنة'});S.paidFixed[m][n]=paidAmt(n)+amt;(S.payRef[m][n]=S.payRef[m][n]||[]).push(eid);mark(d,1);
+  if(n==='قسط التمويل'){const debt=S.debts.find(x=>x.n.includes('التمويل'));if(debt){debt.rem=Math.max(0,debt.rem-amt);debt.late=Math.max(0,debt.late-amt)}}
+  if(n==='سداد متأخر الإيجار'){const debt=S.debts.find(x=>x.n.includes('الإيجار'));if(debt){debt.rem=Math.max(0,debt.rem-amt);debt.late=Math.max(0,debt.late-amt)}}
+  if(n==='صندوق الطوارئ'){const g=S.goals.find(g=>g.n.includes('طوارئ'));if(g)g.c+=amt}
+  save();render();toast('تم سداد '+n+' '+fmt(amt));return}
  if(a==='bEdit'){bEdit=!bEdit;render();return}
  if(a==='ipDel'){incPlan().splice(i,1);save();render();return}
  if(a==='bSave'){undoSnap=JSON.stringify(S);
@@ -546,7 +562,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v28';
+const APPV='v29';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 padTop();boot();
