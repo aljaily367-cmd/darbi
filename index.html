@@ -113,6 +113,8 @@ html{min-height:100%;background:var(--bg)}body{min-height:100vh;min-height:100dv
 .pchk{width:30px;height:30px;padding:0;border-radius:8px;background:var(--bg);border:2px solid var(--line);color:#fff;font-size:16px;font-weight:700}.pchk.on{background:var(--good);border-color:var(--good)}
 .pchk.part{color:var(--orange);font-size:13px;border-color:var(--orange)}.bt tr.prow td{background:var(--bg)}
 .al{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 10px;border-radius:10px;font-size:14px}.al.bad{background:var(--badbg);color:var(--bad)}.al.warn{background:#FFF4E0;color:#9A5B00}
+input[type=date]{-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;width:100%;display:block;text-align:start;line-height:1.2;height:44px}
+input[type=date]::-webkit-date-and-time-value{text-align:start}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -204,12 +206,12 @@ const thoughts=['كل ريال تسجّله اليوم هو ريال تتحكم 
 function thought(){const n=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/864e5);return thoughts[n%thoughts.length]}
 
 function alertsCard(){const A=[],day=new Date().getDate(),dim=new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
- if(!preStart()){S.budgets.filter(b=>S.fixed.includes(b.n)||['تمارا'].includes(b.n)||/دين|قسط|إيجار|ايجار|سداد/.test(b.n)).forEach(b=>{const r=Math.max(0,b.b-paidAmt(b.n));if(r)A.push(['bad','💳',`باقي سداد ${b.n}`,fmt(r)])});
+ {S.budgets.filter(b=>S.fixed.includes(b.n)||['تمارا'].includes(b.n)||/دين|قسط|إيجار|ايجار|سداد/.test(b.n)).forEach(b=>{const r=Math.max(0,b.b-paidAmt(b.n));if(r)A.push(['bad','💳',`باقي سداد ${b.n}`,fmt(r)])});
   S.budgets.forEach(b=>{if(S.fixed.includes(b.n)||!b.b)return;const sp=spentBy(b.n),pc=sp/b.b*100;if(pc>=100)A.push(['bad','⛔',`تجاوزت موازنة ${b.n}`,'+'+fmt(sp-b.b)]);else if(pc>=80)A.push(['warn','⚠️',`استهلكت ${Math.round(pc)}% من ${b.n}`,'باقي '+fmt(b.b-sp)])})}
  S.debts.forEach(d=>{if(d.late)A.push(['bad','⏰',`متأخر ${d.n}`,fmt(d.late)])});
  const ti=incPlan().reduce((x,y)=>x+(+y.a||0),0),tb=totalB();if(tb>ti)A.push(['bad','📉','الموازنة أكبر من الدخل','−'+fmt(tb-ti)]);
- if(!preStart()&&!S.opening)A.push(['warn','🏦','سجّل رصيدك الافتتاحي','']);
- if(!preStart()&&!salaryThisMonth()&&day>=25)A.push(['warn','💰','هل نزل الراتب؟ سجّله','']);
+ if(!S.opening)A.push(['warn','🏦','سجّل رصيدك الافتتاحي','']);
+ if(!salaryThisMonth()&&day>=25)A.push(['warn','💰','هل نزل الراتب؟ سجّله','']);
  if(!A.length)return `<div class="ok">لا تنبيهات ✓ كل شيء تحت السيطرة.</div>`;
  const tot=A.filter(x=>x[2].startsWith('باقي سداد')).reduce((a,x)=>a+(+String(x[3]).replace(/,/g,'')||0),0);
  return `<div class="card"><h2>تنبيهات <span class="num bad">${A.length}</span></h2>${A.map(([c,i,t,v])=>`<div class="al ${c}"><span>${i} ${t}</span><b class="num">${v}</b></div>`).join('')}${tot?`<div class="tot"><span>إجمالي الباقي للسداد</span><span class="num bad">${fmt(tot)}</span></div>`:''}<button class="ghost" data-tab="money">اذهب للسداد</button></div>`}
@@ -237,7 +239,7 @@ function home(){
  <div class="step"><span style="font-size:12px">خطوة اليوم · يوم ${Math.max(st.n,0)} من 90 · مرحلة ${st.ph}</span><b>${st.t}</b></div>
  ${salaryCard()}
  ${preStart()?'':fixedCard()}
- ${gap<0?`<div class="alert">المصروفات المخططة أكبر من الإيرادات بـ ${fmt(-gap)} ريال شهريًا. عدّل الموازنة من صفحة المال.</div>`:''}
+
  <div class="card"><h2>باقي على صفر ديون</h2><div class="big bad">${fmt(debtTotal())} ريال</div><div class="bar"><i style="width:${Math.min(100,(1-debtTotal()/S.debtStart)*100)}%;background:var(--good)"></i></div><div class="muted">التاريخ المتوقع للتحرر بالوتيرة الحالية: ${freeDate()}</div></div>
  <div class="card"><h2>يومي ${ps?`<span class="streak">🔥 ${ps} يوم صلوات كاملة</span>`:''}</h2>
  <div class="row"><span>الصلوات</span><span class="num">${p} / 5</span></div><div class="bar"><i style="width:${p*20}%"></i></div>
@@ -592,7 +594,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v33';
+const APPV='v34';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
