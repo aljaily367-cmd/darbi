@@ -362,6 +362,19 @@ function compareCard(){const c=mStats(mon()),p=mStats(mon(-1)),has=sum(monthExp(
  <div style="font-weight:500;margin-top:4px">المصروف الشهري — آخر 6 أشهر</div>
  <div class="mbars">${hist.map((h,k)=>`<div class="mb"><span class="num mv">${h.spend?fmt(h.spend):''}</span><div class="mcol ${h.spend?'':'empty'}" style="height:${h.spend?Math.max(6,h.spend/mx*90):90}px;${h.spend?`background:${k===5?'var(--orange)':'var(--navy)'}`:''}"></div><span class="ml">${mName(h.m)}</span></div>`).join('')}</div>
  <div class="muted">العمود المنقّط = لا بيانات مسجّلة.</div></div>`}
+function finSummary(){const ti=incPlan().reduce((x,y)=>x+(+y.a||0),0),tb=totalB(),ai=sum(monthInc()),ae=sum(monthExp()),dt=debtTotal(),inst=S.debts.reduce((x,d)=>x+(d.rem>0?+d.inst||0:0),0),late=S.debts.reduce((x,d)=>x+(+d.late||0),0),cash=cashNow(),nw=cash-dt,dti=ti?Math.round(inst/ti*100):0;
+ const R=(l,v,c='')=>`<div class="row"><span>${l}</span><b class="num ${c}">${v}</b></div>`;
+ return `<div class="card"><h2>الصورة المالية <span class="muted" style="font-weight:400">تتحدّث تلقائيًا</span></h2>
+ <div class="kpis"><div class="kpi"><small>إجمالي الإيرادات (مخطط)</small><b class="good">${fmt(ti)}</b></div><div class="kpi"><small>إجمالي الديون</small><b class="bad">${fmt(dt)}</b></div></div>
+ <div style="font-weight:500;margin-top:4px">هذا الشهر</div>
+ ${R('الإيرادات الفعلية',fmt(ai),'good')}${R('المصروفات الفعلية',fmt(ae))}
+ <div class="tot sub"><span>${ai-ae<0?'عجز فعلي':'فائض فعلي'}</span><span class="num ${ai-ae<0?'bad':'good'}">${fmt(Math.abs(ai-ae))}</span></div>
+ <div style="font-weight:500;margin-top:4px">الموازنة</div>
+ ${R('المصروفات المخططة',fmt(tb))}<div class="tot sub"><span>${ti-tb<0?'عجز مخطط':'فائض مخطط'}</span><span class="num ${ti-tb<0?'bad':'good'}">${fmt(Math.abs(ti-tb))}</span></div>
+ <div style="font-weight:500;margin-top:4px">الديون</div>
+ ${R('الأقساط الشهرية',fmt(inst))}${R('المتأخرات',fmt(late),late?'bad':'')}${R('نسبة الأقساط من الدخل',dti+'%',dti>33?'bad':'good')}
+ <div class="tot"><span>صافي الثروة (رصيدك − ديونك)</span><span class="num ${nw<0?'bad':'good'}">${nw<0?'−':''}${fmt(Math.abs(nw))}</span></div>
+ ${dti>33?`<div class="alert">أقساطك ${dti}% من دخلك، والحد الآمن 33%. لا التزامات جديدة.</div>`:''}</div>`}
 function dash(){
  const inc=sum(monthInc()),spent=sum(monthExp()),left=cashNow();
  const d30=daysBack(30),byDay=d30.map(d=>sum(FE().filter(e=>e.d===d)));
@@ -374,7 +387,7 @@ function dash(){
  const ist30=d30.reduce((a,d)=>a+(S.ist[d]||0),0);
  const wc=S.contacts.filter(d=>daysBack(7).includes(d)).length,clients=S.leads.filter(l=>l.s===4).length;
  const tile=(l,v,c='')=>`<div class="kpi"><small>${l}</small><b class="${c}">${v}</b></div>`;
- return `<div class="card"><h2>لوحة القيادة <span class="muted">${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{month:'long',year:'numeric'})}</span></h2>
+ return finSummary()+`<div class="card"><h2>لوحة القيادة <span class="muted">${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{month:'long',year:'numeric'})}</span></h2>
  <div class="kpis">${tile('دخل الشهر',fmt(inc))}${tile('المصروف',fmt(spent))}${tile('المتبقي',fmt(left),left<0?'bad':'good')}${tile('الدخل الإضافي',fmt(sum(monthInc().filter(e=>e.s!=='راتب'))),'good')}
  ${tile('باقي الديون',fmt(debtTotal()),'bad')}${tile('سُدّد من الديون',Math.round(dp)+'%')}${tile('مواظبة الصلاة 30 يوم',prRate+'%',prRate>=90?'good':'bad')}${tile('استغفار 30 يوم',fmt(ist30))}
  ${tile('تواصلات الأسبوع',wc+' / 5',wc>=5?'good':'bad')}${tile('عملاء مكتسبون',clients)}</div></div>
@@ -567,9 +580,9 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v30';
+const APPV='v31';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
-checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
+checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
 </script>
 </body></html>
