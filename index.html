@@ -249,7 +249,7 @@ function report(){const w=daysBack(7),inW=d=>w.includes(d);
 8. باقي على صفر ديون: ${fmt(debtTotal())} ريال
 ما لم أنفّذه وسببه:
 الإجراء التصحيحي للأسبوع القادم: `}
-function expForm(){const custom=[...new Set(FE().map(e=>e.cat).filter(c=>!S.budgets.some(b=>b.n===c)))];return `<div class="form"><input id="ea" type="number" inputmode="decimal" placeholder="المبلغ"><select id="ec" onchange="document.getElementById('ecx').hidden=this.value!=='__w'">${S.budgets.map(b=>`<option>${b.n}</option>`).join('')}${custom.map(c=>`<option>${c}</option>`).join('')}<option value="__w">✍️ اكتب نوع المصروف</option></select><input id="ecx" class="full" placeholder="نوع المصروف (مثال: ملابس، هدية، علاج)" hidden><input id="en" class="full" placeholder="ملاحظة (اختياري)"><button class="full" data-act="addExp">تسجيل</button></div>`}
+function expForm(){const custom=[...new Set(FE().map(e=>e.cat).filter(c=>!S.budgets.some(b=>b.n===c)))];return `<div class="form"><input id="ea" type="number" inputmode="decimal" placeholder="المبلغ"><select id="ec" onchange="document.getElementById('ecx').hidden=this.value!=='__w'">${S.budgets.map(b=>`<option>${b.n}</option>`).join('')}${custom.map(c=>`<option>${c}</option>`).join('')}<option value="__w">✍️ اكتب نوع المصروف</option></select><input id="ecx" class="full" placeholder="نوع المصروف (مثال: ملابس، هدية، علاج)" hidden><input id="en" placeholder="ملاحظة (اختياري)"><input id="ed" type="date" value="${td()}" aria-label="تاريخ المصروف"><button class="full" data-act="addExp">تسجيل</button></div>`}
 
 function shopCard(){S.shop=S.shop||[];S.shopOn=S.shopOn||{};S.trips=S.trips||[];
  const on=S.shop.filter((x,i)=>S.shopOn[i]),tot=on.reduce((a,x)=>a+(+x.p||0),0),tm=(S.trips||[]).filter(t=>t.d>=FS()).filter(t=>t.d.startsWith(mon()));
@@ -282,7 +282,7 @@ function money(){
  ${(()=>{const o={};monthExp().filter(e=>!S.budgets.some(b=>b.n===e.cat)).forEach(e=>o[e.cat]=(o[e.cat]||0)+e.a);const k=Object.keys(o);return k.length?`<div class="card"><h2>مصاريف خارج الموازنة <span class="num bad">${fmt(Object.values(o).reduce((a,b)=>a+b,0))}</span></h2>${k.map(c=>`<div class="row"><span>${c}</span><span class="num">${fmt(o[c])}</span></div>`).join('')}<div class="muted">إذا تكرر نوع منها، أضفه بندًا في الموازنة.</div></div>`:''})()}
  <div class="card"><h2>تسجيل مصروف</h2>${expForm()}</div>
  <div class="card"><h2>الدخل الإضافي <span class="num good">${fmt(sum(monthInc().filter(e=>e.s!=='راتب')))}</span></h2><div class="muted">أي دخل من الاستشارات أو المنصة، منفصل عن الراتب.</div>
- <div class="form"><input id="ia" type="number" placeholder="المبلغ"><input id="is" placeholder="المصدر"><button class="full" data-act="addInc">تسجيل دخل</button></div>
+ <div class="form"><input id="ia" type="number" placeholder="المبلغ"><input id="is" placeholder="المصدر"><input id="idt" class="full" type="date" value="${td()}" aria-label="تاريخ الدخل"><button class="full" data-act="addInc">تسجيل دخل</button></div>
  ${monthInc().map(e=>`<div class="exp"><span>${e.s||'دخل'}<br><span class="muted">${e.d}</span></span><span class="num good">${fmt(e.a)} <button class="x" data-act="delI" data-id="${e.id}" aria-label="حذف">✕</button></span></div>`).join('')}${monthInc().length?`<div class="tot"><span>إجمالي دخل الشهر</span><span class="num good">${fmt(sum(monthInc()))}</span></div>`:''}</div>
  <div class="card"><h2>الديون والالتزامات</h2><div class="muted">عدّل المتبقي الفعلي لكل التزام. كل سداد يُخصم مباشرة.</div>
  ${S.debts.map((d,i)=>`<div><div class="row"><b>${d.n}</b><span class="num">${fmt(d.rem)} <button class="x" data-act="delD" data-i="${i}" aria-label="حذف">✕</button></span></div><div class="muted">القسط ${fmt(d.inst)} · ${d.late?`<span class="bad">متأخر ${fmt(d.late)}</span>`:'لا متأخرات'}</div>
@@ -373,7 +373,7 @@ function finSummary(){const ti=incPlan().reduce((x,y)=>x+(+y.a||0),0),tb=totalB(
  ${R('المصروفات المخططة',fmt(tb))}<div class="tot sub"><span>${ti-tb<0?'عجز مخطط':'فائض مخطط'}</span><span class="num ${ti-tb<0?'bad':'good'}">${fmt(Math.abs(ti-tb))}</span></div>
  <div style="font-weight:500;margin-top:4px">الديون</div>
  ${R('الأقساط الشهرية',fmt(inst))}${R('المتأخرات',fmt(late),late?'bad':'')}${R('نسبة الأقساط من الدخل',dti+'%',dti>33?'bad':'good')}
- <div class="tot"><span>صافي الثروة (رصيدك − ديونك)</span><span class="num ${nw<0?'bad':'good'}">${nw<0?'−':''}${fmt(Math.abs(nw))}</span></div>
+ ${!S.opening?`<div class="muted">رصيدك يُحسب = الرصيد الافتتاحي + الدخل − المصروف، من ${FS()}. لم تسجّل رصيدًا افتتاحيًا بعد، لذلك صافي الثروة = −الديون.</div>`:''}<div class="tot"><span>صافي الثروة (رصيدك − ديونك)</span><span class="num ${nw<0?'bad':'good'}">${nw<0?'−':''}${fmt(Math.abs(nw))}</span></div>
  ${dti>33?`<div class="alert">أقساطك ${dti}% من دخلك، والحد الآمن 33%. لا التزامات جديدة.</div>`:''}</div>`}
 function dash(){
  const inc=sum(monthInc()),spent=sum(monthExp()),left=cashNow();
@@ -551,10 +551,10 @@ document.addEventListener('click',async e=>{
  if(a==='logout'){await sb.auth.signOut();uid=null;loginView();return}
  if(a==='rep'){const txt=report();document.getElementById('repBox').innerHTML=`<pre class="rep" id="repTxt"></pre><button class="ghost" data-act="copy">نسخ التقرير</button>`;document.getElementById('repTxt').textContent=txt;return}
  if(a==='copy'){const txt=document.getElementById('repTxt').textContent;try{await navigator.clipboard.writeText(txt);b.textContent='تم النسخ'}catch(_){const r=document.createRange();r.selectNodeContents(document.getElementById('repTxt'));getSelection().removeAllRanges();getSelection().addRange(r);b.textContent='حدّد النص وانسخه'}return}
- if(a==='addExp'){const n=+v('ea');if(!n)return;let cat=v('ec');if(cat==='__w'){cat=v('ecx');if(!cat)return}S.expenses.push({id:Date.now(),d,a:n,cat,n:v('en')});mark(d,1);
+ if(a==='addExp'){const n=+v('ea');if(!n)return;let cat=v('ec');if(cat==='__w'){cat=v('ecx');if(!cat)return}{const dd=v('ed')||d;S.expenses.push({id:Date.now(),d:dd,a:n,cat,n:v('en')});if(dd<FS())setTimeout(()=>toast('⚠️ التاريخ قبل بداية المتابعة ('+FS()+')، فلن يظهر في الأرقام'),50)}mark(d,1);
   const debt=S.debts.find(x=>x.n.includes('التمويل')&&v('ec')==='قسط التمويل');if(debt){debt.rem=Math.max(0,debt.rem-n);debt.late=Math.max(0,debt.late-n)}}
  if(a==='delE')S.expenses=S.expenses.filter(x=>x.id!==id);
- if(a==='addInc'&&+v('ia'))S.income.push({id:Date.now(),d,a:+v('ia'),s:v('is')});
+ if(a==='addInc'&&+v('ia')){const dd=v('idt')||d;S.income.push({id:Date.now(),d:dd,a:+v('ia'),s:v('is')});if(dd<FS())setTimeout(()=>toast('⚠️ التاريخ قبل بداية المتابعة ('+FS()+')، فلن يظهر في الأرقام'),50)}
  if(a==='delI')S.income=S.income.filter(x=>x.id!==id);
  if(a==='setSal')S.salary=+v('sal')||S.salary;
  if(a==='addB'&&v('bn')&&+v('bb'))S.budgets.push({n:v('bn'),b:+v('bb')});
@@ -580,7 +580,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v31';
+const APPV='v32';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
