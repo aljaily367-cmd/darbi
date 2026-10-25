@@ -201,7 +201,7 @@ function home(){
  const now=new Date(),dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),dl=dim-now.getDate()+1;
  const p=(S.prayers[td()]||[]).filter(Boolean).length,ist=S.ist[td()]||0;
  const hd=S.habits.filter(h=>(S.habitLog[td()]||{})[h.id]).length;
- const gap=S.salary-totalB(),st=dayStep(),ps=prayStreak();
+ const gap=incPlan().reduce((x,y)=>x+(+y.a||0),0)-totalB(),st=dayStep(),ps=prayStreak();
  return `<div class="card score">${ring(dayScore())}<div style="min-width:0"><b style="font-size:16px">نقاط اليوم</b><div class="muted">صلوات 40 · عادات 30 · موازنة 20 · استغفار 10</div><div style="font-size:13px;margin-top:6px;color:var(--fg)">💡 ${thought()}</div></div></div>
  ${preStart()?startCard():''}${openCard()}<div class="list" ${preStart()?'hidden':''} style="gap:14px">
  <div class="card" style="gap:6px"><span class="muted">المتاح لك فعلًا للصرف</span><div class="big ${avail<0?'bad':'good'}">${fmt(avail)} ريال</div>
@@ -219,7 +219,7 @@ function home(){
  <div class="step"><span style="font-size:12px">خطوة اليوم · يوم ${Math.max(st.n,0)} من 90 · مرحلة ${st.ph}</span><b>${st.t}</b></div>
  ${salaryCard()}
  ${preStart()?'':fixedCard()}
- ${gap<0?`<div class="alert">الموازنة أكبر من الراتب بـ ${fmt(-gap)} ريال. هذا العجز لازم يُغلق.</div>`:''}
+ ${gap<0?`<div class="alert">المصروفات المخططة أكبر من الإيرادات بـ ${fmt(-gap)} ريال شهريًا. عدّل الموازنة من صفحة المال.</div>`:''}
  <div class="card"><h2>باقي على صفر ديون</h2><div class="big bad">${fmt(debtTotal())} ريال</div><div class="bar"><i style="width:${Math.min(100,(1-debtTotal()/S.debtStart)*100)}%;background:var(--good)"></i></div><div class="muted">التاريخ المتوقع للتحرر بالوتيرة الحالية: ${freeDate()}</div></div>
  <div class="card"><h2>يومي ${ps?`<span class="streak">🔥 ${ps} يوم صلوات كاملة</span>`:''}</h2>
  <div class="row"><span>الصلوات</span><span class="num">${p} / 5</span></div><div class="bar"><i style="width:${p*20}%"></i></div>
@@ -256,14 +256,19 @@ function shopCard(){S.shop=S.shop||[];S.shopOn=S.shopOn||{};S.trips=S.trips||[];
  <button data-act="shDone">إنهاء المشوار وتسجيله على «أكل وشرب»</button>
  ${tm.length?`<div class="muted">${tm.map(t=>`${t.d.slice(5)}: ${fmt(t.a)} ريال (${t.k} صنف)`).join(' · ')}</div><div class="tot sub"><span>إجمالي مشاوير الشهر</span><span class="num">${fmt(tm.reduce((a,t)=>a+t.a,0))}</span></div>`:''}</details>`}
 function money(){
- const tb=totalB(),cm=sum(monthExp()),pm=sum(monthExp(mon(-1))),diff=cm-pm;
- return recCard()+shopCard()+`<div class="card"><h2>الراتب الشهري</h2><div class="form"><input id="sal" type="number" value="${S.salary}"><button data-act="setSal">حفظ</button></div></div>
- <div class="card"><h2>تقسيم الراتب</h2><div class="bar" style="height:12px;display:flex">${S.budgets.map((b,i)=>`<i style="width:${b.b/Math.max(tb,S.salary)*100}%;background:hsl(${210+i*35} 50% ${45+i*4}%);border-radius:0"></i>`).join('')}</div>
- ${S.budgets.map((b,i)=>`<div class="row"><span><span style="color:hsl(${210+i*35} 50% ${45+i*4}%)">●</span> ${b.n}</span><span class="num">${fmt(b.b)} · ${Math.round(b.b/S.salary*100)}%</span></div>`).join('')}
- <div class="tot"><span>إجمالي الموازنة</span><span class="num">${fmt(tb)} · ${Math.round(tb/S.salary*100)}%</span></div>
- <div class="tot sub"><span>الراتب</span><span class="num">${fmt(S.salary)}</span></div>
- <div class="tot sub"><span>${S.salary-tb<0?'العجز':'الفائض'}</span><span class="num ${S.salary-tb<0?'bad':'good'}">${fmt(Math.abs(S.salary-tb))}</span></div>
- ${S.salary-tb<0?`<div class="alert">الموازنة أكبر من الراتب بـ ${fmt(tb-S.salary)} ريال. لا يمكن الالتزام بها، راجع البنود.</div>`:''}</div>
+ const tb=totalB(),ti=incPlan().reduce((x,y)=>x+(+y.a||0),0),cm=sum(monthExp()),pm=sum(monthExp(mon(-1))),diff=cm-pm;
+ return recCard()+shopCard()+`<div class="card"><h2>الموازنة الشهرية <button class="x" data-act="bEdit" style="font-size:13px">${bEdit?'إغلاق التعديل':'✏️ تعديل البنود'}</button></h2>
+ <div style="font-weight:500">الإيرادات</div>
+ ${incPlan().map((x,i)=>bEdit?`<div class="form"><input id="ipn${i}" value="${x.n}"><input id="ipa${i}" type="number" inputmode="decimal" value="${x.a}"></div><button class="x" data-act="ipDel" data-i="${i}" style="align-self:flex-start">✕ حذف «${x.n}»</button>`:`<div class="row"><span>${x.n}</span><span class="num good">${fmt(x.a)}</span></div>`).join('')}
+ ${bEdit?`<div class="form"><input id="ipnN" placeholder="إيراد جديد (عمل إضافي...)"><input id="ipaN" type="number" placeholder="المبلغ"></div>`:''}
+ <div class="tot sub"><span>إجمالي الإيرادات</span><span class="num good">${fmt(ti)}</span></div>
+ <div style="font-weight:500;margin-top:6px">المصروفات</div>
+ <div class="bar" style="height:10px;display:flex">${S.budgets.map((b,i)=>`<i style="width:${b.b/Math.max(tb,ti,1)*100}%;background:hsl(${210+i*35} 50% ${45+i*4}%);border-radius:0"></i>`).join('')}</div>
+ ${S.budgets.map((b,i)=>bEdit?`<div class="form"><input id="bpn${i}" value="${b.n}"><input id="bpa${i}" type="number" inputmode="decimal" value="${b.b}"></div><button class="x" data-act="delB" data-i="${i}" style="align-self:flex-start">✕ حذف «${b.n}»</button>`:`<div class="row"><span><span style="color:hsl(${210+i*35} 50% ${45+i*4}%)">●</span> ${b.n}</span><span class="num">${fmt(b.b)} · ${ti?Math.round(b.b/ti*100):0}%</span></div>`).join('')}
+ ${bEdit?`<div class="form"><input id="bpnN" placeholder="بند جديد"><input id="bpaN" type="number" placeholder="المبلغ"></div><button data-act="bSave">حفظ التعديلات</button>`:''}
+ <div class="tot sub"><span>إجمالي المصروفات</span><span class="num">${fmt(tb)}</span></div>
+ <div class="tot"><span>${ti-tb<0?'العجز':'الفائض'}</span><span class="num ${ti-tb<0?'bad':'good'}">${ti-tb<0?'−':''}${fmt(Math.abs(ti-tb))}</span></div>
+ ${ti-tb<0?`<div class="alert">المصروفات أكبر من الإيرادات بـ ${fmt(tb-ti)} ريال شهريًا. خفّض البنود أو زِد الدخل حتى يصبح الفرق صفرًا أو فائضًا.</div>`:`<div class="ok">${ti-tb?`فائض ${fmt(ti-tb)} ريال. وجّهه للطوارئ أو سداد الديون.`:'كل ريال له وظيفة ✓'}</div>`}</div>
  <div class="card"><h2>الموازنة مقابل الفعلي</h2>${S.budgets.map((b,i)=>{const s=spentBy(b.n),pc=b.b?s/b.b*100:0;return `<div><div class="row"><span>${b.n}</span><span class="num ${s>b.b?'bad':''}">${fmt(s)} / ${fmt(b.b)} <button class="x" data-act="delB" data-i="${i}" aria-label="حذف البند">✕</button></span></div><div class="bar"><i style="width:${Math.min(100,pc)}%;background:${s>b.b?'var(--bad)':'var(--good)'}"></i></div></div>`}).join('')}
  ${(()=>{const sp=S.budgets.reduce((a,b)=>a+spentBy(b.n),0);return `<div class="tot"><span>الإجمالي</span><span class="num ${sp>tb?'bad':''}">${fmt(sp)} / ${fmt(tb)}</span></div><div class="tot sub"><span>المتبقي من الموازنة</span><span class="num ${tb-sp<0?'bad':'good'}">${fmt(tb-sp)}</span></div>`})()}
  <div class="form"><input id="bn" placeholder="بند جديد (استثمار، صدقة...)"><input id="bb" type="number" placeholder="المبلغ"><button class="full ghost" data-act="addB">إضافة بند</button></div></div>
@@ -384,6 +389,8 @@ const dhGoal=x=>x.k==='ist'?S.istGoal:x.g;
 function dhGet(k,d=td()){return k==='ist'?(S.ist[d]||0):((S.dh=S.dh||{})[d]||{})[k]||0}
 function dhAdd(k,n,d=td()){if(k==='ist'){S.ist[d]=Math.max(0,(S.ist[d]||0)+n);return}S.dh=S.dh||{};S.dh[d]=S.dh[d]||{};S.dh[d][k]=Math.max(0,(S.dh[d][k]||0)+n)}
 function dhSet0(k,d=td()){if(k==='ist')S.ist[d]=0;else if(S.dh&&S.dh[d])S.dh[d][k]=0}
+let bEdit=false;
+const incPlan=()=>{if(!S.incPlan)S.incPlan=[{n:'الراتب',a:S.salary||7000}];return S.incPlan};
 let undoSnap=null,toastT=null;
 function toast(msg){let t=document.getElementById('toast');if(!t){t=document.createElement('div');t.id='toast';document.body.appendChild(t)}t.hidden=false;t.innerHTML=`<span>${msg}</span>${undoSnap?'<button data-act="undo">تراجع</button>':''}`;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true;undoSnap=null},5000)}
 let confirmRst=false,showIg=false,PT=null,ptCity=null;
@@ -482,6 +489,13 @@ document.addEventListener('click',async e=>{
  if(a==='qGo'){const n=+v('qp');if(n>=1&&n<=604){S.qPage=n;save();render()}return}
  if(a==='pickDh'){curDh=b.dataset.k;confirmRst=false;render();return}
  if(a==='setFS'){const x=v('fsd');if(x){S.finStart=x;save();render()}return}
+ if(a==='bEdit'){bEdit=!bEdit;render();return}
+ if(a==='ipDel'){incPlan().splice(i,1);save();render();return}
+ if(a==='bSave'){undoSnap=JSON.stringify(S);
+  incPlan().forEach((x,k)=>{x.n=v('ipn'+k)||x.n;x.a=+v('ipa'+k)||0});if(v('ipnN')&&+v('ipaN'))incPlan().push({n:v('ipnN'),a:+v('ipaN')});
+  S.budgets.forEach((x,k)=>{const nn=v('bpn'+k)||x.n,old=x.n;x.b=+v('bpa'+k)||0;if(nn!==old){x.n=nn;S.expenses.forEach(e=>{if(e.cat===old)e.cat=nn});S.fixed=S.fixed.map(f=>f===old?nn:f);Object.values(S.paidFixed||{}).forEach(m=>{if(old in m){m[nn]=m[old];delete m[old]}})}});
+  if(v('bpnN')&&+v('bpaN'))S.budgets.push({n:v('bpnN'),b:+v('bpaN')});
+  const sal=incPlan().find(x=>x.n.includes('راتب'));if(sal)S.salary=sal.a;bEdit=false;save();render();toast('تم حفظ الموازنة');return}
  if(a==='igT'){showIg=!showIg;render();return}
  if(a==='city'){document.getElementById('cityBox').innerHTML=`<div class="form"><select id="cs">${['Riyadh','Jeddah','Makkah','Madinah','Dammam','Khobar','Taif','Abha','Tabuk','Buraydah','Hail','Jazan','Najran','Al Ahsa'].map(c=>`<option ${c===S.city?'selected':''}>${c}</option>`).join('')}</select><button data-act="setCity">حفظ</button></div>`;return}
  if(a==='setCity'){S.city=v('cs');PT=null;save();render();return}
@@ -532,7 +546,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v27';
+const APPV='v28';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});
 padTop();boot();
