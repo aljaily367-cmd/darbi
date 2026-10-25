@@ -112,6 +112,7 @@ html{min-height:100%;background:var(--bg)}body{min-height:100vh;min-height:100dv
 .bt tfoot td{font-weight:600;border-bottom:none;padding-top:8px}
 .pchk{width:30px;height:30px;padding:0;border-radius:8px;background:var(--bg);border:2px solid var(--line);color:#fff;font-size:16px;font-weight:700}.pchk.on{background:var(--good);border-color:var(--good)}
 .pchk.part{color:var(--orange);font-size:13px;border-color:var(--orange)}.bt tr.prow td{background:var(--bg)}
+.al{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 10px;border-radius:10px;font-size:14px}.al.bad{background:var(--badbg);color:var(--bad)}.al.warn{background:#FFF4E0;color:#9A5B00}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -202,6 +203,16 @@ function dayStep(){const now=new Date();const n=Math.floor((new Date(now.getFull
 const thoughts=['كل ريال تسجّله اليوم هو ريال تتحكم فيه غدًا.','الثروة لا تُبنى في يوم، لكنها تُهدم في يوم إهمال.','أنت لا تحتاج دافعًا، تحتاج نظامًا. والنظام بين يديك الآن.','«أحب الأعمال إلى الله أدومها وإن قلّ». خطوة صغيرة كل يوم تكفي.','الدَّين قيد. كل قسط تسدده يفك حلقة من السلسلة.','لا تقارن بدايتك بنهاية غيرك. قارن نفسك بأمسك فقط.','الصلاة في وقتها أول انتصار في يومك. ابدأ به.','العميل الأول هو الأصعب. بعده يصبح الطريق أوضح.','كل «لا» تقولها لمصروف غير ضروري هي «نعم» لهدفك.','السنوات الخمس ستمر في كل الأحوال. اجعلها سنوات بناء.','الاستغفار يفتح الأبواب المغلقة. أكثِر منه وأنت تسعى.','الانضباط اليوم هو الحرية بعد خمس سنوات.','لا تنتظر أن تشعر بالرغبة. ابدأ، والرغبة تلحق بك.','دخلك من الوظيفة يكفي لتعيش. دخلك من مشروعك هو ما يغيّر حياتك.','ما لا يُقاس لا يُدار. سجّل، راقب، عدّل.','التعب المؤقت أخف من ندم دائم.','«ومن يتق الله يجعل له مخرجًا ويرزقه من حيث لا يحتسب». اتقِ واجتهد.','يوم واحد ضعيف لا يهدم خطة. لا تفوّت مرتين.','اكتب رسالة لعميل محتمل اليوم. أسوأ رد هو «لا»، وهو نفس ما عندك الآن.','الغني ليس من يكسب أكثر، بل من يحتفظ بأكثر ويستثمره أحسن.','مهارتك المالية أصل. أصحاب المعارض يحتاجونها. اعرضها.','لا تصرف ما لم تكسبه بعد.','صدقة اليوم ولو قليلة تبارك في مالك كله.','ساعة واحدة يوميًا على مشروعك = 365 ساعة في السنة. هذا مشروع كامل.','أنت أقرب لهدفك مما كنت أمس، إن عملت اليوم.','المتأخرات لا تختفي بالتجاهل. اتصال واحد صريح يخفف نصف الحمل.','خطتك واضحة. الذي ينقص فقط هو التنفيذ.','كل صلاة تحافظ عليها تدريب على الالتزام في كل شيء آخر.','من صبر ظفر. هذه سنوات الكفاح، وبعدها سنوات الحصاد.','راجع يومك قبل النوم: ماذا أنجزت؟ ماذا ستفعل غدًا أفضل؟','الحمد لله على ما رزق، والسعي لما هو خير. توكّل واعمل.'];
 function thought(){const n=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/864e5);return thoughts[n%thoughts.length]}
 
+function alertsCard(){const A=[],day=new Date().getDate(),dim=new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
+ if(!preStart()){S.budgets.filter(b=>S.fixed.includes(b.n)||['تمارا'].includes(b.n)||/دين|قسط|إيجار|ايجار|سداد/.test(b.n)).forEach(b=>{const r=Math.max(0,b.b-paidAmt(b.n));if(r)A.push(['bad','💳',`باقي سداد ${b.n}`,fmt(r)])});
+  S.budgets.forEach(b=>{if(S.fixed.includes(b.n)||!b.b)return;const sp=spentBy(b.n),pc=sp/b.b*100;if(pc>=100)A.push(['bad','⛔',`تجاوزت موازنة ${b.n}`,'+'+fmt(sp-b.b)]);else if(pc>=80)A.push(['warn','⚠️',`استهلكت ${Math.round(pc)}% من ${b.n}`,'باقي '+fmt(b.b-sp)])})}
+ S.debts.forEach(d=>{if(d.late)A.push(['bad','⏰',`متأخر ${d.n}`,fmt(d.late)])});
+ const ti=incPlan().reduce((x,y)=>x+(+y.a||0),0),tb=totalB();if(tb>ti)A.push(['bad','📉','الموازنة أكبر من الدخل','−'+fmt(tb-ti)]);
+ if(!preStart()&&!S.opening)A.push(['warn','🏦','سجّل رصيدك الافتتاحي','']);
+ if(!preStart()&&!salaryThisMonth()&&day>=25)A.push(['warn','💰','هل نزل الراتب؟ سجّله','']);
+ if(!A.length)return `<div class="ok">لا تنبيهات ✓ كل شيء تحت السيطرة.</div>`;
+ const tot=A.filter(x=>x[2].startsWith('باقي سداد')).reduce((a,x)=>a+(+String(x[3]).replace(/,/g,'')||0),0);
+ return `<div class="card"><h2>تنبيهات <span class="num bad">${A.length}</span></h2>${A.map(([c,i,t,v])=>`<div class="al ${c}"><span>${i} ${t}</span><b class="num">${v}</b></div>`).join('')}${tot?`<div class="tot"><span>إجمالي الباقي للسداد</span><span class="num bad">${fmt(tot)}</span></div>`:''}<button class="ghost" data-tab="money">اذهب للسداد</button></div>`}
 function home(){
  const inc=sum(monthInc()),spent=sum(monthExp()),cash=cashNow(),u=unpaidFixed(),avail=cash-u;
  const now=new Date(),dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),dl=dim-now.getDate()+1;
@@ -209,6 +220,7 @@ function home(){
  const hd=S.habits.filter(h=>(S.habitLog[td()]||{})[h.id]).length;
  const gap=incPlan().reduce((x,y)=>x+(+y.a||0),0)-totalB(),st=dayStep(),ps=prayStreak();
  return `<div class="card score">${ring(dayScore())}<div style="min-width:0"><b style="font-size:16px">نقاط اليوم</b><div class="muted">صلوات 40 · عادات 30 · موازنة 20 · استغفار 10</div><div style="font-size:13px;margin-top:6px;color:var(--fg)">💡 ${thought()}</div></div></div>
+ ${alertsCard()}
  ${preStart()?startCard():''}${openCard()}<div class="list" ${preStart()?'hidden':''} style="gap:14px">
  <div class="card" style="gap:6px"><span class="muted">المتاح لك فعلًا للصرف</span><div class="big ${avail<0?'bad':'good'}">${fmt(avail)} ريال</div>
  <div class="row"><span class="muted">مسموح يوميًا حتى آخر الشهر</span><b class="num ${avail<0?'bad':''}">${fmt(Math.max(0,avail)/dl)}</b></div>
@@ -580,7 +592,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v32';
+const APPV='v33';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
