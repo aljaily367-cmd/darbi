@@ -341,7 +341,7 @@ function faith(){
  const p=S.prayers[td()]||[false,false,false,false,false],ist=S.ist[td()]||0,ps=prayStreak();
  const wk=daysBack(7).map(d=>(S.prayers[d]||[]).filter(Boolean).length);
  loadPT();
- return quranCard()+`<div class="card"><h2>أوقات الصلاة <button class="x" data-act="city" aria-label="تغيير المدينة">${S.city} ⚙️</button></h2>${ptCard()}<div id="cityBox"></div></div>
+ return `<div class="card"><h2>أوقات الصلاة <button class="x" data-act="city" aria-label="تغيير المدينة">${S.city} ⚙️</button></h2>${ptCard()}<div id="cityBox"></div></div>
  <div class="card"><h2>صلواتي اليوم <span class="num good">${p.filter(Boolean).length} / 5</span></h2>
  <div class="prayers">${prayNames.map((n,i)=>`<button class="pr ${p[i]?'on':''}" data-act="pray" data-i="${i}">${p[i]?'✓':'○'}<br>${n}</button>`).join('')}</div>
  <div class="row"><span class="muted">آخر 7 أيام: ${wk.reduce((a,b)=>a+b,0)} من 35</span>${ps?`<span class="streak">🔥 ${ps} يوم متتالي</span>`:''}</div></div>
@@ -352,7 +352,7 @@ function faith(){
  <div class="bar"><i style="width:${Math.min(100,c/g*100)}%;background:var(--good)"></i></div>`})()}
  <div class="form"><button class="ghost" data-act="ist10">+10</button><button class="ghost" data-act="ist100">+100</button>${showIg&&curDh==='ist'?`<input id="ig" type="number" value="${S.istGoal}"><button class="ghost" data-act="setIg">حفظ الهدف</button>`:''}</div>
  <div class="muted">اختر الذكر ثم سبّح:</div>
- <div class="dlist">${DH.map(x=>{const c=dhGet(x.k),g=dhGoal(x);return `<button class="dk ${x.k===curDh?'on':''} ${c>=g?'done':''}" data-act="pickDh" data-k="${x.k}"><span>${x.t}</span><span class="c">${c>=g?'✓ ':''}${fmt(c)}/${fmt(g)}</span></button>`}).join('')}</div></div>`;
+ <div class="dlist">${DH.map(x=>{const c=dhGet(x.k),g=dhGoal(x);return `<button class="dk ${x.k===curDh?'on':''} ${c>=g?'done':''}" data-act="pickDh" data-k="${x.k}"><span>${x.t}</span><span class="c">${c>=g?'✓ ':''}${fmt(c)}/${fmt(g)}</span></button>`}).join('')}</div></div>`+quranCard();
 }
 function habits(){
  const log=S.habitLog[td()]||{},wd=daysBack(7);
@@ -636,7 +636,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v39';
+const APPV='v40';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
