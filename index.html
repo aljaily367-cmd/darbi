@@ -12,7 +12,7 @@
 :root{
  --navy:#1D3A5F;--orange:#F0A030;--bg:#F3F5F8;--card:#FFFFFF;--fg:#15202E;--muted:#617085;--line:#E1E6ED;
  --good:#1E8A5A;--goodbg:#E3F4EC;--bad:#C2413A;--badbg:#FBE7E5;--soft:#EAF0F7;
- --display:"Lalezar","IBM Plex Sans Arabic",system-ui,sans-serif;--body:"IBM Plex Sans Arabic",system-ui,sans-serif;
+ --display:"Lalezar","IBM Plex Sans Arabic",system-ui,sans-serif;--body:-apple-system,"SF Arabic","SF Pro Text",BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1722;--card:#18222F;--fg:#E7ECF2;--muted:#94A2B4;--line:#263345;--goodbg:#143426;--badbg:#3A1C1A;--good:#4CC38A;--bad:#F07A72;--soft:#1F2C3C;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#0F1722;--card:#18222F;--fg:#E7ECF2;--muted:#94A2B4;--line:#263345;--goodbg:#143426;--badbg:#3A1C1A;--good:#4CC38A;--bad:#F07A72;--soft:#1F2C3C;color-scheme:dark}
@@ -116,6 +116,9 @@ html{min-height:100%;background:var(--bg)}body{min-height:100vh;min-height:100dv
 input[type=date]{-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;width:100%;display:block;text-align:start;line-height:1.2;height:44px}
 input[type=date]::-webkit-date-and-time-value{text-align:start}
 .pl.o{background:#FFF4E0;color:#9A5B00}.warnc{color:#9A5B00}
+h2 .ico{width:30px;height:30px;border-radius:8px;display:inline-grid;place-items:center;flex:none;margin-inline-end:10px}
+h2 .ico svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+h2{justify-content:flex-start!important}h2>.hx{margin-inline-start:auto}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -522,12 +525,23 @@ function padTop(){const h=document.querySelector('header');if(h)document.body.st
 addEventListener('resize',padTop);
 function tick(){const n=new Date(),t=document.getElementById('clkT'),h=document.getElementById('clkH');if(!t)return;t.textContent=n.toLocaleTimeString('ar-SA-u-nu-latn',{hour:'numeric',minute:'2-digit'});h.textContent=n.toLocaleDateString('ar-SA-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'long',year:'numeric'})}
 setInterval(tick,15000);
+const ICS=[[/تنبيه/,'#FF3B30','<path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/>'],
+[/الموازنة|الراتب|المتاح|مستحقات|مصروف|مصاريف|الدخل|المشتريات|مطابقة|الصورة المالية/,'#34C759','<rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M6 15h4"/>'],
+[/الديون|صفر ديون/,'#FF9500','<path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'],
+[/الصلاة|صلوات|الاستغفار|التسبيح|ورد|أوقات|أذكار/,'#5856D6','<path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/>'],
+[/عادات|يومي/,'#007AFF','<path d="M4 12l5 5L20 6"/>'],
+[/أهداف|الأهداف|العملاء|خطة/,'#FF2D55','<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>'],
+[/مقارنة|لوحة|التقرير|حسب البند|المصروف اليومي|الالتزام/,'#5AC8FA','<path d="M4 20V10M10 20V4M16 20v-7M2 20h20"/>'],
+[/نقاط|الحساب/,'#8E8E93','<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>']];
+function decorate(){document.querySelectorAll('#app h2').forEach(h=>{if(h.querySelector('.ico'))return;const t=h.textContent;const m=ICS.find(x=>x[0].test(t));if(!m)return;
+ const kids=[...h.childNodes];const extra=kids.filter(n=>n.nodeType===1);extra.forEach(e=>e.classList.add('hx'));
+ const i=document.createElement('span');i.className='ico';i.style.background=m[1];i.innerHTML='<svg viewBox="0 0 24 24">'+m[2]+'</svg>';h.prepend(i)})}
 const views={home,dash,money,faith,habits,goals};
 function render(){
  document.getElementById('nav').classList.remove('kb');tick();requestAnimationFrame(padTop);
  document.getElementById('today').innerHTML=`<div class="hdr"><span>${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</span><span class="chip" id="sync"></span></div>`;
  paintSync();
- document.getElementById('app').innerHTML=views[tab]();
+ document.getElementById('app').innerHTML=views[tab]();decorate();
  document.getElementById('nav').innerHTML=tabs.map(([k,l])=>`<button class="${k===tab?'act':''}" data-tab="${k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">${ic[k]}</svg>${l}</button>`).join('');
 }
 const v=id=>document.getElementById(id)?.value?.trim();
@@ -622,7 +636,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v38';
+const APPV='v39';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
