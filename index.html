@@ -203,7 +203,7 @@ function dayStep(){const now=new Date();const n=Math.floor((new Date(now.getFull
  const ph=n<1?'قبل البداية':n<=30?'التأسيس':n<=60?'السوق':n<=90?'الإغلاق':'ما بعد الـ90';
  return{n,ph,t:rhythm[now.getDay()]}}
 
-const thoughts=['كل ريال تسجّله اليوم هو ريال تتحكم فيه غدًا.','الثروة لا تُبنى في يوم، لكنها تُهدم في يوم إهمال.','أنت لا تحتاج دافعًا، تحتاج نظامًا. والنظام بين يديك الآن.','«أحب الأعمال إلى الله أدومها وإن قلّ». خطوة صغيرة كل يوم تكفي.','الدَّين قيد. كل قسط تسدده يفك حلقة من السلسلة.','لا تقارن بدايتك بنهاية غيرك. قارن نفسك بأمسك فقط.','الصلاة في وقتها أول انتصار في يومك. ابدأ به.','العميل الأول هو الأصعب. بعده يصبح الطريق أوضح.','كل «لا» تقولها لمصروف غير ضروري هي «نعم» لهدفك.','السنوات الخمس ستمر في كل الأحوال. اجعلها سنوات بناء.','الاستغفار يفتح الأبواب المغلقة. أكثِر منه وأنت تسعى.','الانضباط اليوم هو الحرية بعد خمس سنوات.','لا تنتظر أن تشعر بالرغبة. ابدأ، والرغبة تلحق بك.','دخلك من الوظيفة يكفي لتعيش. دخلك من مشروعك هو ما يغيّر حياتك.','ما لا يُقاس لا يُدار. سجّل، راقب، عدّل.','التعب المؤقت أخف من ندم دائم.','«ومن يتق الله يجعل له مخرجًا ويرزقه من حيث لا يحتسب». اتقِ واجتهد.','يوم واحد ضعيف لا يهدم خطة. لا تفوّت مرتين.','اكتب رسالة لعميل محتمل اليوم. أسوأ رد هو «لا»، وهو نفس ما عندك الآن.','الغني ليس من يكسب أكثر، بل من يحتفظ بأكثر ويستثمره أحسن.','مهارتك المالية أصل. أصحاب المعارض يحتاجونها. اعرضها.','لا تصرف ما لم تكسبه بعد.','صدقة اليوم ولو قليلة تبارك في مالك كله.','ساعة واحدة يوميًا على مشروعك = 365 ساعة في السنة. هذا مشروع كامل.','أنت أقرب لهدفك مما كنت أمس، إن عملت اليوم.','المتأخرات لا تختفي بالتجاهل. اتصال واحد صريح يخفف نصف الحمل.','خطتك واضحة. الذي ينقص فقط هو التنفيذ.','كل صلاة تحافظ عليها تدريب على الالتزام في كل شيء آخر.','من صبر ظفر. هذه سنوات الكفاح، وبعدها سنوات الحصاد.','راجع يومك قبل النوم: ماذا أنجزت؟ ماذا ستفعل غدًا أفضل؟','الحمد لله على ما رزق، والسعي لما هو خير. توكّل واعمل.'];
+const thoughts=['كل SAR تسجّله اليوم هو SAR تتحكم فيه غدًا.','الثروة لا تُبنى في يوم، لكنها تُهدم في يوم إهمال.','أنت لا تحتاج دافعًا، تحتاج نظامًا. والنظام بين يديك الآن.','«أحب الأعمال إلى الله أدومها وإن قلّ». خطوة صغيرة كل يوم تكفي.','الدَّين قيد. كل قسط تسدده يفك حلقة من السلسلة.','لا تقارن بدايتك بنهاية غيرك. قارن نفسك بأمسك فقط.','الصلاة في وقتها أول انتصار في يومك. ابدأ به.','العميل الأول هو الأصعب. بعده يصبح الطريق أوضح.','كل «لا» تقولها لمصروف غير ضروري هي «نعم» لهدفك.','السنوات الخمس ستمر في كل الأحوال. اجعلها سنوات بناء.','الاستغفار يفتح الأبواب المغلقة. أكثِر منه وأنت تسعى.','الانضباط اليوم هو الحرية بعد خمس سنوات.','لا تنتظر أن تشعر بالرغبة. ابدأ، والرغبة تلحق بك.','دخلك من الوظيفة يكفي لتعيش. دخلك من مشروعك هو ما يغيّر حياتك.','ما لا يُقاس لا يُدار. سجّل، راقب، عدّل.','التعب المؤقت أخف من ندم دائم.','«ومن يتق الله يجعل له مخرجًا ويرزقه من حيث لا يحتسب». اتقِ واجتهد.','يوم واحد ضعيف لا يهدم خطة. لا تفوّت مرتين.','اكتب رسالة لعميل محتمل اليوم. أسوأ رد هو «لا»، وهو نفس ما عندك الآن.','الغني ليس من يكسب أكثر، بل من يحتفظ بأكثر ويستثمره أحسن.','مهارتك المالية أصل. أصحاب المعارض يحتاجونها. اعرضها.','لا تصرف ما لم تكسبه بعد.','صدقة اليوم ولو قليلة تبارك في مالك كله.','ساعة واحدة يوميًا على مشروعك = 365 ساعة في السنة. هذا مشروع كامل.','أنت أقرب لهدفك مما كنت أمس، إن عملت اليوم.','المتأخرات لا تختفي بالتجاهل. اتصال واحد صريح يخفف نصف الحمل.','خطتك واضحة. الذي ينقص فقط هو التنفيذ.','كل صلاة تحافظ عليها تدريب على الالتزام في كل شيء آخر.','من صبر ظفر. هذه سنوات الكفاح، وبعدها سنوات الحصاد.','راجع يومك قبل النوم: ماذا أنجزت؟ ماذا ستفعل غدًا أفضل؟','الحمد لله على ما رزق، والسعي لما هو خير. توكّل واعمل.'];
 function thought(){const n=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/864e5);return thoughts[n%thoughts.length]}
 
 function alertsCard(){const A=[],day=new Date().getDate(),dim=new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
@@ -226,7 +226,7 @@ function home(){
  return `<div class="card score">${ring(dayScore())}<div style="min-width:0"><b style="font-size:16px">نقاط اليوم</b><div class="muted">صلوات 40 · عادات 30 · موازنة 20 · استغفار 10</div><div style="font-size:13px;margin-top:6px;color:var(--fg)">💡 ${thought()}</div></div></div>
  ${alertsCard()}
  ${preStart()?startCard():''}${openCard()}<div class="list" ${preStart()?'hidden':''} style="gap:14px">
- <div class="card" style="gap:6px"><span class="muted">المتاح لك فعلًا للصرف</span><div class="big ${avail<0?'bad':'good'}">${fmt(avail)} ريال</div>
+ <div class="card" style="gap:6px"><span class="muted">المتاح لك فعلًا للصرف</span><div class="big ${avail<0?'bad':'good'}">${fmt(avail)} SAR</div>
  <div class="row"><span class="muted">مسموح يوميًا حتى آخر الشهر</span><b class="num ${avail<0?'bad':''}">${fmt(Math.max(0,avail)/dl)}</b></div>
  ${avail<0?`<div class="alert">ما معك لا يغطي مستحقات الشهر. أوقف أي صرف غير ضروري.</div>`:''}</div>
  <div class="kpis">
@@ -242,7 +242,7 @@ function home(){
  ${salaryCard()}
  ${preStart()?'':fixedCard()}
 
- <div class="card"><h2>باقي على صفر ديون</h2><div class="big bad">${fmt(debtTotal())} ريال</div><div class="bar"><i style="width:${Math.min(100,(1-debtTotal()/S.debtStart)*100)}%;background:var(--good)"></i></div><div class="muted">التاريخ المتوقع للتحرر بالوتيرة الحالية: ${freeDate()}</div></div>
+ <div class="card"><h2>باقي على صفر ديون</h2><div class="big bad">${fmt(debtTotal())} SAR</div><div class="bar"><i style="width:${Math.min(100,(1-debtTotal()/S.debtStart)*100)}%;background:var(--good)"></i></div><div class="muted">التاريخ المتوقع للتحرر بالوتيرة الحالية: ${freeDate()}</div></div>
  <div class="card"><h2>يومي ${ps?`<span class="streak">🔥 ${ps} يوم صلوات كاملة</span>`:''}</h2>
  <div class="row"><span>الصلوات</span><span class="num">${p} / 5</span></div><div class="bar"><i style="width:${p*20}%"></i></div>
  <div class="row"><span>الاستغفار</span><span class="num">${fmt(ist)} / ${fmt(S.istGoal)}</span></div><div class="bar"><i style="width:${Math.min(100,ist/S.istGoal*100)}%"></i></div>
@@ -280,13 +280,13 @@ function report(){const w=daysBack(7),inW=d=>w.includes(d);
  const ct=S.contacts.filter(inW).length,proj=w.filter(d=>(S.habitLog[d]||{})[4]).length,inc=sum(FI().filter(e=>inW(e.d)));
  return `تقرير الأسبوع — ${w[0]} إلى ${w[6]}
 1. تسجيل المصاريف: ${logged} من 7 أيام
-2. الأكل: ${fmt(food)} ريال (الحد 450) ${food>450?'— تجاوز':'— ضمن الحد'}
+2. الأكل: ${fmt(food)} SAR (الحد 450) ${food>450?'— تجاوز':'— ضمن الحد'}
 3. التواصل مع عملاء: ${ct} (الهدف 5)
 4. أيام عمل على المشروع: ${proj}
-5. إجمالي المصروف: ${fmt(all)} ريال
-6. دخل إضافي: ${fmt(inc)} ريال
+5. إجمالي المصروف: ${fmt(all)} SAR
+6. دخل إضافي: ${fmt(inc)} SAR
 7. الصلوات: ${pr} من 35 · الاستغفار: ${fmt(ist)}
-8. باقي على صفر ديون: ${fmt(debtTotal())} ريال
+8. باقي على صفر ديون: ${fmt(debtTotal())} SAR
 ما لم أنفّذه وسببه:
 الإجراء التصحيحي للأسبوع القادم: `}
 function expForm(){const custom=[...new Set(FE().map(e=>e.cat).filter(c=>!S.budgets.some(b=>b.n===c)))];return `<div class="form"><input id="ea" type="number" inputmode="decimal" placeholder="المبلغ"><select id="ec" onchange="document.getElementById('ecx').hidden=this.value!=='__w'">${S.budgets.map(b=>`<option>${b.n}</option>`).join('')}${custom.map(c=>`<option>${c}</option>`).join('')}<option value="__w">✍️ اكتب نوع المصروف</option></select><input id="ecx" class="full" placeholder="نوع المصروف (مثال: ملابس، هدية، علاج)" hidden><input id="en" placeholder="ملاحظة (اختياري)"><input id="ed" type="date" value="${td()}" aria-label="تاريخ المصروف"><button class="full" data-act="addExp">تسجيل</button></div>`}
@@ -298,9 +298,9 @@ function shopCard(){S.shop=S.shop||[];S.shopOn=S.shopOn||{};S.trips=S.trips||[];
  <div class="muted">في المول: أشّر ✓ على ما اشتريته، واكتب سعره، ثم اضغط «إنهاء المشوار».</div>
  <div class="list">${S.shop.map((x,i)=>`<div class="habit"><button class="chk ${S.shopOn[i]?'on':''}" data-act="shT" data-i="${i}" aria-label="${x.n}">✓</button><span style="flex:1;min-width:0;${S.shopOn[i]?'text-decoration:line-through;color:var(--muted)':''}">${x.n}</span><input id="sp${i}" type="number" inputmode="decimal" value="${x.p||''}" placeholder="السعر" style="width:84px;padding:6px 8px" onchange="S.shop[${i}].p=+this.value||0;save()"><button class="x" data-act="shD" data-i="${i}" aria-label="حذف">✕</button></div>`).join('')}</div>
  <div class="form"><input id="shN" class="full" placeholder="أضف صنفًا (مثال: عدس، صابون)"><button class="full ghost" data-act="shA">إضافة للقائمة</button></div>
- <div class="row"><b>مجموع المختار (${on.length} صنف)</b><b class="num">${fmt(tot)} ريال</b></div>
+ <div class="row"><b>مجموع المختار (${on.length} صنف)</b><b class="num">${fmt(tot)} SAR</b></div>
  <button data-act="shDone">إنهاء المشوار وتسجيله على «أكل وشرب»</button>
- ${tm.length?`<div class="muted">${tm.map(t=>`${t.d.slice(5)}: ${fmt(t.a)} ريال (${t.k} صنف)`).join(' · ')}</div><div class="tot sub"><span>إجمالي مشاوير الشهر</span><span class="num">${fmt(tm.reduce((a,t)=>a+t.a,0))}</span></div>`:''}</details>`}
+ ${tm.length?`<div class="muted">${tm.map(t=>`${t.d.slice(5)}: ${fmt(t.a)} SAR (${t.k} صنف)`).join(' · ')}</div><div class="tot sub"><span>إجمالي مشاوير الشهر</span><span class="num">${fmt(tm.reduce((a,t)=>a+t.a,0))}</span></div>`:''}</details>`}
 function money(){
  const tb=totalB(),ti=incPlan().reduce((x,y)=>x+(+y.a||0),0),cm=sum(monthExp()),pm=sum(monthExp(mon(-1))),diff=cm-pm;
  return recCard()+shopCard()+`<div class="card"><h2>الموازنة الشهرية <button class="x" data-act="bEdit" style="font-size:13px">${bEdit?'إغلاق التعديل':'✏️ تعديل البنود'}</button></h2>
@@ -315,7 +315,7 @@ function money(){
  ${bEdit?`<div class="form"><input id="bpnN" placeholder="بند جديد"><input id="bpaN" type="number" placeholder="المبلغ"></div><button data-act="bSave">حفظ التعديلات</button>`:''}
  <div class="tot sub"><span>إجمالي المصروفات</span><span class="num">${fmt(tb)}</span></div>
  <div class="tot"><span>${ti-tb<0?'العجز':'الفائض'}</span><span class="num ${ti-tb<0?'bad':'good'}">${ti-tb<0?'−':''}${fmt(Math.abs(ti-tb))}</span></div>
- ${ti-tb<0?`<div class="alert">المصروفات أكبر من الإيرادات بـ ${fmt(tb-ti)} ريال شهريًا. خفّض البنود أو زِد الدخل حتى يصبح الفرق صفرًا أو فائضًا.</div>`:`<div class="ok">${ti-tb?`فائض ${fmt(ti-tb)} ريال. وجّهه للطوارئ أو سداد الديون.`:'كل ريال له وظيفة ✓'}</div>`}</div>
+ ${ti-tb<0?`<div class="alert">المصروفات أكبر من الإيرادات بـ ${fmt(tb-ti)} SAR شهريًا. خفّض البنود أو زِد الدخل حتى يصبح الفرق صفرًا أو فائضًا.</div>`:`<div class="ok">${ti-tb?`فائض ${fmt(ti-tb)} SAR. وجّهه للطوارئ أو سداد الديون.`:'كل SAR له وظيفة ✓'}</div>`}</div>
  <div class="card"><h2>الموازنة مقابل الفعلي</h2>${S.budgets.map((b,i)=>{const s=spentBy(b.n),pc=b.b?s/b.b*100:0;return `<div><div class="row"><span>${b.n}</span><span class="num ${s>b.b?'bad':''}">${fmt(s)} / ${fmt(b.b)} <button class="x" data-act="delB" data-i="${i}" aria-label="حذف البند">✕</button></span></div><div class="bar"><i style="width:${Math.min(100,pc)}%;background:${s>b.b?'var(--bad)':'var(--good)'}"></i></div></div>`}).join('')}
  ${(()=>{const sp=S.budgets.reduce((a,b)=>a+spentBy(b.n),0);return `<div class="tot"><span>الإجمالي</span><span class="num ${sp>tb?'bad':''}">${fmt(sp)} / ${fmt(tb)}</span></div><div class="tot sub"><span>المتبقي من الموازنة</span><span class="num ${tb-sp<0?'bad':'good'}">${fmt(tb-sp)}</span></div>`})()}
  <div class="form"><input id="bn" placeholder="بند جديد (استثمار، صدقة...)"><input id="bb" type="number" placeholder="المبلغ"><button class="full ghost" data-act="addB">إضافة بند</button></div></div>
@@ -330,8 +330,8 @@ function money(){
  <div class="tot"><span>إجمالي الديون</span><span class="num bad">${fmt(debtTotal())}</span></div><div class="tot sub"><span>إجمالي الأقساط الشهرية</span><span class="num">${fmt(S.debts.reduce((a,d)=>a+(d.rem>0?+d.inst||0:0),0))}</span></div><div class="tot sub"><span>إجمالي المتأخرات</span><span class="num ${S.debts.some(d=>d.late)?'bad':''}">${fmt(S.debts.reduce((a,d)=>a+(+d.late||0),0))}</span></div>
  <div class="form"><input id="dn" class="full" placeholder="التزام جديد"><input id="dr" type="number" placeholder="المتبقي"><input id="di" type="number" placeholder="القسط الشهري"><button class="full ghost" data-act="addD">إضافة التزام</button></div><button class="ghost" data-act="debtBase">ضبط خط الأساس على المتبقي الحالي</button><div class="muted">استخدمه يوم 1 نوفمبر بعد تصحيح أرقام الديون.</div></div>
  <div class="card"><h2>مقارنة شهرية</h2><div class="row"><span>هذا الشهر</span><span class="num">${fmt(cm)}</span></div><div class="row"><span>الشهر الماضي</span><span class="num">${fmt(pm)}</span></div>
- <div class="${diff>0?'alert':'ok'}">${pm?`المصروف ${diff>0?'أعلى':'أقل'} بـ ${fmt(Math.abs(diff))} ريال من الشهر الماضي.`:'المقارنة تبدأ من الشهر القادم.'}</div></div>
- <div class="card"><h2>مصاريف الشهر <span class="num">${fmt(cm)} ريال · ${monthExp().length} عملية</span></h2><div class="list">${monthExp().slice().reverse().map(e=>`<div class="exp"><span>${e.cat}${e.n?' · '+e.n:''}<br><span class="muted">${e.d}</span></span><span class="num">${fmt(e.a)} <button class="x" data-act="delE" data-id="${e.id}" aria-label="حذف">✕</button></span></div>`).join('')||'<span class="muted">لا مصاريف بعد. سجّل أول مصروف من الأعلى.</span>'}</div></div>`;
+ <div class="${diff>0?'alert':'ok'}">${pm?`المصروف ${diff>0?'أعلى':'أقل'} بـ ${fmt(Math.abs(diff))} SAR من الشهر الماضي.`:'المقارنة تبدأ من الشهر القادم.'}</div></div>
+ <div class="card"><h2>مصاريف الشهر <span class="num">${fmt(cm)} SAR · ${monthExp().length} عملية</span></h2><div class="list">${monthExp().slice().reverse().map(e=>`<div class="exp"><span>${e.cat}${e.n?' · '+e.n:''}<br><span class="muted">${e.d}</span></span><span class="num">${fmt(e.a)} <button class="x" data-act="delE" data-id="${e.id}" aria-label="حذف">✕</button></span></div>`).join('')||'<span class="muted">لا مصاريف بعد. سجّل أول مصروف من الأعلى.</span>'}</div></div>`;
 }
 const adhkar=['أستغفر الله وأتوب إليه','سبحان الله وبحمده، سبحان الله العظيم','لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير','حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم','اللهم إني أسألك علمًا نافعًا ورزقًا طيبًا وعملًا متقبلًا'];
 function faith(){
@@ -386,7 +386,7 @@ function mStats(m){const ds=monthDays(m),n=ds.length||1,ex=monthExp(m);
  ct:S.contacts.filter(d=>d.startsWith(m)).length}}
 const mName=m=>new Date(m+'-15').toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{month:'long'});
 function compareCard(){const c=mStats(mon()),p=mStats(mon(-1)),has=sum(monthExp(mon(-1)))>0||Object.keys(S.prayers).some(d=>d.startsWith(mon(-1)));
- const G=[['المال',[['متوسط المصروف اليومي',c.spendD,p.spendD,'down','ر'],['متوسط الأكل اليومي',c.food,p.food,'down','ر'],['الدخل الإضافي',c.inc,p.inc,'up','ر'],['سداد الديون',c.debt,p.debt,'up','ر']]],
+ const G=[['المال',[['متوسط المصروف اليومي',c.spendD,p.spendD,'down','SAR'],['متوسط الأكل اليومي',c.food,p.food,'down','SAR'],['الدخل الإضافي',c.inc,p.inc,'up','SAR'],['سداد الديون',c.debt,p.debt,'up','SAR']]],
   ['العبادات',[['مواظبة الصلاة',c.pray,p.pray,'up','%'],['الاستغفار اليومي',c.ist,p.ist,'up',''],['صفحات القرآن',c.q,p.q,'up','']]],
   ['الانضباط والعمل',[['الالتزام بالعادات',c.hab,p.hab,'up','%'],['تواصل مع عملاء',c.ct,p.ct,'up','']]]];
  let better=0,worse=0,total=0;
@@ -436,7 +436,7 @@ function dash(){
  <svg viewBox="0 0 ${W} ${H+18}" style="width:100%;height:auto">${[0,.5,1].map(t=>`<line x1="0" x2="${W}" y1="${H-t*H}" y2="${H-t*H}" stroke="var(--line)"/>`).join('')}
  ${byDay.map((v,i)=>`<rect x="${i*bw+1}" y="${H-v/mx*H}" width="${bw-2}" height="${v/mx*H}" rx="1.5" fill="${i===29?'var(--orange)':'var(--navy)'}"/>`).join('')}
  <text x="${W}" y="${H+14}" font-size="9" fill="var(--muted)" text-anchor="end">قبل 30 يوم</text><text x="0" y="${H+14}" font-size="9" fill="var(--muted)">اليوم</text></svg>
- <div class="muted">أعلى يوم: ${fmt(mx===1&&!byDay.some(Boolean)?0:mx)} ريال · متوسط يومي: ${fmt(sum(FE().filter(e=>d30.includes(e.d)))/30)} ريال</div></div>
+ <div class="muted">أعلى يوم: ${fmt(mx===1&&!byDay.some(Boolean)?0:mx)} SAR · متوسط يومي: ${fmt(sum(FE().filter(e=>d30.includes(e.d)))/30)} SAR</div></div>
  <div class="card"><h2>المصروف حسب البند</h2>${cats.map(c=>`<div><div class="row"><span>${c.n}</span><span class="num ${c.s>c.b?'bad':''}">${fmt(c.s)} من ${fmt(c.b)}</span></div><div class="bar"><i style="width:${c.b?Math.min(100,c.s/c.b*100):0}%;background:${c.s>c.b?'var(--bad)':'var(--navy)'}"></i></div></div>`).join('')}<div class="tot"><span>الإجمالي</span><span class="num">${fmt(cats.reduce((a,c)=>a+c.s,0))} من ${fmt(cats.reduce((a,c)=>a+c.b,0))}</span></div></div>
  <div class="card"><h2>الصلوات — آخر 14 يومًا</h2><div style="display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:3px;align-items:end;height:70px">${pr.map((n,i)=>`<div title="${d14[i]}" style="height:${Math.max(4,n*20)}%;background:${n===5?'var(--good)':n>=3?'var(--orange)':'var(--bad)'};border-radius:3px"></div>`).join('')}</div><div class="muted">أخضر = 5 صلوات · برتقالي = 3–4 · أحمر = أقل</div></div>
  <div class="card"><h2>الالتزام بالعادات — آخر 30 يومًا</h2>${hab.map(h=>`<div><div class="row"><span>${h.n}</span><span class="num">${h.r} / 30</span></div><div class="bar"><i style="width:${h.r/30*100}%;background:var(--good)"></i></div></div>`).join('')}</div>
@@ -480,7 +480,7 @@ const preStart=()=>td()<FS();
 const opening=()=>S.opening?+S.opening.a||0:0;
 const cashNow=()=>opening()+sum(FI())-sum(FE());
 const salaryThisMonth=()=>monthInc().some(e=>e.s==='راتب');
-function openCard(){if(S.opening)return'';return `<div class="card" style="border:2px solid var(--orange)"><h2>الرصيد الافتتاحي</h2><div class="muted">كم معك فعلًا يوم ${new Date(FS()).toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{day:'numeric',month:'long'})}؟ اجمع رصيد البنك + الكاش في يدك. سجّله صباح ذلك اليوم قبل أي صرف.</div><div class="form"><input id="opA" type="number" inputmode="decimal" placeholder="المبلغ بالريال"><button data-act="setOpen">حفظ الرصيد الافتتاحي</button></div></div>`}
+function openCard(){if(S.opening)return'';return `<div class="card" style="border:2px solid var(--orange)"><h2>الرصيد الافتتاحي</h2><div class="muted">كم معك فعلًا يوم ${new Date(FS()).toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{day:'numeric',month:'long'})}؟ اجمع رصيد البنك + الكاش في يدك. سجّله صباح ذلك اليوم قبل أي صرف.</div><div class="form"><input id="opA" type="number" inputmode="decimal" placeholder="المبلغ بالSAR"><button data-act="setOpen">حفظ الرصيد الافتتاحي</button></div></div>`}
 function recCard(){const r=(S.recs||[]).slice(-1)[0],c=cashNow();return `<div class="card"><h2>مطابقة البنك ${r?`<span class="muted" style="font-weight:400">آخر مطابقة ${r.d.slice(5)}</span>`:''}</h2>
  <div class="muted">كل جمعة: افتح تطبيق البنك واجمع رصيدك + الكاش، واكتبه هنا.</div>
  <div class="row"><span>رصيدك حسب التطبيق</span><b class="num">${fmt(c)}</b></div>
@@ -549,7 +549,7 @@ document.addEventListener('click',async e=>{
  if(a==='shD'){S.shop.splice(i,1);S.shopOn={};save();render();return}
  if(a==='shDone'){S.shop.forEach((x,k)=>{const el=document.getElementById('sp'+k);if(el)x.p=+el.value||0});const on=S.shop.filter((x,k)=>S.shopOn[k]);if(!on.length){toast('أشّر على الأصناف التي اشتريتها أولًا');return}
   const tot=on.reduce((a2,x)=>a2+(+x.p||0),0);if(!tot){toast('اكتب أسعار الأصناف أولًا');return}
-  undoSnap=JSON.stringify(S);S.expenses.push({id:Date.now(),d,a:tot,cat:'أكل وشرب',n:'مشوار المول: '+on.map(x=>x.n).join('، ')});S.trips.push({d,a:tot,k:on.length});S.shopOn={};mark(d,1);save();render();toast('سُجّل المشوار '+fmt(tot)+' ريال');return}
+  undoSnap=JSON.stringify(S);S.expenses.push({id:Date.now(),d,a:tot,cat:'أكل وشرب',n:'مشوار المول: '+on.map(x=>x.n).join('، ')});S.trips.push({d,a:tot,k:on.length});S.shopOn={};mark(d,1);save();render();toast('سُجّل المشوار '+fmt(tot)+' SAR');return}
  if(a==='qPrev'||a==='qNext'){S.qPage=Math.min(604,Math.max(1,(S.qPage||1)+(a==='qNext'?1:-1)));save();render();scrollTo(0,0);return}
  if(a==='qGo'){const n=+v('qp');if(n>=1&&n<=604){S.qPage=n;save();render()}return}
  if(a==='pickDh'){curDh=b.dataset.k;confirmRst=false;render();return}
@@ -573,7 +573,7 @@ document.addEventListener('click',async e=>{
  if(a==='igT'){showIg=!showIg;render();return}
  if(a==='city'){document.getElementById('cityBox').innerHTML=`<div class="form"><select id="cs">${['Riyadh','Jeddah','Makkah','Madinah','Dammam','Khobar','Taif','Abha','Tabuk','Buraydah','Hail','Jazan','Najran','Al Ahsa'].map(c=>`<option ${c===S.city?'selected':''}>${c}</option>`).join('')}</select><button data-act="setCity">حفظ</button></div>`;return}
  if(a==='setCity'){S.city=v('cs');PT=null;save();render();return}
- if(a==='qx'){const q=S.quick[i];S.expenses.push({id:Date.now(),d,a:q.a,cat:q.cat,n:q.n});mark(d,1);save();render();toast('سُجّل '+q.n+' '+q.a+' ريال');return}
+ if(a==='qx'){const q=S.quick[i];S.expenses.push({id:Date.now(),d,a:q.a,cat:q.cat,n:q.n});mark(d,1);save();render();toast('سُجّل '+q.n+' '+q.a+' SAR');return}
  if(a==='qSave'){S.quick.forEach((q,k)=>{q.n=v('qn'+k)||q.n;q.a=+v('qa'+k)||q.a});save();render();return}
  if(a==='payFix'){const n=b.dataset.n,bb=S.budgets.find(x=>x.n===n),m=mon(),r=Math.max(0,bb.b-paidAmt(n)),amt=+v('fx'+i)||r;if(!amt)return;S.paidFixed[m]=S.paidFixed[m]||{};S.paidFixed[m][n]=paidAmt(n)+amt;S.expenses.push({id:Date.now(),d,a:amt,cat:n,n:'مستحق شهري'});mark(d,1);
   if(n==='قسط التمويل'){const debt=S.debts.find(x=>x.n.includes('التمويل'));if(debt){debt.rem=Math.max(0,debt.rem-amt);debt.late=Math.max(0,debt.late-amt)}}
@@ -581,7 +581,7 @@ document.addEventListener('click',async e=>{
   if(n==='صندوق الطوارئ'){const g=S.goals.find(g=>g.n.includes('طوارئ'));if(g)g.c+=amt}save();render();toast('تم تسجيل '+fmt(amt)+' على '+n);return}
  if(a==='salIn'){const x=+v('salA')||S.salary;undoSnap=JSON.stringify(S);S.income.push({id:Date.now(),d,a:x,s:'راتب'});save();render();toast('سُجّل الراتب '+fmt(x));return}
  if(a==='setOpen'){const x=+v('opA');if(isNaN(x)||v('opA')==='')return;S.opening={a:x,d:FS()};save();render();toast('تم حفظ الرصيد الافتتاحي '+fmt(x));return}
- if(a==='rec'){const x=+v('rcA');if(v('rcA')==='')return;const c=cashNow(),df=x-c;S.recs=S.recs||[];S.recs.push({d,app:c,act:x});save();document.getElementById('rcBox').innerHTML=!Math.round(df)?'<div class="ok">مطابق ✓ أرقامك صادقة.</div>':`<div class="alert">فرق ${fmt(Math.abs(df))} ريال: ${df<0?'صرفت أكثر مما سجّلت':'دخل لم تسجّله'}.</div><button class="ghost" data-act="recFix" data-i="${Math.round(df)}">${df<0?'سجّل الفرق مصروفًا «غير مسجّل»':'سجّل الفرق دخلًا «غير مسجّل»'}</button>`;return}
+ if(a==='rec'){const x=+v('rcA');if(v('rcA')==='')return;const c=cashNow(),df=x-c;S.recs=S.recs||[];S.recs.push({d,app:c,act:x});save();document.getElementById('rcBox').innerHTML=!Math.round(df)?'<div class="ok">مطابق ✓ أرقامك صادقة.</div>':`<div class="alert">فرق ${fmt(Math.abs(df))} SAR: ${df<0?'صرفت أكثر مما سجّلت':'دخل لم تسجّله'}.</div><button class="ghost" data-act="recFix" data-i="${Math.round(df)}">${df<0?'سجّل الفرق مصروفًا «غير مسجّل»':'سجّل الفرق دخلًا «غير مسجّل»'}</button>`;return}
  if(a==='recFix'){const df=i;undoSnap=JSON.stringify(S);if(df<0)S.expenses.push({id:Date.now(),d,a:-df,cat:'غير مسجّل',n:'فرق المطابقة'});else S.income.push({id:Date.now(),d,a:df,s:'غير مسجّل'});save();render();toast('تمت التسوية');return}
  if(a==='debtBase'){S.debtStart=debtTotal();save();render();toast('ضُبط خط الأساس على '+fmt(S.debtStart));return}
  if(a==='unlock'){try{await unlockFace();unlocked=true;boot()}catch(_){lockView('لم يتم التحقق. حاول مرة أخرى.')}return}
@@ -622,7 +622,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v37';
+const APPV='v38';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
