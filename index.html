@@ -297,7 +297,7 @@ function expForm(){const custom=[...new Set(FE().map(e=>e.cat).filter(c=>!S.budg
 function shopCard(){S.shop=S.shop||[];S.shopOn=S.shopOn||{};S.trips=S.trips||[];
  const on=S.shop.filter((x,i)=>S.shopOn[i]),tot=on.reduce((a,x)=>a+(+x.p||0),0),tm=(S.trips||[]).filter(t=>t.d>=FS()).filter(t=>t.d.startsWith(mon()));
  let op=false;try{op=localStorage.getItem('darbi-shop')==='1'}catch(e){}
- return `<details class="card shopd" ${op?'open':''} ontoggle="try{localStorage.setItem('darbi-shop',this.open?'1':'0')}catch(e){}"><summary><h2 style="margin:0">🛒 قائمة المشتريات <span class="muted" style="font-weight:400">${on.length?`${on.length} مختار · `:''}مشاوير الشهر: ${tm.length}</span></h2></summary>
+ return `<details class="card shopd" ${op?'open':''} ontoggle="try{localStorage.setItem('darbi-shop',this.open?'1':'0')}catch(e){}"><summary><h2 style="margin:0">قائمة المشتريات <span class="muted" style="font-weight:400">${on.length?`${on.length} مختار · `:''}مشاوير الشهر: ${tm.length}</span></h2></summary>
  <div class="muted">في المول: أشّر ✓ على ما اشتريته، واكتب سعره، ثم اضغط «إنهاء المشوار».</div>
  <div class="list">${S.shop.map((x,i)=>`<div class="habit"><button class="chk ${S.shopOn[i]?'on':''}" data-act="shT" data-i="${i}" aria-label="${x.n}">✓</button><span style="flex:1;min-width:0;${S.shopOn[i]?'text-decoration:line-through;color:var(--muted)':''}">${x.n}</span><input id="sp${i}" type="number" inputmode="decimal" value="${x.p||''}" placeholder="السعر" style="width:84px;padding:6px 8px" onchange="S.shop[${i}].p=+this.value||0;save()"><button class="x" data-act="shD" data-i="${i}" aria-label="حذف">✕</button></div>`).join('')}</div>
  <div class="form"><input id="shN" class="full" placeholder="أضف صنفًا (مثال: عدس، صابون)"><button class="full ghost" data-act="shA">إضافة للقائمة</button></div>
@@ -306,7 +306,7 @@ function shopCard(){S.shop=S.shop||[];S.shopOn=S.shopOn||{};S.trips=S.trips||[];
  ${tm.length?`<div class="muted">${tm.map(t=>`${t.d.slice(5)}: ${fmt(t.a)} SAR (${t.k} صنف)`).join(' · ')}</div><div class="tot sub"><span>إجمالي مشاوير الشهر</span><span class="num">${fmt(tm.reduce((a,t)=>a+t.a,0))}</span></div>`:''}</details>`}
 function money(){
  const tb=totalB(),ti=incPlan().reduce((x,y)=>x+(+y.a||0),0),cm=sum(monthExp()),pm=sum(monthExp(mon(-1))),diff=cm-pm;
- return recCard()+shopCard()+`<div class="card"><h2>الموازنة الشهرية <button class="x" data-act="bEdit" style="font-size:13px">${bEdit?'إغلاق التعديل':'✏️ تعديل البنود'}</button></h2>
+ return `<div class="card"><h2>الموازنة الشهرية <button class="x" data-act="bEdit" style="font-size:13px">${bEdit?'إغلاق التعديل':'✏️ تعديل البنود'}</button></h2>
  <div style="font-weight:500">الإيرادات</div>
  ${incPlan().map((x,i)=>bEdit?`<div class="form"><input id="ipn${i}" value="${x.n}"><input id="ipa${i}" type="number" inputmode="decimal" value="${x.a}"></div><button class="x" data-act="ipDel" data-i="${i}" style="align-self:flex-start">✕ حذف «${x.n}»</button>`:`<div class="row"><span>${x.n}</span><span class="num good">${fmt(x.a)}</span></div>`).join('')}
  ${bEdit?`<div class="form"><input id="ipnN" placeholder="إيراد جديد (عمل إضافي...)"><input id="ipaN" type="number" placeholder="المبلغ"></div>`:''}
@@ -334,7 +334,7 @@ function money(){
  <div class="form"><input id="dn" class="full" placeholder="التزام جديد"><input id="dr" type="number" placeholder="المتبقي"><input id="di" type="number" placeholder="القسط الشهري"><button class="full ghost" data-act="addD">إضافة التزام</button></div><button class="ghost" data-act="debtBase">ضبط خط الأساس على المتبقي الحالي</button><div class="muted">استخدمه يوم 1 نوفمبر بعد تصحيح أرقام الديون.</div></div>
  <div class="card"><h2>مقارنة شهرية</h2><div class="row"><span>هذا الشهر</span><span class="num">${fmt(cm)}</span></div><div class="row"><span>الشهر الماضي</span><span class="num">${fmt(pm)}</span></div>
  <div class="${diff>0?'alert':'ok'}">${pm?`المصروف ${diff>0?'أعلى':'أقل'} بـ ${fmt(Math.abs(diff))} SAR من الشهر الماضي.`:'المقارنة تبدأ من الشهر القادم.'}</div></div>
- <div class="card"><h2>مصاريف الشهر <span class="num">${fmt(cm)} SAR · ${monthExp().length} عملية</span></h2><div class="list">${monthExp().slice().reverse().map(e=>`<div class="exp"><span>${e.cat}${e.n?' · '+e.n:''}<br><span class="muted">${e.d}</span></span><span class="num">${fmt(e.a)} <button class="x" data-act="delE" data-id="${e.id}" aria-label="حذف">✕</button></span></div>`).join('')||'<span class="muted">لا مصاريف بعد. سجّل أول مصروف من الأعلى.</span>'}</div></div>`;
+ <div class="card"><h2>مصاريف الشهر <span class="num">${fmt(cm)} SAR · ${monthExp().length} عملية</span></h2><div class="list">${monthExp().slice().reverse().map(e=>`<div class="exp"><span>${e.cat}${e.n?' · '+e.n:''}<br><span class="muted">${e.d}</span></span><span class="num">${fmt(e.a)} <button class="x" data-act="delE" data-id="${e.id}" aria-label="حذف">✕</button></span></div>`).join('')||'<span class="muted">لا مصاريف بعد. سجّل أول مصروف من الأعلى.</span>'}</div></div>`+shopCard()+recCard();
 }
 const adhkar=['أستغفر الله وأتوب إليه','سبحان الله وبحمده، سبحان الله العظيم','لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير','حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم','اللهم إني أسألك علمًا نافعًا ورزقًا طيبًا وعملًا متقبلًا'];
 function faith(){
@@ -636,7 +636,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v40';
+const APPV='v41';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
