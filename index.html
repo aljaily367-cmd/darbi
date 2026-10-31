@@ -148,6 +148,7 @@ nav button{position:relative;padding:8px 0 6px!important;transition:transform .1
 .nb{position:absolute;top:2px;left:50%;margin-left:6px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#FF3B30;color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center;box-shadow:0 0 0 2px var(--navy);z-index:2}
 nav{padding-bottom:max(6px,env(safe-area-inset-bottom,0px))!important}
 nav button{font-size:13px!important;font-weight:500}nav button svg{width:25px!important;height:25px!important}
+.kgrp{font-size:13px;font-weight:600;color:var(--navy);margin-top:4px}.kps{font-size:11px!important;color:var(--muted);margin-top:2px;display:block}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -579,18 +580,18 @@ function mStats(m){const ds=monthDays(m),n=ds.length||1,ex=monthExp(m);
  ist:Math.round(ds.reduce((a,d)=>a+(S.ist[d]||0),0)/n),q:ds.reduce((a,d)=>a+((S.qLog||{})[d]||0),0),
  ct:S.contacts.filter(d=>d.startsWith(m)).length}}
 const mName=m=>new Date(m+'-15').toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{month:'long'});
-function compareCard(){const c=mStats(mon()),p=mStats(mon(-1)),has=sum(monthExp(mon(-1)))>0||Object.keys(S.prayers).some(d=>d.startsWith(mon(-1)));
+function compareCard(){const c=mStats(mon()),p=mStats(mon(-1)),early=c.n<7,finOk=mon(-1)>=FS().slice(0,7),has=!early&&(sum(monthExp(mon(-1)))>0||Object.keys(S.prayers).some(d=>d.startsWith(mon(-1))));
  const G=[['المال',[['متوسط المصروف اليومي',c.spendD,p.spendD,'down','SAR'],['متوسط الأكل اليومي',c.food,p.food,'down','SAR'],['الدخل الإضافي',c.inc,p.inc,'up','SAR'],['سداد الديون',c.debt,p.debt,'up','SAR']]],
   ['العبادات',[['مواظبة الصلاة',c.pray,p.pray,'up','%'],['الاستغفار اليومي',c.ist,p.ist,'up',''],['صفحات القرآن',c.q,p.q,'up','']]],
   ['الانضباط والعمل',[['الالتزام بالعادات',c.hab,p.hab,'up','%'],['تواصل مع عملاء',c.ct,p.ct,'up','']]]];
  let better=0,worse=0,total=0;
- const pill=(a,b,dir)=>{if(!has)return'<span class="pl n">—</span>';const d=a-b;if(!d)return'<span class="pl n">ثابت</span>';const good=dir==='up'?d>0:d<0;good?better++:worse++;const pc=b?Math.round(Math.abs(d)/b*100):100;return `<span class="pl ${good?'g':'r'}">${d>0?'▲':'▼'} ${pc}%</span>`};
- const body=G.map(([t,rows])=>`<tr class="gh"><td colspan="4">${t}</td></tr>`+rows.map(([l,a,b,dir,u])=>{total++;return `<tr><td>${l}</td><td class="num mu">${fmt(b)}${u?' '+u:''}</td><td class="num"><b>${fmt(a)}${u?' '+u:''}</b></td><td>${pill(a,b,dir)}</td></tr>`}).join('')).join('');
+ const pill=(a,b,dir,fin)=>{if(!has||(fin&&!finOk))return'<span class="pl n">—</span>';const d=a-b;if(!d)return'<span class="pl n">ثابت</span>';const good=dir==='up'?d>0:d<0;good?better++:worse++;const pc=b?Math.round(Math.abs(d)/b*100):100;return `<span class="pl ${good?'g':'r'}">${d>0?'▲':'▼'} ${pc}%</span>`};
+ const body=G.map(([t,rows],gi)=>`<tr class="gh"><td colspan="4">${t}${gi===0&&!finOk?' <small style="font-weight:400">(المقارنة المالية تبدأ من الشهر القادم)</small>':''}</td></tr>`+rows.map(([l,a,b,dir,u])=>{const fin=gi===0;if(!(fin&&!finOk))total++;return `<tr><td>${l}</td><td class="num mu">${fin&&!finOk?'—':fmt(b)+(u?' '+u:'')}</td><td class="num"><b>${fmt(a)}${u?' '+u:''}</b></td><td>${pill(a,b,dir,fin)}</td></tr>`}).join('')).join('');
  const sc=has?Math.round(better/total*100):0,col=!has?'var(--muted)':better>=worse?'var(--good)':'var(--bad)',C=2*Math.PI*26;
  const hist=[-5,-4,-3,-2,-1,0].map(o=>mStats(mon(o))),mx=Math.max(1,...hist.map(h=>h.spend));
  return `<div class="card cmp"><h2>مقارنة شهرية <span class="muted" style="font-weight:400">${mName(mon(-1))} ← ${mName(mon())}</span></h2>
  <div class="cmpTop"><svg viewBox="0 0 64 64" width="64" height="64"><circle cx="32" cy="32" r="26" fill="none" stroke="var(--soft)" stroke-width="7"/><circle cx="32" cy="32" r="26" fill="none" stroke="${col}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C*sc/100} ${C}" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle" font-size="14" font-weight="700" fill="var(--fg)">${has?better+'/'+total:'—'}</text></svg>
- <div style="min-width:0"><b style="font-size:15px">${!has?'بانتظار اكتمال شهر':better>=worse?'شهر أفضل من سابقه':'شهر أضعف من سابقه'}</b><div class="muted">${!has?`أول مقارنة حقيقية بداية ${mName(mon(1))}. البيانات الحالية تُجمع الآن.`:`تحسّن ${better} · تراجع ${worse} · ثابت ${total-better-worse}`}</div></div></div>
+ <div style="min-width:0"><b style="font-size:15px">${!has?(early?'بانتظار أسبوع من البيانات':'بانتظار اكتمال شهر'):better>=worse?'شهر أفضل من سابقه':'شهر أضعف من سابقه'}</b><div class="muted">${!has?(early?`الشهر في يومه ${c.n}؛ تظهر المقارنة بعد 7 أيام لتكون عادلة.`:`أول مقارنة حقيقية بداية ${mName(mon(1))}. البيانات الحالية تُجمع الآن.`):`تحسّن ${better} · تراجع ${worse} · ثابت ${total-better-worse}`}</div></div></div>
  <div style="overflow-x:auto"><table class="ct"><thead><tr><th>المؤشر</th><th>${mName(mon(-1))}</th><th>${mName(mon())}</th><th>التغيّر</th></tr></thead><tbody>${body}</tbody></table></div>
  <div class="muted">${mName(mon())} حتى اليوم (${c.n} يوم). المصروف والأكل والاستغفار متوسطات يومية لتكون المقارنة عادلة.</div>
  <div style="font-weight:500;margin-top:4px">المصروف الشهري — آخر 6 أشهر</div>
@@ -640,14 +641,14 @@ function dash(){
  const d14=daysBack(14),pr=d14.map(d=>(S.prayers[d]||[]).filter(Boolean).length);
  const hab=S.habits.map(h=>({n:h.n,r:d30.filter(d=>hDone(h,d)).length}));
  const paid=S.debtStart-debtTotal(),dp=S.debtStart?paid/S.debtStart*100:0;
- const prRate=Math.round(d30.reduce((a,d)=>a+(S.prayers[d]||[]).filter(Boolean).length,0)/150*100);
+ const first=Object.keys(S.prayers).sort()[0]||td(),tr=d30.filter(d=>d>=first),prRate=Math.round(tr.reduce((a,d)=>a+(S.prayers[d]||[]).filter(Boolean).length,0)/Math.max(1,tr.length*5)*100);
  const ist30=d30.reduce((a,d)=>a+(S.ist[d]||0),0);
  const wc=S.contacts.filter(d=>daysBack(7).includes(d)).length,clients=S.leads.filter(l=>l.s===4).length;
- const tile=(l,v,c='')=>`<div class="kpi"><small>${l}</small><b class="${c}">${v}</b></div>`;
+ const tile=(l,v,c='',sub='')=>`<div class="kpi"><small>${l}</small><b class="${c}">${v}</b>${sub?`<small class="kps">${sub}</small>`:''}</div>`;
  return finSummary()+forecastCard()+`<div class="card"><h2>لوحة القيادة <span class="muted">${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{month:'long',year:'numeric'})}</span></h2>
- <div class="kpis">${tile('دخل الشهر',fmt(inc))}${tile('المصروف',fmt(spent))}${tile('المتبقي',fmt(left),left<0?'bad':'good')}${tile('الدخل الإضافي',fmt(sum(monthInc().filter(e=>e.s!=='راتب'))),'good')}
- ${tile('باقي الديون',fmt(debtTotal()),'bad')}${tile('سُدّد من الديون',Math.round(dp)+'%')}${tile('مواظبة الصلاة 30 يوم',prRate+'%',prRate>=90?'good':'bad')}${tile('استغفار 30 يوم',fmt(ist30))}
- ${tile('تواصلات الأسبوع',wc+' / 5',wc>=5?'good':'bad')}${tile('عملاء مكتسبون',clients)}</div></div>
+ <div class="kgrp">💰 المال</div><div class="kpis">${tile('دخل الشهر',fmt(inc),'','منه إضافي '+fmt(sum(monthInc().filter(e=>e.s!=='راتب'))))}${tile('المصروف',fmt(spent),'',inc?Math.round(spent/inc*100)+'% من الدخل':'')}${tile('الرصيد الحالي',fmt(left),left<0?'bad':'good','رصيد + دخل − مصروف')}${tile('باقي الديون',fmt(debtTotal()),'bad','سُدّد '+Math.round(dp)+'%')}</div>
+ <div class="kgrp">🕌 العبادات</div><div class="kpis">${tile('مواظبة الصلاة',prRate+'%',prRate>=90?'good':prRate>=70?'warnc':'bad','منذ بدء التسجيل ('+tr.length+' يوم)')}${tile('الاستغفار',fmt(ist30),'','متوسط '+fmt(ist30/Math.max(1,tr.length))+' يوميًا')}</div>
+ <div class="kgrp">🎯 العمل</div><div class="kpis">${tile('تواصلات الأسبوع',wc+' / 5',wc>=5?'good':'bad',wc>=5?'حققت الهدف ✓':'باقي '+(5-wc))}${tile('عملاء مكتسبون',clients,clients?'good':'','الهدف: أول عميل')}</div></div>
  ${compareCard()}
  <div class="card"><h2>المصروف اليومي — آخر 30 يومًا</h2>
  <svg viewBox="0 0 ${W} ${H+18}" style="width:100%;height:auto">${[0,.5,1].map(t=>`<line x1="0" x2="${W}" y1="${H-t*H}" y2="${H-t*H}" stroke="var(--line)"/>`).join('')}
@@ -916,7 +917,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v59';
+const APPV='v60';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
