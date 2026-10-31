@@ -132,6 +132,10 @@ h2{justify-content:flex-start!important}h2>.hx{margin-inline-start:auto}
 .pg{border-collapse:collapse;width:100%;font-size:11px;text-align:center}.pg th{font-weight:500;color:var(--muted);padding:3px 2px}.pg td{padding:3px 2px}.pg td:first-child{text-align:start;font-size:12px;white-space:nowrap}
 .pd{display:inline-block;width:14px;height:14px;border-radius:4px;background:var(--soft);vertical-align:middle}.pd.y{background:var(--good)}.pd.j{background:var(--navy);box-shadow:inset 0 0 0 3px var(--orange)}
 .sunan{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.sn{background:var(--soft);color:var(--fg);font-weight:400;font-size:13px;display:flex;justify-content:space-between;align-items:center;padding:9px 10px}.sn small{color:var(--muted)}.sn.on{background:var(--goodbg);color:var(--good);font-weight:600}
+.hd>summary{list-style:none;cursor:pointer}.hd>summary::-webkit-details-marker{display:none}.hd{border-bottom:1px solid var(--line);padding-bottom:6px}
+.hhead{font-size:11px;color:var(--muted)}.week em{width:8px;font-style:normal;text-align:center;font-size:9px}.week em.td{color:var(--orange);font-weight:700}.week i.td{outline:1.5px solid var(--orange)}
+span.chk{display:grid;place-items:center;cursor:default}
+.hm{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:3px;margin:8px 0 4px}.hm i{aspect-ratio:1;border-radius:3px;background:var(--soft)}.hm i.on{background:var(--good)}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -481,10 +485,23 @@ function faith(){
  <div class="muted">اختر الذكر ثم سبّح:</div>
  <div class="dlist">${DH.map(x=>{const c=dhGet(x.k),g=dhGoal(x);return `<button class="dk ${x.k===curDh?'on':''} ${c>=g?'done':''}" data-act="pickDh" data-k="${x.k}"><span>${x.t}</span><span class="c">${c>=g?'✓ ':''}${fmt(c)}/${fmt(g)}</span></button>`}).join('')}</div></div>`+quranCard();
 }
-function habits(){
- const log=S.habitLog[td()]||{},wd=daysBack(7);
- return `<div class="card"><h2>عادات اليوم</h2>${S.habits.map(h=>{const s=habStreak(h.id);return `<div class="habit"><button class="chk ${log[h.id]?'on':''}" data-act="hab" data-id="${h.id}" aria-label="${h.n}">✓</button><span style="min-width:0">${h.n}${s>1?` <span class="streak">🔥${s}</span>`:''}</span><span class="week">${wd.map(d=>`<i class="${(S.habitLog[d]||{})[h.id]?'on':''}"></i>`).join('')}</span><button class="x" data-act="delH" data-id="${h.id}" aria-label="حذف العادة">✕</button></div>`}).join('')}
- <div class="form"><input id="hn" class="full" placeholder="عادة جديدة"><button class="full" data-act="addH">إضافة عادة</button></div></div>`;
+function hDone(h,d){if(h.auto==='exp'||(h.id===1&&!h.manual))return S.expenses.some(e=>e.d===d)||!!(S.noSpend||{})[d];if(h.auto==='quran'||(h.id===3&&!h.manual))return((S.qLog||{})[d]||0)>0;return!!(S.habitLog[d]||{})[h.id]}
+function hAuto(h){return h.auto||(h.id===1||h.id===3)&&!h.manual}
+function hStreak(h){let n=0;const d=new Date();if(!hDone(h,iso(d)))d.setDate(d.getDate()-1);while(hDone(h,iso(d))){n++;d.setDate(d.getDate()-1)}return n}
+function habits(){const d0=td(),wd=daysBack(7),d30=daysBack(30),fq=h=>h.f||7;
+ const st=S.habits.map(h=>{const r30=d30.filter(d=>hDone(h,d)).length,wk=wd.filter(d=>hDone(h,d)).length;return{h,today:hDone(h,d0),s:hStreak(h),rate:Math.round(r30/(30*fq(h)/7)*100),wk}});
+ const done=st.filter(x=>x.today).length,tot=st.length||1,avg=Math.round(st.reduce((a,x)=>a+Math.min(100,x.rate),0)/tot);
+ const best=st.slice().sort((a,b)=>b.rate-a.rate)[0],worst=st.slice().sort((a,b)=>a.rate-b.rate)[0];
+ const dl=d=>new Date(d+'T12:00').toLocaleDateString('ar-SA-u-nu-latn',{weekday:'narrow'});
+ return `<div class="card score">${ring(Math.round(done/tot*100))}<div style="min-width:0"><b style="font-size:16px">إنجاز اليوم ${done} من ${st.length}</b><div class="muted">الالتزام خلال 30 يومًا: ${avg}%</div>${st.length>1?`<div style="font-size:13px;margin-top:4px">🏆 الأقوى: ${best.h.n} (${Math.min(100,best.rate)}%)<br>⚠️ تحتاج تركيز: ${worst.h.n} (${Math.min(100,worst.rate)}%)</div>`:''}</div></div>
+ <div class="card"><h2>عادات اليوم</h2>
+ <div class="habit hhead"><span style="width:30px"></span><span style="flex:1"></span><span class="week">${wd.map(d=>`<em class="${d===d0?'td':''}">${dl(d)}</em>`).join('')}</span><span style="width:22px"></span></div>
+ ${st.map(({h,today,s,rate,wk})=>`<details class="hd"><summary class="habit">${hAuto(h)?`<span class="chk ${today?'on':''}" title="تلقائي">✓</span>`:`<button class="chk ${today?'on':''}" data-act="hab" data-id="${h.id}" aria-label="${h.n}">✓</button>`}
+ <span style="flex:1;min-width:0;line-height:1.4">${h.n}${s>1?` <span class="streak">🔥${s}</span>`:''}<br><small class="muted">${hAuto(h)?'تلقائي · ':''}${fq(h)<7?`${wk}/${fq(h)} هذا الأسبوع · `:''}التزام ${Math.min(100,rate)}%</small></span>
+ <span class="week">${wd.map(d=>`<i class="${hDone(h,d)?'on':''} ${d===d0?'td':''}"></i>`).join('')}</span><button class="x" data-act="delH" data-id="${h.id}" aria-label="حذف العادة">✕</button></summary>
+ <div class="hm">${d30.map(d=>`<i class="${hDone(h,d)?'on':''}" title="${d}"></i>`).join('')}</div><div class="muted" style="font-size:11px">آخر 30 يومًا · ${d30.filter(d=>hDone(h,d)).length} يوم منجز${hAuto(h)?' · تُحسب تلقائيًا من '+((h.auto||(h.id===1?'exp':'quran'))==='exp'?'تسجيل المصاريف':'ورد القرآن'):''}</div></details>`).join('')}
+ <div class="muted" style="font-size:12px">اضغط اسم العادة لترى خريطة 30 يومًا. العادات «التلقائية» تتأشّر وحدها من بياناتك الفعلية.</div>
+ <div class="form"><input id="hn" class="full" placeholder="عادة جديدة (مثال: رياضة 30 دقيقة)"><select id="hf"><option value="7">كل يوم</option><option value="5">5 أيام في الأسبوع</option><option value="3">3 أيام في الأسبوع</option><option value="1">مرة في الأسبوع</option></select><button data-act="addH">إضافة عادة</button></div></div>`;
 }
 const stages=['جديد','تم التواصل','اجتماع','عرض سعر','عميل ✓'];
 function goals(){
@@ -623,7 +640,7 @@ function prayGrid(){const D=daysBack(7),dn=d=>new Date(d+'T12:00').toLocaleDateS
 function ptCard(){if(!PT)return `<div class="muted">جارٍ تحميل أوقات الصلاة لمدينة ${S.city}…</div>`;const nx=nextPrayer();
  return `<div class="ptimes">${prayNames.map((n,i)=>`<div class="${i===nx?'nx':''}">${n}<br><b class="num">${PT[i]}</b></div>`).join('')}</div><div class="muted">الصلاة القادمة: ${prayNames[nx]} بعد ${untilNext(nx)}</div>`}
 function dayScore(){const d=td(),p=(S.prayers[d]||[]).filter(Boolean).length*8;
- const h=S.habits.length?S.habits.filter(x=>(S.habitLog[d]||{})[x.id]).length/S.habits.length*30:0;
+ const h=S.habits.length?S.habits.filter(x=>hDone(x,d)).length/S.habits.length*30:0;
  const food=sum(FE().filter(e=>e.d===d&&e.cat==='أكل وشرب')),over=S.budgets.some(b=>spentBy(b.n)>b.b);
  const bud=(food<=64?12:0)+(over?0:8),ist=Math.min(1,(S.ist[d]||0)/S.istGoal)*10;return Math.round(p+h+bud+ist)}
 function ring(v){const c=2*Math.PI*30,col=v>=80?'var(--good)':v>=50?'var(--orange)':'var(--bad)';return `<svg class="ring" viewBox="0 0 74 74"><circle cx="37" cy="37" r="30" fill="none" stroke="var(--soft)" stroke-width="8"/><circle cx="37" cy="37" r="30" fill="none" stroke="${col}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c*v/100} ${c}" transform="rotate(-90 37 37)"/><text x="37" y="43" text-anchor="middle" font-size="18" font-weight="700" fill="var(--fg)">${v}</text></svg>`}
@@ -718,7 +735,7 @@ const v=id=>document.getElementById(id)?.value?.trim();
 const mark=(d,h)=>{S.habitLog[d]=S.habitLog[d]||{};S.habitLog[d][h]=true};
 document.addEventListener('click',async e=>{
  const t=e.target.closest('[data-tab]');if(t){tab=t.dataset.tab;render();scrollTo(0,0);return}
- const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,i=+b.dataset.i,id=+b.dataset.id,d=td();
+ const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,i=+b.dataset.i,id=+b.dataset.id,d=td();if(b.closest('summary')&&b.tagName==='BUTTON')e.preventDefault();
  if(a==='undo'){if(undoSnap){S=JSON.parse(undoSnap);undoSnap=null;save();render();document.getElementById('toast').hidden=true}return}
  if(['addExp','qx','payFix','pay','addInc','delE','delI','delB','delD','delH','delL','gAdd','adv','qDone','qMore'].includes(a))undoSnap=JSON.stringify(S);
  if(a==='login'||a==='signup'){const em=v('le'),pw=document.getElementById('lp').value;if(!em||pw.length<6){loginView('اكتب البريد وكلمة مرور من 6 أحرف على الأقل.');return}
@@ -799,7 +816,7 @@ document.addEventListener('click',async e=>{
  if(a==='ist100')dhAdd(curDh,100);
  if(a==='setIg')S.istGoal=+v('ig')||S.istGoal;
  if(a==='hab'){S.habitLog[d]=S.habitLog[d]||{};S.habitLog[d][id]=!S.habitLog[d][id]}
- if(a==='addH'&&v('hn'))S.habits.push({id:Date.now(),n:v('hn')});
+ if(a==='addH'&&v('hn'))S.habits.push({id:Date.now(),n:v('hn'),f:+v('hf')||7});
  if(a==='delH')S.habits=S.habits.filter(h=>h.id!==id);
  if(a==='gAdd')S.goals[i].c+=+v('gc'+i)||0;
  if(a==='addG'&&v('gn')&&+v('gt'))S.goals.push({n:v('gn'),t:+v('gt'),c:0});
@@ -811,7 +828,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v49';
+const APPV='v50';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
