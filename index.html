@@ -128,6 +128,10 @@ h2{justify-content:flex-start!important}h2>.hx{margin-inline-start:auto}
 .bt tr.late td{background:var(--badbg)}.bt tr.gsub td{font-size:12px;color:var(--muted);font-weight:600;background:var(--bg)}
 .bs{font-size:11px;color:var(--muted);margin-top:2px}.bs.late{color:var(--bad);font-weight:600}.bs.soon{color:#9A5B00;font-weight:600}.bs.ok{color:var(--good)}
 .bm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.bmi{background:var(--bg);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;font-size:12px}.bmi b{font-size:18px}.bmi small{color:var(--muted)}
+.pr.jm{background:var(--navy);color:#fff}.pr.due{background:#FFF4E0;color:#9A5B00;font-weight:700}
+.pg{border-collapse:collapse;width:100%;font-size:11px;text-align:center}.pg th{font-weight:500;color:var(--muted);padding:3px 2px}.pg td{padding:3px 2px}.pg td:first-child{text-align:start;font-size:12px;white-space:nowrap}
+.pd{display:inline-block;width:14px;height:14px;border-radius:4px;background:var(--soft);vertical-align:middle}.pd.y{background:var(--good)}.pd.j{background:var(--navy);box-shadow:inset 0 0 0 3px var(--orange)}
+.sunan{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.sn{background:var(--soft);color:var(--fg);font-weight:400;font-size:13px;display:flex;justify-content:space-between;align-items:center;padding:9px 10px}.sn small{color:var(--muted)}.sn.on{background:var(--goodbg);color:var(--good);font-weight:600}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -459,12 +463,17 @@ function faith(){
  const p=S.prayers[td()]||[false,false,false,false,false],ist=S.ist[td()]||0,ps=prayStreak();
  const wk=daysBack(7).map(d=>(S.prayers[d]||[]).filter(Boolean).length);
  loadPT();
- return `<div class="card"><h2>أوقات الصلاة <button class="x" data-act="city" aria-label="تغيير المدينة">${S.city} ⚙️</button></h2>${ptCard()}<div id="cityBox"></div></div>
+ return `<div class="card"><h2>أوقات الصلاة <button class="x" data-act="city" aria-label="تغيير المدينة">${CITY_AR[S.city]||S.city} ⚙️</button></h2>${ptCard()}<div id="cityBox"></div></div>
  <div class="card"><h2>صلواتي اليوم <span class="num good">${p.filter(Boolean).length} / 5</span></h2>
- <div class="prayers">${prayNames.map((n,i)=>`<button class="pr ${p[i]?'on':''}" data-act="pray" data-i="${i}">${p[i]?'✓':'○'}<br>${n}</button>`).join('')}</div>
- <div class="row"><span class="muted">آخر 7 أيام: ${wk.reduce((a,b)=>a+b,0)} من 35</span>${ps?`<span class="streak">🔥 ${ps} يوم متتالي</span>`:''}</div></div>
+ <div class="prayers">${prayNames.map((n,i)=>`<button class="pr ${p[i]===2?'jm':p[i]?'on':prayState(i)}" data-act="pray" data-i="${i}">${p[i]===2?'🕌':p[i]?'✓':prayState(i)?'!':'○'}<br>${n}</button>`).join('')}</div>
+ <div class="muted" style="font-size:12px">اضغط مرة = صلّيت ✓ · مرتين = جماعة 🕌 · ثلاثًا = إلغاء. البرتقالي = دخل وقتها ولم تُسجّل.</div>
+ <div class="kpis"><div class="kpi"><small>مواظبة 7 أيام</small><b class="${wk.reduce((a,b)=>a+b,0)>=33?'good':''}">${Math.round(wk.reduce((a,b)=>a+b,0)/35*100)}%</b></div><div class="kpi"><small>جماعة 7 أيام</small><b>${daysBack(7).reduce((a,d)=>a+(S.prayers[d]||[]).filter(x=>x===2).length,0)}</b></div></div>
+ ${ps?`<div class="streak">🔥 ${ps} يوم صلوات كاملة متتالية</div>`:''}
+ ${prayGrid()}</div>
+ <div class="card"><h2>السنن الرواتب <span class="num">${SUNAN.filter((x,i)=>((S.sunan||{})[td()]||{})[i]).length} / ${SUNAN.length}</span></h2>
+ <div class="sunan">${SUNAN.map(([n,c],i)=>{const on=((S.sunan||{})[td()]||{})[i];return `<button class="sn ${on?'on':''}" data-act="sun" data-i="${i}">${on?'✓ ':''}${n}<small>${c}</small></button>`}).join('')}</div></div>
  <div class="card"><h2>التسبيح ${curDh==='ist'?`<button class="x" data-act="igT" aria-label="إعدادات الهدف">هدف الاستغفار ${fmt(S.istGoal)} ⚙️</button>`:''}</h2>
- ${(()=>{const x=DH.find(y=>y.k===curDh),c=dhGet(curDh),g=dhGoal(x);return `<div class="dev"><div class="lcd"><small><span>اليوم</span><span>${fmt(c)} / ${fmt(g)}</span></small><div class="n">${String(c).padStart(4,'0')}</div><div class="t">${x.t}</div></div>
+ ${(()=>{const x=DH.find(y=>y.k===curDh),c=dhGet(curDh),g=dhGoal(x);return `<div class="dev"><div class="lcd"><small><span>اليوم</span><span>${fmt(c)} / ${fmt(g)}</span></small><div class="n">${String(c).padStart(4,'0')}</div><div class="t">${x.t}</div>${c>=g?'<div class="t" style="color:#1d5a2a">✓ أتممت الهدف، بارك الله فيك</div>':''}</div>
  <button class="gold" data-act="ist" aria-label="${x.t}"><svg viewBox="0 0 48 48" fill="#3b2a08"><path d="M24 6c-3 4-7 6-7 11h14c0-5-4-7-7-11zM15 19h18v4H15zM13 25h22v15H13zm9 5v10h4V30a2 2 0 0 0-4 0zM8 22h4v18H8zm28 0h4v18h-4z"/></svg></button>
  <button class="rst ${confirmRst?'warn':''}" data-act="rst">${confirmRst?'اضغط مرة ثانية للتصفير':'إعادة تعيين'}</button></div>
  <div class="bar"><i style="width:${Math.min(100,c/g*100)}%;background:var(--good)"></i></div>`})()}
@@ -605,6 +614,12 @@ let confirmRst=false,showIg=false,PT=null,ptCity=null;
 async function loadPT(){if(ptCity===S.city&&PT)return;ptCity=S.city;try{const r=await fetch('https://api.aladhan.com/v1/timingsByCity?city='+encodeURIComponent(S.city)+'&country=Saudi%20Arabia&method=4');const j=await r.json();const t=j.data.timings;PT=[t.Fajr,t.Dhuhr,t.Asr,t.Maghrib,t.Isha];if(tab==='faith'||tab==='home')render()}catch(e){PT=null}}
 function nextPrayer(){if(!PT)return -1;const n=new Date(),m=n.getHours()*60+n.getMinutes();for(let i=0;i<5;i++){const[h,mm]=PT[i].split(':').map(Number);if(h*60+mm>m)return i}return 0}
 function untilNext(i){const[h,mm]=PT[i].split(':').map(Number);const n=new Date();let d=h*60+mm-(n.getHours()*60+n.getMinutes());if(d<0)d+=1440;return d>=60?`${Math.floor(d/60)} س ${d%60} د`:`${d} دقيقة`}
+const CITY_AR={Riyadh:'الرياض',Jeddah:'جدة',Makkah:'مكة المكرمة',Madinah:'المدينة المنورة',Dammam:'الدمام',Khobar:'الخبر',Taif:'الطائف',Abha:'أبها',Tabuk:'تبوك',Buraydah:'بريدة',Hail:'حائل',Jazan:'جازان',Najran:'نجران','Al Ahsa':'الأحساء'};
+const SUNAN=[['قبل الفجر','2'],['الضحى','2'],['قبل الظهر','4'],['بعد الظهر','2'],['بعد المغرب','2'],['بعد العشاء','2'],['الوتر','1+']];
+function prayState(i){if(!PT)return'';const n=new Date(),m=n.getHours()*60+n.getMinutes(),[h,mm]=PT[i].split(':').map(Number);return m>=h*60+mm?'due':''}
+function prayGrid(){const D=daysBack(7),dn=d=>new Date(d+'T12:00').toLocaleDateString('ar-SA-u-nu-latn',{weekday:'short'});
+ return `<div style="overflow-x:auto"><table class="pg"><thead><tr><th></th>${D.map(d=>`<th>${dn(d)}</th>`).join('')}</tr></thead><tbody>${prayNames.map((n,i)=>`<tr><td>${n}</td>${D.map(d=>{const v=(S.prayers[d]||[])[i];return `<td><span class="pd ${v===2?'j':v?'y':''}"></span></td>`}).join('')}</tr>`).join('')}</tbody></table></div>
+ <div class="muted" style="font-size:12px"><span class="pd j"></span> جماعة · <span class="pd y"></span> صلّيت · <span class="pd"></span> لم تُسجّل</div>`}
 function ptCard(){if(!PT)return `<div class="muted">جارٍ تحميل أوقات الصلاة لمدينة ${S.city}…</div>`;const nx=nextPrayer();
  return `<div class="ptimes">${prayNames.map((n,i)=>`<div class="${i===nx?'nx':''}">${n}<br><b class="num">${PT[i]}</b></div>`).join('')}</div><div class="muted">الصلاة القادمة: ${prayNames[nx]} بعد ${untilNext(nx)}</div>`}
 function dayScore(){const d=td(),p=(S.prayers[d]||[]).filter(Boolean).length*8;
@@ -664,7 +679,7 @@ function quranCard(){const n=S.qPage||1,done=(S.qLog||{})[td()];loadQ(n);
 function padTop(){const h=document.querySelector('header');if(h)document.body.style.paddingTop=h.offsetHeight+'px'}
 addEventListener('resize',padTop);
 function tick(){const n=new Date(),t=document.getElementById('clkT'),h=document.getElementById('clkH');if(!t)return;t.textContent=n.toLocaleTimeString('ar-SA-u-nu-latn',{hour:'numeric',minute:'2-digit'});h.textContent=n.toLocaleDateString('ar-SA-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'long',year:'numeric'})}
-setInterval(tick,15000);
+setInterval(tick,15000);setInterval(()=>{if(tab==='faith'&&!document.activeElement?.matches('input'))render()},60000);
 const ICS=[[/تنبيه/,'#FF3B30','<path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/>'],
 [/الموازنة|الراتب|المتاح|مستحقات|مصروف|مصاريف|الدخل|المشتريات|مطابقة|الصورة المالية/,'#34C759','<rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M6 15h4"/>'],
 [/الديون|صفر ديون/,'#FF9500','<path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'],
@@ -743,7 +758,7 @@ document.addEventListener('click',async e=>{
   if(v('bpnN')&&+v('bpaN'))S.budgets.push({n:v('bpnN'),b:+v('bpaN')});
   const sal=incPlan().find(x=>x.n.includes('راتب'));if(sal)S.salary=sal.a;bEdit=false;save();render();toast('تم حفظ الموازنة');return}
  if(a==='igT'){showIg=!showIg;render();return}
- if(a==='city'){document.getElementById('cityBox').innerHTML=`<div class="form"><select id="cs">${['Riyadh','Jeddah','Makkah','Madinah','Dammam','Khobar','Taif','Abha','Tabuk','Buraydah','Hail','Jazan','Najran','Al Ahsa'].map(c=>`<option ${c===S.city?'selected':''}>${c}</option>`).join('')}</select><button data-act="setCity">حفظ</button></div>`;return}
+ if(a==='city'){document.getElementById('cityBox').innerHTML=`<div class="form"><select id="cs">${['Riyadh','Jeddah','Makkah','Madinah','Dammam','Khobar','Taif','Abha','Tabuk','Buraydah','Hail','Jazan','Najran','Al Ahsa'].map(c=>`<option value="${c}" ${c===S.city?'selected':''}>${CITY_AR[c]||c}</option>`).join('')}</select><button data-act="setCity">حفظ</button></div>`;return}
  if(a==='setCity'){S.city=v('cs');PT=null;save();render();return}
  if(a==='qx'){const q=S.quick[i];S.expenses.push({id:Date.now(),d,a:q.a,cat:q.cat,n:q.n});mark(d,1);save();render();toast('سُجّل '+q.n+' '+q.a+' SAR');return}
  if(a==='qSave'){S.quick.forEach((q,k)=>{q.n=v('qn'+k)||q.n;q.a=+v('qa'+k)||q.a});save();render();return}
@@ -776,7 +791,8 @@ document.addEventListener('click',async e=>{
  if(a==='pay'){const n=+v('dp'+i);if(n){const x=S.debts[i];x.rem=Math.max(0,x.rem-n);x.late=Math.max(0,x.late-n);S.expenses.push({id:Date.now(),d,a:n,cat:'سداد ديون',n:x.n})}}
  if(a==='addD'&&v('dn')&&+v('dr')){S.debts.push({id:Date.now(),n:v('dn'),rem:+v('dr'),inst:+v('di')||0,late:0});S.debtStart+= +v('dr')}
  if(a==='delD')S.debts.splice(i,1);
- if(a==='pray'){S.prayers[d]=S.prayers[d]||[false,false,false,false,false];S.prayers[d][i]=!S.prayers[d][i]}
+ if(a==='pray'){S.prayers[d]=S.prayers[d]||[false,false,false,false,false];const c=S.prayers[d][i];S.prayers[d][i]=c===2?false:c?2:true}
+ if(a==='sun'){S.sunan=S.sunan||{};S.sunan[d]=S.sunan[d]||{};S.sunan[d][i]=!S.sunan[d][i]}
  if(a==='ist')dhAdd(curDh,1);
  if(a==='ist10')dhAdd(curDh,10);
  if(a==='ist100')dhAdd(curDh,100);
@@ -794,7 +810,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v47';
+const APPV='v48';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
