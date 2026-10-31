@@ -343,7 +343,8 @@ function todoCard(){S.todos=S.todos||[];const d=td(),age=x=>Math.round((new Date
  return `<div class="card"><h2>قائمتي اليوم <span class="num ${L.length&&dn===L.length?'good':''}">${dn}/${L.length}</span></h2>
  ${L.length?`<div class="bar"><i style="width:${dn/L.length*100}%;background:var(--good)"></i></div>`:''}
  <div class="muted" style="font-size:12px">${top?`🔴 ${top} مهمة عالية الأولوية تنتظرك · `:''}أنجزت ${wk} مهمة هذا الأسبوع</div>
- ${L.map(row).join('')||'<span class="muted">أضف أهم 3 مهام لليوم. غير المنجز يُرحَّل تلقائيًا.</span>'}
+ ${L.filter(x=>!x.done).map(row).join('')||(dn?'<div class="ok">أنجزت كل مهام اليوم ✓</div>':'<span class="muted">أضف أهم 3 مهام لليوم. غير المنجز يُرحَّل تلقائيًا.</span>')}
+ ${dn?`<details class="hd"><summary class="muted" style="cursor:pointer">✓ تم إنجازه اليوم (${dn})</summary>${L.filter(x=>x.done).map(row).join('')}</details>`:''}
  <div class="form"><input id="tdN" class="full" placeholder="مهمة جديدة (مثال: الاتصال بالمؤجر)" onkeydown="if(event.key==='Enter')document.querySelector('[data-act=tdA]').click()">
  <select id="tdP">${PRI.map(([k,t])=>`<option value="${k}" ${k==='2'?'selected':''}>${t}</option>`).join('')}</select><select id="tdC"><option value="">التصنيف</option>${TCAT.map(c=>`<option>${c}</option>`).join('')}</select>
  <input id="tdDt" class="full" type="date" value="${d}" aria-label="تاريخ المهمة"><button class="full" data-act="tdA">إضافة للقائمة</button></div>
@@ -882,7 +883,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v55';
+const APPV='v56';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
