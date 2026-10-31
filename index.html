@@ -136,6 +136,10 @@ h2{justify-content:flex-start!important}h2>.hx{margin-inline-start:auto}
 .hhead{font-size:11px;color:var(--muted)}.week em{width:8px;font-style:normal;text-align:center;font-size:9px}.week em.td{color:var(--orange);font-weight:700}.week i.td{outline:1.5px solid var(--orange)}
 span.chk{display:grid;place-items:center;cursor:default}
 .hm{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:3px;margin:8px 0 4px}.hm i{aspect-ratio:1;border-radius:3px;background:var(--soft)}.hm i.on{background:var(--good)}
+.funnel{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;text-align:center}.funnel div{background:var(--soft);border-radius:8px;padding:6px 2px;display:flex;flex-direction:column}.funnel div:last-child{background:var(--goodbg);color:var(--good)}.funnel b{font-size:18px}.funnel small{font-size:10px;color:var(--muted)}
+.lead{display:flex;flex-direction:column;gap:6px;border-bottom:1px solid var(--line);padding:8px 0}.lead.late{background:var(--badbg);border-radius:10px;padding:8px}.lead.today{background:#FFF4E0;border-radius:10px;padding:8px}
+.goal{display:flex;flex-direction:column;gap:4px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.tl{display:flex;flex-direction:column;gap:8px}.tli{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:13px}.tli.cur{color:var(--fg)}.tld{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--soft);font-weight:700;font-size:12px}.tli.cur .tld{background:var(--orange);color:var(--navy)}.tli.past .tld{background:var(--good);color:#fff}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -504,20 +508,31 @@ function habits(){const d0=td(),wd=daysBack(7),d30=daysBack(30),fq=h=>h.f||7;
  <div class="form"><input id="hn" class="full" placeholder="عادة جديدة (مثال: رياضة 30 دقيقة)"><select id="hf"><option value="7">كل يوم</option><option value="5">5 أيام في الأسبوع</option><option value="3">3 أيام في الأسبوع</option><option value="1">مرة في الأسبوع</option></select><button data-act="addH">إضافة عادة</button></div></div>`;
 }
 const stages=['جديد','تم التواصل','اجتماع','عرض سعر','عميل ✓'];
-function goals(){
- const wc=S.contacts.filter(d=>daysBack(7).includes(d)).length;
+function goalDefaults(){S.goals.forEach(g=>{if(g.dl)return;if(/طوارئ/.test(g.n))g.dl='2027-04';else if(/عميل/.test(g.n))g.dl='2027-01';else if(/2031|ثروة/.test(g.n))g.dl='2031-10'})}
+function monthsTo(ym){const n=new Date(),[y,m]=ym.split('-').map(Number);return Math.max(0,(y-n.getFullYear())*12+(m-1-n.getMonth()))}
+function goals(){goalDefaults();
+ const wc=S.contacts.filter(d=>daysBack(7).includes(d)).length,act=S.leads.filter(l=>!l.lost),cnt=stages.map((x,k)=>act.filter(l=>l.s===k).length),won=cnt[4],conv=S.leads.length?Math.round(won/S.leads.length*100):0,d0=td();
+ const order=act.map(l=>({l,i:S.leads.indexOf(l)})).sort((a,b)=>(a.l.fu||'9')<(b.l.fu||'9')?-1:1);
+ const start=new Date(2026,9,24),end=new Date(2031,9,24),now=new Date(),tp=Math.min(100,Math.max(0,(now-start)/(end-start)*100)),yr=Math.min(5,Math.floor((now-start)/(365.25*864e5))+1);
+ const paidDebt=Math.max(0,S.debtStart-debtTotal()),xInc=sum(monthInc().filter(e=>e.s!=='راتب')),ef=(S.goals.find(g=>/طوارئ/.test(g.n))||{c:0}).c,wealth=(S.goals.find(g=>/ثروة/.test(g.n))||{c:0}).c;
+ const Y=[[1,'إيقاف النزيف وأول عميل','أول عميل: '+(won?'✓':'لم يتحقق بعد')],[2,'دخل إضافي 6,000+','دخل إضافي هذا الشهر: '+fmt(xInc)],[3,'صفر ديون وطوارئ 6 أشهر','سُدّد من الديون: '+fmt(paidDebt)],[4,'بناء الثروة','الطوارئ: '+fmt(ef)],[5,'ثروة 300,000+','الثروة المستثمرة: '+fmt(wealth)]];
  return `<div class="card"><h2>العملاء المحتملون <span class="num ${wc>=5?'good':'bad'}">${wc} / 5 هذا الأسبوع</span></h2>
- ${S.leads.map((l,i)=>`<div style="display:flex;flex-direction:column;gap:6px;border-bottom:1px solid var(--line);padding-bottom:8px"><div class="row"><b>${l.n}</b><button class="x" data-act="delL" data-i="${i}" aria-label="حذف">✕</button></div>
+ <div class="funnel">${stages.map((x,k)=>`<div><b class="num">${cnt[k]}</b><small>${x.replace(' ✓','')}</small></div>`).join('')}</div>
+ <div class="muted" style="font-size:12px">إجمالي ${S.leads.length} · نسبة التحويل لعميل ${conv}% · خسرناهم ${S.leads.filter(l=>l.lost).length}</div>
+ ${order.map(({l,i})=>{const late=l.fu&&l.fu<d0,today=l.fu===d0;return `<div class="lead ${late?'late':today?'today':''}"><div class="row"><b>${l.n}</b><span><button class="x" data-act="lLost" data-i="${i}" style="font-size:12px">خسرناه</button><button class="x" data-act="delL" data-i="${i}" aria-label="حذف">✕</button></span></div>
  <div class="stages">${stages.map((s,k)=>`<span class="st ${k<=l.s?'on':''}">${s}</span>`).join('')}</div>
- ${l.s<4?`<button class="ghost" data-act="adv" data-i="${i}">نقل إلى: ${stages[l.s+1]}</button>`:''}</div>`).join('')||'<span class="muted">أضف أول معرض سيارات تستهدفه.</span>'}
+ <div class="form"><input id="lfu${i}" type="date" value="${l.fu||''}" aria-label="موعد المتابعة" onchange="S.leads[${i}].fu=this.value;save();render()">${l.s<4?`<button class="ghost" data-act="adv" data-i="${i}">← ${stages[l.s+1]}</button>`:'<span class="good" style="align-self:center">عميل ✓</span>'}</div>
+ ${late?`<div class="bs late">متابعة متأخرة منذ ${l.fu}</div>`:today?'<div class="bs soon">موعد المتابعة اليوم</div>':l.fu?`<div class="bs">المتابعة ${l.fu}</div>`:'<div class="bs">حدّد موعد المتابعة القادمة</div>'}</div>`}).join('')||'<span class="muted">أضف أول معرض سيارات تستهدفه.</span>'}
  <div class="form"><input id="ln" class="full" placeholder="اسم المعرض أو صاحب القرار"><button class="full" data-act="addL">إضافة عميل محتمل</button></div></div>
- <div class="card"><h2>أهدافي</h2>${S.goals.map((g,i)=>`<div><div class="row"><span>${g.n}</span><span class="num muted">${fmt(g.c)} / ${fmt(g.t)}</span></div><div class="bar"><i style="width:${Math.min(100,g.c/g.t*100)}%;background:var(--orange)"></i></div><div class="form" style="margin-top:6px"><input id="gc${i}" type="number" placeholder="أضف تقدّمًا"><button class="ghost" data-act="gAdd" data-i="${i}">إضافة</button></div></div>`).join('')}
- <div class="form"><input id="gn" class="full" placeholder="هدف جديد"><input id="gt" type="number" placeholder="المستهدف"><button data-act="addG">إضافة</button></div></div>
- <div class="card"><h2>خطة الخمس سنوات</h2>
- <div class="row"><b>السنة 1</b><span class="muted">إيقاف النزيف وأول عميل</span></div>
- <div class="row"><b>السنة 2</b><span class="muted">دخل إضافي 6,000+</span></div>
- <div class="row"><b>السنة 3</b><span class="muted">صفر ديون وطوارئ 6 أشهر</span></div>
- <div class="row"><b>السنة 4–5</b><span class="muted">ثروة 300,000+</span></div>
+ <div class="card"><h2>أهدافي</h2>${S.goals.map((g,i)=>{const pc=Math.min(100,g.t?g.c/g.t*100:0),ml=g.dl?monthsTo(g.dl):0,need=g.dl&&ml?Math.ceil((g.t-g.c)/ml):0,done=g.c>=g.t;
+  return `<div class="goal"><div class="row"><b>${g.n}</b><span class="num ${done?'good':''}">${Math.round(pc)}%</span></div><div class="bar"><i style="width:${pc}%;background:${done?'var(--good)':'var(--orange)'}"></i></div>
+  <div class="row muted" style="font-size:12px"><span>${fmt(g.c)} من ${fmt(g.t)}</span><span>${done?'تحقق ✓':g.dl?(ml?`الموعد ${g.dl} · باقي ${ml} شهر`:'<span class="bad">انتهى الموعد</span>'):''}</span></div>
+  ${!done&&need&&g.t>10?`<div class="bs soon">المطلوب شهريًا للوصول في الموعد: ${fmt(need)} SAR</div>`:''}
+  <div class="form" style="margin-top:4px"><input id="gc${i}" type="number" placeholder="أضف تقدّمًا"><button class="ghost" data-act="gAdd" data-i="${i}">إضافة</button><input id="gdl${i}" type="month" value="${g.dl||''}" aria-label="الموعد" onchange="S.goals[${i}].dl=this.value;save();render()"><button class="x" data-act="gDel" data-i="${i}">✕ حذف الهدف</button></div></div>`}).join('')}
+ <div class="form"><input id="gn" class="full" placeholder="هدف جديد"><input id="gt" type="number" placeholder="المستهدف"><input id="gd" type="month" aria-label="الموعد"><button class="full" data-act="addG">إضافة هدف</button></div></div>
+ <div class="card"><h2>خطة الخمس سنوات <span class="muted" style="font-weight:400">السنة ${yr} من 5</span></h2>
+ <div class="bar" style="height:10px"><i style="width:${tp}%;background:var(--navy)"></i></div><div class="muted" style="font-size:12px">مضى ${tp.toFixed(1)}% من الخطة (أكتوبر 2026 ← أكتوبر 2031)</div>
+ <div class="tl">${Y.map(([n,t,k])=>`<div class="tli ${n<yr?'past':n===yr?'cur':''}"><span class="tld">${n<yr?'✓':n}</span><div style="min-width:0"><b>السنة ${n}${n===yr?' · الآن':''}</b><div>${t}</div>${n===yr?`<div class="bs soon">${k}</div>`:''}</div></div>`).join('')}</div>
  <div class="ok">كل زيادة في الدخل تذهب للديون حتى السنة 3.</div></div>
  <div class="card"><h2>الحساب</h2><input id="np" type="password" placeholder="كلمة مرور جديدة (6 أحرف على الأقل)" autocomplete="new-password"><button class="ghost" data-act="chpw">تغيير كلمة المرور</button><div id="pwMsg" class="muted"></div><button data-act="xlsx">📥 نسخة احتياطية Excel</button><div class="muted">يصدّر كل بياناتك في ملف واحد: المصروفات، الإيرادات، الموازنة، الديون، العبادات، الأهداف.</div><div class="form"><input id="fsd" type="date" value="${S.finStart||''}"><button class="ghost" data-act="setFS">تاريخ بداية المتابعة المالية</button></div><button class="ghost" data-act="logout">تسجيل الخروج</button></div>`;
 }
@@ -737,7 +752,7 @@ document.addEventListener('click',async e=>{
  const t=e.target.closest('[data-tab]');if(t){tab=t.dataset.tab;render();scrollTo(0,0);return}
  const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,i=+b.dataset.i,id=+b.dataset.id,d=td();if(b.closest('summary')&&b.tagName==='BUTTON')e.preventDefault();
  if(a==='undo'){if(undoSnap){S=JSON.parse(undoSnap);undoSnap=null;save();render();document.getElementById('toast').hidden=true}return}
- if(['addExp','qx','payFix','pay','addInc','delE','delI','delB','delD','delH','delL','gAdd','adv','qDone','qMore'].includes(a))undoSnap=JSON.stringify(S);
+ if(['addExp','qx','payFix','pay','addInc','delE','delI','delB','delD','delH','delL','gAdd','adv','qDone','qMore','gDel','lLost'].includes(a))undoSnap=JSON.stringify(S);
  if(a==='login'||a==='signup'){const em=v('le'),pw=document.getElementById('lp').value;if(!em||pw.length<6){loginView('اكتب البريد وكلمة مرور من 6 أحرف على الأقل.');return}
   b.textContent='لحظة…';const r=a==='login'?await sb.auth.signInWithPassword({email:em,password:pw}):await sb.auth.signUp({email:em,password:pw});
   if(r.error){loginView(a==='login'?'البريد أو كلمة المرور غير صحيحة، أو لم تؤكد بريدك بعد.':'تعذّر إنشاء الحساب: '+r.error.message);return}
@@ -819,8 +834,10 @@ document.addEventListener('click',async e=>{
  if(a==='addH'&&v('hn'))S.habits.push({id:Date.now(),n:v('hn'),f:+v('hf')||7});
  if(a==='delH')S.habits=S.habits.filter(h=>h.id!==id);
  if(a==='gAdd')S.goals[i].c+=+v('gc'+i)||0;
- if(a==='addG'&&v('gn')&&+v('gt'))S.goals.push({n:v('gn'),t:+v('gt'),c:0});
- if(a==='addL'&&v('ln'))S.leads.push({n:v('ln'),s:0});
+ if(a==='addG'&&v('gn')&&+v('gt'))S.goals.push({n:v('gn'),t:+v('gt'),c:0,dl:v('gd')||''});
+ if(a==='gDel')S.goals.splice(i,1);
+ if(a==='lLost')S.leads[i].lost=true;
+ if(a==='addL'&&v('ln'))S.leads.push({n:v('ln'),s:0,fu:td()});
  if(a==='delL')S.leads.splice(i,1);
  if(a==='adv'){const l=S.leads[i];l.s++;if(l.s===1){S.contacts.push(d);mark(d,5)}if(l.s===4){const g=S.goals.find(g=>g.n.includes('عميل'));if(g)g.c++}}
  save();render();
@@ -828,7 +845,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v50';
+const APPV='v51';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
