@@ -404,7 +404,7 @@ function repText(){const r=repData();let t=`📋 تقرير — دربي وكف�
  return t+`\nما لم أنفّذه وسببه: \nالإجراء التصحيحي للأسبوع القادم: `}
 function report(){const w=daysBack(7),inW=d=>w.includes(d);
  const food=sum(FE().filter(e=>inW(e.d)&&e.cat==='أكل وشرب')),all=sum(FE().filter(e=>inW(e.d)));
- const logged=w.filter(d=>FE().some(e=>e.d===d)||(S.habitLog[d]||{})[1]).length;
+ const logged=w.filter(d=>FE().some(e=>e.d===d)||(S.noSpend||{})[d]).length;
  const pr=w.reduce((a,d)=>a+(S.prayers[d]||[]).filter(Boolean).length,0),ist=w.reduce((a,d)=>a+(S.ist[d]||0),0);
  const ct=S.contacts.filter(inW).length,proj=w.filter(d=>(S.habitLog[d]||{})[4]).length,inc=sum(FI().filter(e=>inW(e.d)));
  return `تقرير الأسبوع — ${w[0]} إلى ${w[6]}
