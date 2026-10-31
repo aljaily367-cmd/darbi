@@ -323,17 +323,17 @@ function dueInfo(){const out=[],now=new Date(),dd=now.getDate();(S.budgets||[]).
 function todayAllow(){const now=new Date(),dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),dl=dim-now.getDate()+1;
  const isFix=e=>S.fixed.includes(e.cat)||/سداد|مستحق/.test(e.n||'');const ts=sum(FE().filter(e=>e.d===td()&&!isFix(e)));
  const start=cashNow()+ts-unpaidFixed(),allow=Math.max(0,start/dl);return{allow,ts,left:allow-ts,rest:start-ts,dl}}
-function dayHome(){const d=td(),p=S.prayers[d]||[],pc=p.filter(Boolean).length,ist=S.ist[d]||0,q=(S.qLog||{})[d]||0,lg=(S.habitLog[d]||{})[1],st=dayStep();loadPT();
+function dayHome(){const d=td(),p=S.prayers[d]||[],pc=p.filter(Boolean).length,ist=S.ist[d]||0,q=(S.qLog||{})[d]||0,lg=S.expenses.some(e=>e.d===d)||!!(S.noSpend||{})[d],st=dayStep();loadPT();
  const T=[],nx=PT?nextPrayer():-1;
  T.push([pc===5,`صلوات ${pc}/5${pc<5&&nx>=0?` — القادمة ${prayNames[nx]} ${PT[nx]}`:''}`,'faith']);
  dueInfo().forEach(x=>T.push([false,`سداد ${x.n} ${fmt(x.r)} — ${x.diff<0?`<b class="bad">متأخر ${-x.diff} يوم</b>`:x.diff===0?'<b class="bad">يستحق اليوم</b>':`يستحق بعد ${x.diff===1?'يوم':'يومين'}`}`,'pay',x.i]));
  T.push([q>0,`ورد القرآن — صفحة ${S.qPage||1}`,'faith']);
  T.push([ist>=S.istGoal,`الاستغفار ${fmt(ist)}/${fmt(S.istGoal)}`,'faith']);
  T.push([false,`خطوة اليوم: ${st.t}`,'goals']);
- T.push([!!lg,'سجّل مصاريفك قبل النوم','money']);
+ T.push([lg,lg?'سجّلت مصاريف اليوم':'سجّل مصاريفك قبل النوم','nospend']);
  const done=T.filter(x=>x[0]).length,A=todayAllow(),pct=A.allow?Math.min(100,A.ts/A.allow*100):100;
  return `<div class="card"><h2>مهام اليوم <span class="num ${done===T.length?'good':''}">${done}/${T.length}</span></h2>
- ${T.map(([ok,t,go,i])=>`<div class="task ${ok?'ok':''}"><span class="tk">${ok?'✓':''}</span><span style="flex:1;min-width:0;line-height:1.6">${t}</span>${go==='pay'?`<button class="ghost" data-act="bPay" data-i="${i}" style="padding:6px 10px">دفعت</button>`:`<button class="x" data-tab="${go}" aria-label="اذهب">←</button>`}</div>`).join('')}</div>
+ ${T.map(([ok,t,go,i])=>`<div class="task ${ok?'ok':''}"><span class="tk">${ok?'✓':''}</span><span style="flex:1;min-width:0;line-height:1.6">${t}</span>${go==='nospend'?(ok?'':`<button class="ghost" data-act="noSp" style="padding:6px 10px;font-size:12px">لم أصرف اليوم</button>`):go==='pay'?`<button class="ghost" data-act="bPay" data-i="${i}" style="padding:6px 10px">دفعت</button>`:`<button class="x" data-tab="${go}" aria-label="اذهب">←</button>`}</div>`).join('')}</div>
  ${preStart()?startCard():`<div class="card" style="gap:6px"><span class="muted">المتاح لك اليوم</span><div class="big ${A.left<0?'bad':'good'}">${fmt(A.left)} SAR</div>
  <div class="bar"><i style="width:${pct}%;background:${A.left<0?'var(--bad)':'var(--good)'}"></i></div>
  <div class="muted">صرفت ${fmt(A.ts)} من ${fmt(A.allow)} اليوم · باقي على الشهر ${fmt(A.rest)} SAR لـ ${A.dl} يوم</div>
@@ -385,7 +385,7 @@ function rangeDays(f,t){const r=[];let d=new Date(f+'T12:00');const e=new Date(t
 let repF=null,repT=null;
 function repData(){const w=(repF&&repT&&repF<=repT)?rangeDays(repF,repT):daysBack(7),N=w.length,inW=d=>w.includes(d),E=FE().filter(e=>inW(e.d));
  const food=sum(E.filter(e=>e.cat==='أكل وشرب')),all=sum(E),inc=sum(FI().filter(e=>inW(e.d)));
- const logged=w.filter(d=>S.expenses.some(e=>e.d===d)||(S.habitLog[d]||{})[1]).length;
+ const logged=w.filter(d=>S.expenses.some(e=>e.d===d)||(S.noSpend||{})[d]).length;
  const pr=w.reduce((a,d)=>a+(S.prayers[d]||[]).filter(Boolean).length,0),ist=w.reduce((a,d)=>a+(S.ist[d]||0),0),q=w.reduce((a,d)=>a+((S.qLog||{})[d]||0),0);
  const ct=S.contacts.filter(inW).length,proj=w.filter(d=>(S.habitLog[d]||{})[4]).length;
  const hab=S.habits.length?Math.round(w.reduce((a,d)=>a+S.habits.filter(h=>(S.habitLog[d]||{})[h.id]).length,0)/(N*S.habits.length)*100):0;
@@ -749,6 +749,7 @@ document.addEventListener('click',async e=>{
  if(a==='bPartPay'){const amt=+v('bpp'+i);if(!amt||amt<=0)return;undoSnap=JSON.stringify(S);payLine(i,amt,d);partRow=-1;save();render();toast('سداد جزئي '+fmt(amt)+' على '+S.budgets[i].n);return}
  if(a==='stP'||a==='stN'){stOff+=a==='stN'?1:-1;render();return}
  if(a==='xlsx'){exportXlsx(b);return}
+ if(a==='noSp'){S.noSpend=S.noSpend||{};S.noSpend[d]=true;mark(d,1);save();render();toast('سُجّل: يوم بلا مصروف 👍');return}
  if(a==='hv'){homeView=b.dataset.k;render();return}
  if(a==='bEdit'){bEdit=!bEdit;render();return}
  if(a==='ipDel'){incPlan().splice(i,1);save();render();return}
@@ -810,7 +811,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v48';
+const APPV='v49';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
