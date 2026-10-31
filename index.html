@@ -358,7 +358,6 @@ function dayHome(){const d=td(),p=S.prayers[d]||[],pc=p.filter(Boolean).length,i
  const done=T.filter(x=>x[0]).length,A=todayAllow(),pct=A.allow?Math.min(100,A.ts/A.allow*100):100;
  return `<div class="card"><h2>مهام اليوم <span class="num ${done===T.length?'good':''}">${done}/${T.length}</span></h2>
  ${T.map(([ok,t,go,i])=>`<div class="task ${ok?'ok':''}"><span class="tk">${ok?'✓':''}</span><span style="flex:1;min-width:0;line-height:1.6">${t}</span>${go==='nospend'?(ok?'':`<button class="ghost" data-act="noSp" style="padding:6px 10px;font-size:12px">لم أصرف اليوم</button>`):go==='pay'?`<button class="ghost" data-act="bPay" data-i="${i}" style="padding:6px 10px">دفعت</button>`:`<button class="x" data-tab="${go}" aria-label="اذهب">←</button>`}</div>`).join('')}</div>
- ${todoCard()}
  ${preStart()?startCard():`<div class="card" style="gap:6px"><span class="muted">المتاح لك اليوم</span><div class="big ${A.left<0?'bad':'good'}">${fmt(A.left)} SAR</div>
  <div class="bar"><i style="width:${pct}%;background:${A.left<0?'var(--bad)':'var(--good)'}"></i></div>
  <div class="muted">صرفت ${fmt(A.ts)} من ${fmt(A.allow)} اليوم · باقي على الشهر ${fmt(A.rest)} SAR لـ ${A.dl} يوم</div>
@@ -366,7 +365,6 @@ function dayHome(){const d=td(),p=S.prayers[d]||[],pc=p.filter(Boolean).length,i
  ${openCard()}
  <div class="card"><h2>مصروف بضغطة</h2><div class="quick">${S.quick.map((q,i)=>`<button data-act="qx" data-i="${i}">${q.n}<br><span class="num">${q.a}</span></button>`).join('')}</div>
  <details><summary class="muted" style="cursor:pointer">مبلغ آخر أو تعديل الأزرار</summary><div class="list" style="margin-top:8px">${expForm()}${S.quick.map((q,i)=>`<div class="form"><input id="qn${i}" value="${q.n}"><input id="qa${i}" type="number" value="${q.a}"></div>`).join('')}<button class="ghost" data-act="qSave">حفظ الأزرار</button></div></details></div>
- ${notesCard()}
  ${salaryCard()}
  ${storyCard()}
  ${bookCard()}`}
@@ -515,7 +513,7 @@ function habits(){const d0=td(),wd=daysBack(7),d30=daysBack(30),fq=h=>h.f||7;
  const done=st.filter(x=>x.today).length,tot=st.length||1,avg=Math.round(st.reduce((a,x)=>a+Math.min(100,x.rate),0)/tot);
  const best=st.slice().sort((a,b)=>b.rate-a.rate)[0],worst=st.slice().sort((a,b)=>a.rate-b.rate)[0];
  const dl=d=>new Date(d+'T12:00').toLocaleDateString('ar-SA-u-nu-latn',{weekday:'narrow'});
- return `<div class="card score">${ring(Math.round(done/tot*100))}<div style="min-width:0"><b style="font-size:16px">إنجاز اليوم ${done} من ${st.length}</b><div class="muted">الالتزام خلال 30 يومًا: ${avg}%</div>${st.length>1?`<div style="font-size:13px;margin-top:4px">🏆 الأقوى: ${best.h.n} (${Math.min(100,best.rate)}%)<br>⚠️ تحتاج تركيز: ${worst.h.n} (${Math.min(100,worst.rate)}%)</div>`:''}</div></div>
+ return todoCard()+`<div class="card score">${ring(Math.round(done/tot*100))}<div style="min-width:0"><b style="font-size:16px">إنجاز اليوم ${done} من ${st.length}</b><div class="muted">الالتزام خلال 30 يومًا: ${avg}%</div>${st.length>1?`<div style="font-size:13px;margin-top:4px">🏆 الأقوى: ${best.h.n} (${Math.min(100,best.rate)}%)<br>⚠️ تحتاج تركيز: ${worst.h.n} (${Math.min(100,worst.rate)}%)</div>`:''}</div></div>
  <div class="card"><h2>عادات اليوم</h2>
  <div class="habit hhead"><span style="width:30px"></span><span style="flex:1"></span><span class="week">${wd.map(d=>`<em class="${d===d0?'td':''}">${dl(d)}</em>`).join('')}</span><span style="width:22px"></span></div>
  ${st.map(({h,today,s,rate,wk})=>`<details class="hd"><summary class="habit">${hAuto(h)?`<span class="chk ${today?'on':''}" title="تلقائي">✓</span>`:`<button class="chk ${today?'on':''}" data-act="hab" data-id="${h.id}" aria-label="${h.n}">✓</button>`}
@@ -523,7 +521,7 @@ function habits(){const d0=td(),wd=daysBack(7),d30=daysBack(30),fq=h=>h.f||7;
  <span class="week">${wd.map(d=>`<i class="${hDone(h,d)?'on':''} ${d===d0?'td':''}"></i>`).join('')}</span><button class="x" data-act="delH" data-id="${h.id}" aria-label="حذف العادة">✕</button></summary>
  <div class="hm">${d30.map(d=>`<i class="${hDone(h,d)?'on':''}" title="${d}"></i>`).join('')}</div><div class="muted" style="font-size:11px">آخر 30 يومًا · ${d30.filter(d=>hDone(h,d)).length} يوم منجز${hAuto(h)?' · تُحسب تلقائيًا من '+((h.auto||(h.id===1?'exp':'quran'))==='exp'?'تسجيل المصاريف':'ورد القرآن'):''}</div></details>`).join('')}
  <div class="muted" style="font-size:12px">اضغط اسم العادة لترى خريطة 30 يومًا. العادات «التلقائية» تتأشّر وحدها من بياناتك الفعلية.</div>
- <div class="form"><input id="hn" class="full" placeholder="عادة جديدة (مثال: رياضة 30 دقيقة)"><select id="hf"><option value="7">كل يوم</option><option value="5">5 أيام في الأسبوع</option><option value="3">3 أيام في الأسبوع</option><option value="1">مرة في الأسبوع</option></select><button data-act="addH">إضافة عادة</button></div></div>`;
+ <div class="form"><input id="hn" class="full" placeholder="عادة جديدة (مثال: رياضة 30 دقيقة)"><select id="hf"><option value="7">كل يوم</option><option value="5">5 أيام في الأسبوع</option><option value="3">3 أيام في الأسبوع</option><option value="1">مرة في الأسبوع</option></select><button data-act="addH">إضافة عادة</button></div></div>`+notesCard();
 }
 const stages=['جديد','تم التواصل','اجتماع','عرض سعر','عميل ✓'];
 function goalDefaults(){S.goals.forEach(g=>{if(g.dl)return;if(/طوارئ/.test(g.n))g.dl='2027-04';else if(/عميل/.test(g.n))g.dl='2027-01';else if(/2031|ثروة/.test(g.n))g.dl='2031-10'})}
@@ -871,7 +869,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v52';
+const APPV='v53';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
