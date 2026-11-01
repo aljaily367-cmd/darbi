@@ -641,7 +641,7 @@ function donut(parts){const T=parts.reduce((a,p)=>a+p.v,0);if(!T)return'<div cla
  return `<div style="display:flex;gap:14px;align-items:center"><svg viewBox="0 0 100 100" width="120" height="120" style="flex:none">${arcs}<text x="50" y="47" text-anchor="middle" font-size="9" fill="var(--muted)">الإجمالي</text><text x="50" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="var(--fg)">${fmt(T)}</text></svg>
  <div style="display:flex;flex-direction:column;gap:4px;font-size:12px;min-width:0">${parts.filter(p=>p.v).map(p=>`<span><span style="color:${p.c}">●</span> ${p.n} ${Math.round(p.v/T*100)}%</span>`).join('')}</div></div>`}
 function catCard(){const GC={fixed:'#378ADD',debt:'#E24B4A',var:'#F0A030',want:'#AF52DE',save:'#1D9E75'};
- const G=BG.map(([g,t])=>{const R=S.budgets.filter(b=>bGroup(b.n)===g).map(b=>({n:b.n,b:b.b,s:Math.max(spentBy(b.n),paidAmt(b.n))})).sort((a,b)=>(b.b?b.s/b.b:0)-(a.b?a.s/a.b:0));return{g,t,R,b:R.reduce((a,x)=>a+x.b,0),s:R.reduce((a,x)=>a+x.s,0)}}).filter(x=>x.R.length);
+ const G=BG.map(([g,t])=>{const R=S.budgets.filter(b=>bGroup(b.n)===g).map(b=>({n:b.n,b:b.b,s:spentBy(b.n)})).sort((a,b)=>(b.b?b.s/b.b:0)-(a.b?a.s/a.b:0));return{g,t,R,b:R.reduce((a,x)=>a+x.b,0),s:R.reduce((a,x)=>a+x.s,0)}}).filter(x=>x.R.length);
  const tb=G.reduce((a,x)=>a+x.b,0),ts=G.reduce((a,x)=>a+x.s,0);
  return `<div class="card"><h2>المصروف حسب البند</h2>${donut(G.map(x=>({n:x.t.replace(/^\S+\s/,''),v:x.s,c:GC[x.g]})))}
  ${G.map(x=>`<details class="hd"><summary><div class="row"><b><span style="color:${GC[x.g]}">●</span> ${x.t}</b><span class="num ${x.s>x.b?'bad':''}">${fmt(x.s)} / ${fmt(x.b)} · ${x.b?Math.round(x.s/x.b*100):0}%</span></div><div class="bar"><i style="width:${x.b?Math.min(100,x.s/x.b*100):0}%;background:${x.s>x.b?'var(--bad)':GC[x.g]}"></i></div></summary>
@@ -686,7 +686,7 @@ let bEdit=false,partRow=-1;
 const incPlan=()=>{if(!S.incPlan)S.incPlan=[{n:'الراتب',a:S.salary||7000}];return S.incPlan};
 const BG=[['fixed','🏠 ثابتة إلزامية'],['debt','💳 ديون والتزامات'],['var','🔄 متغيرة'],['want','🎯 رغبات'],['save','💰 ادخار']];
 function bGroup(n){const o=(S.bcat||{})[n];if(o)return o;if(/قسط|تمارا|دين|متأخر|سداد|تمويل/.test(n))return'debt';if(/طوارئ|ادخار|استثمار/.test(n))return'save';if(/ترفيه|مطاعم|قهوة|تسوق|اشتراك|هدايا|سفر/.test(n))return'want';if(/سكن|فواتير|كهرباء|ماء|إنترنت|انترنت|جوال/.test(n))return'fixed';return'var'}
-function budgetTable(ti){const dd=new Date().getDate(),L=S.budgets.map((b,i)=>{const pd=paidAmt(b.n),act=Math.max(pd,spentBy(b.n)),du=(S.due||{})[b.n],full=b.b>0&&pd>=b.b,part=pd>0&&!full,rem=Math.max(0,b.b-pd);
+function budgetTable(ti){const dd=new Date().getDate(),L=S.budgets.map((b,i)=>{const pd=paidAmt(b.n),act=spentBy(b.n),du=(S.due||{})[b.n],full=b.b>0&&pd>=b.b,part=pd>0&&!full,rem=Math.max(0,b.b-pd);
   const st=full?['ok','مدفوع ✓']:du&&rem&&du<dd?['late',`متأخر ${dd-du} يوم`]:du&&rem&&du-dd<=3?['soon',du===dd?'يستحق اليوم':`يستحق خلال ${du-dd} يوم`]:part?['part','جزئي']:['',''];return{b,i,pd,act,du,full,part,st,g:bGroup(b.n)}});
  const pc=x=>ti?Math.round(x/ti*100):0,gs=g=>L.filter(x=>x.g===g).reduce((a,x)=>a+x.b.b,0);
  const hous=L.filter(x=>/سكن/.test(x.b.n)&&!/متأخر/.test(x.b.n)).reduce((a,x)=>a+x.b.b,0),trans=L.filter(x=>/سيارة|محروقات|مواصلات|بنزين|أوبر/.test(x.b.n)).reduce((a,x)=>a+x.b.b,0);
@@ -940,7 +940,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v69';
+const APPV='v70';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
