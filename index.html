@@ -237,7 +237,7 @@ function streak(test){let n=0;const d=new Date();if(!test(iso(d)))d.setDate(d.ge
 const prayStreak=()=>streak(k=>(S.prayers[k]||[]).filter(Boolean).length===5);
 const habStreak=id=>streak(k=>(S.habitLog[k]||{})[id]);
 const debtTotal=()=>S.debts.reduce((a,d)=>a+d.rem,0);
-function freeDate(){const t=debtTotal(),pay=S.debts.reduce((a,d)=>a+(d.rem>0?d.inst:0),0)+sum(monthInc().filter(e=>e.s!=='راتب'));if(!t)return'تحررت ✓';if(!pay)return'—';const d=new Date();d.setMonth(d.getMonth()+Math.ceil(t/pay));return d.toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{month:'long',year:'numeric'})}
+function freeDate(){const t=debtTotal(),pay=S.debts.reduce((a,d)=>a+(d.rem>0?d.inst:0),0)+sum(monthInc().filter(e=>!isSal(e)));if(!t)return'تحررت ✓';if(!pay)return'—';const d=new Date();d.setMonth(d.getMonth()+Math.ceil(t/pay));return d.toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{month:'long',year:'numeric'})}
 
 // خطة الـ90 يومًا
 const START=new Date(2026,9,24);
@@ -488,8 +488,8 @@ function smsCard(){return `<div class="sms"><div class="row"><b>📩 لصق رس
  <button class="ghost" data-act="smsGo">تحليل الرسالة</button>
  ${smsP?`<div class="eed"><div class="muted" style="font-size:12px">تحقّق ثم احفظ — ${smsP.inc?'دخل':'مصروف'}${smsP.sv?` · مع ادخار ${smsP.sv}`:''}</div>
  <div class="form"><input id="spa" type="number" inputmode="decimal" value="${smsP.a||''}" placeholder="المبلغ"><input id="spd" type="date" value="${smsP.d||td()}"><input id="spm" class="full" value="${esc(smsP.m||'')}" placeholder="التاجر / المصدر">
- ${smsP.inc?'':`<select id="spc" class="full"><option value="" ${smsP.cat?'':'selected'}>— اختر البند —</option>${S.budgets.map(b=>`<option ${b.n===smsP.cat?'selected':''}>${esc(b.n)}</option>`).join('')}${smsP.cat&&!S.budgets.some(b=>b.n===smsP.cat)?`<option selected>${esc(smsP.cat)}</option>`:''}</select>`}</div>
- <label class="muted" style="font-size:12px;display:flex;gap:6px;align-items:center"><input type="checkbox" id="spr" checked style="width:auto"> تذكّر هذا التاجر لهذا البند</label>
+ ${smsP.inc?incSel('spk',/راتب/.test(smsP.raw)?'راتب':/حوالة/.test(smsP.raw)?'حوالة واردة':'دخل إضافي').replace('<select','<select class="full"'):`<select id="spc" class="full"><option value="" ${smsP.cat?'':'selected'}>— اختر البند —</option>${S.budgets.map(b=>`<option ${b.n===smsP.cat?'selected':''}>${esc(b.n)}</option>`).join('')}${smsP.cat&&!S.budgets.some(b=>b.n===smsP.cat)?`<option selected>${esc(smsP.cat)}</option>`:''}</select>`}</div>
+ ${smsP.inc?'':'<label class="muted" style="font-size:12px;display:flex;gap:6px;align-items:center"><input type="checkbox" id="spr" checked style="width:auto"> تذكّر هذا التاجر لهذا البند</label>'}
  <div class="form"><button data-act="smsSave">حفظ</button><button class="ghost" data-act="smsX">إلغاء</button></div></div>`:''}</div>`}
 function monthList(){const q=(window._mq||'').trim(),fc=window._mc||'';let L=monthExp().filter(e=>(!fc||e.cat===fc)&&(!q||(e.cat+' '+(e.n||'')+' '+(e.m||'')).includes(q)));
  const days=[...new Set(L.map(e=>e.d))].sort().reverse(),y=new Date();y.setDate(y.getDate()-1);
@@ -515,9 +515,11 @@ function regCard(){return ` <div class="card"><h2>تسجيل العمليات</h
  ${regMode==='exp'?`<div class="quick">${S.quick.map((q,i)=>`<button data-act="qx" data-i="${i}">${q.n}<br><span class="num">${q.a}</span></button>`).join('')}</div>
  <details><summary class="muted" style="cursor:pointer">تعديل أزرار المصروف السريع</summary><div class="list" style="margin-top:8px">${S.quick.map((q,i)=>`<div class="form"><input id="qn${i}" value="${q.n}"><input id="qa${i}" type="number" value="${q.a}"></div>`).join('')}<button class="ghost" data-act="qSave">حفظ الأزرار</button></div></details>
  <div class="muted">أو سجّل مبلغًا آخر:</div>${expForm()}`:incForm()}</div>`}
-function incForm(){return `<div class="muted">أي دخل من الاستشارات أو المنصة، منفصل عن الراتب.</div>
- <div class="form"><input id="ia" type="number" placeholder="المبلغ"><input id="is" placeholder="المصدر"><input id="idt" class="full" type="date" value="${td()}" aria-label="تاريخ الدخل"><button class="full" data-act="addInc">تسجيل دخل</button></div>
- ${monthInc().map(e=>`<div class="exp"><span>${e.s||'دخل'}<br><span class="muted">${e.d}</span></span><span class="num good">${fmt(e.a)} <button class="x" data-act="delI" data-id="${e.id}" aria-label="حذف">✕</button></span></div>`).join('')}${monthInc().length?`<div class="tot"><span>إجمالي دخل الشهر</span><span class="num good">${fmt(sum(monthInc()))}</span></div>`:''}`}
+function incForm(){return `<div class="form"><input id="ia" type="number" inputmode="decimal" placeholder="المبلغ">${incSel('ik','دخل إضافي')}<input id="is" class="full" placeholder="المصدر (اختياري)"><input id="idt" class="full" type="date" value="${td()}" aria-label="تاريخ الدخل"><button class="full" data-act="addInc">تسجيل دخل</button></div>
+ ${monthInc().map(e=>`<div class="exp"><span>${esc(e.s||e.k||'دخل')} <small class="tcat">${e.k||(isSal(e)?'راتب':'دخل إضافي')}</small><br><span class="muted">${e.d}</span></span><span class="num good">${fmt(e.a)} <button class="x" data-act="delI" data-id="${e.id}" aria-label="حذف">✕</button></span></div>`).join('')}${monthInc().length?`<div class="tot"><span>إجمالي دخل الشهر</span><span class="num good">${fmt(sum(monthInc()))}</span></div>`:''}`}
+const INCT=['راتب','دخل إضافي','استشارات','حوالة واردة','استرداد','أخرى'];
+const isSal=e=>(e.k||(e.s==='راتب'?'راتب':''))==='راتب';
+const incSel=(id,sel)=>`<select id="${id}">${INCT.map(t=>`<option ${t===sel?'selected':''}>${t}</option>`).join('')}</select>`;
 let regMode='exp';
 function money(){
  const tb=totalB(),ti=incPlan().reduce((x,y)=>x+(+y.a||0),0),cm=sum(monthExp()),pm=sum(monthExp(mon(-1))),diff=cm-pm;
@@ -594,7 +596,7 @@ function goals(){goalDefaults();
  const wc=S.contacts.filter(d=>daysBack(7).includes(d)).length,act=S.leads.filter(l=>!l.lost),cnt=stages.map((x,k)=>act.filter(l=>l.s===k).length),won=cnt[4],conv=S.leads.length?Math.round(won/S.leads.length*100):0,d0=td();
  const order=act.map(l=>({l,i:S.leads.indexOf(l)})).sort((a,b)=>(a.l.fu||'9')<(b.l.fu||'9')?-1:1);
  const start=new Date(2026,9,24),end=new Date(2031,9,24),now=new Date(),tp=Math.min(100,Math.max(0,(now-start)/(end-start)*100)),yr=Math.min(5,Math.floor((now-start)/(365.25*864e5))+1);
- const paidDebt=Math.max(0,S.debtStart-debtTotal()),xInc=sum(monthInc().filter(e=>e.s!=='راتب')),ef=(S.goals.find(g=>/طوارئ/.test(g.n))||{c:0}).c,wealth=(S.goals.find(g=>/ثروة/.test(g.n))||{c:0}).c;
+ const paidDebt=Math.max(0,S.debtStart-debtTotal()),xInc=sum(monthInc().filter(e=>!isSal(e))),ef=(S.goals.find(g=>/طوارئ/.test(g.n))||{c:0}).c,wealth=(S.goals.find(g=>/ثروة/.test(g.n))||{c:0}).c;
  const Y=[[1,'إيقاف النزيف وأول عميل','أول عميل: '+(won?'✓':'لم يتحقق بعد')],[2,'دخل إضافي 6,000+','دخل إضافي هذا الشهر: '+fmt(xInc)],[3,'صفر ديون وطوارئ 6 أشهر','سُدّد من الديون: '+fmt(paidDebt)],[4,'بناء الثروة','الطوارئ: '+fmt(ef)],[5,'ثروة 300,000+','الثروة المستثمرة: '+fmt(wealth)]];
  return `<div class="card"><h2>العملاء المحتملون <span class="num ${wc>=5?'good':'bad'}">${wc} / 5 هذا الأسبوع</span></h2>
  <div class="funnel">${stages.map((x,k)=>`<div><b class="num">${cnt[k]}</b><small>${x.replace(' ✓','')}</small></div>`).join('')}</div>
@@ -693,7 +695,7 @@ function dash(){
  const wc=S.contacts.filter(d=>daysBack(7).includes(d)).length,clients=S.leads.filter(l=>l.s===4).length;
  const tile=(l,v,c='',sub='')=>`<div class="kpi"><small>${l}</small><b class="${c}">${v}</b>${sub?`<small class="kps">${sub}</small>`:''}</div>`;
  return finSummary()+forecastCard()+`<div class="card"><h2>لوحة القيادة <span class="muted">${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{month:'long',year:'numeric'})}</span></h2>
- <div class="kgrp">💰 المال</div><div class="kpis">${tile('دخل الشهر',fmt(inc),'','منه إضافي '+fmt(sum(monthInc().filter(e=>e.s!=='راتب'))))}${tile('المصروف',fmt(spent),'',inc?Math.round(spent/inc*100)+'% من الدخل':'')}${tile('الرصيد الحالي',fmt(left),left<0?'bad':'good','رصيد + دخل − مصروف')}${tile('باقي الديون',fmt(debtTotal()),'bad','سُدّد '+Math.round(dp)+'%')}</div>
+ <div class="kgrp">💰 المال</div><div class="kpis">${tile('دخل الشهر',fmt(inc),'','منه إضافي '+fmt(sum(monthInc().filter(e=>!isSal(e)))))}${tile('المصروف',fmt(spent),'',inc?Math.round(spent/inc*100)+'% من الدخل':'')}${tile('الرصيد الحالي',fmt(left),left<0?'bad':'good','رصيد + دخل − مصروف')}${tile('باقي الديون',fmt(debtTotal()),'bad','سُدّد '+Math.round(dp)+'%')}</div>
  <div class="kgrp">🕌 العبادات</div><div class="kpis">${tile('مواظبة الصلاة',prRate+'%',prRate>=90?'good':prRate>=70?'warnc':'bad','منذ بدء التسجيل ('+tr.length+' يوم)')}${tile('الاستغفار',fmt(ist30),'','متوسط '+fmt(ist30/Math.max(1,tr.length))+' يوميًا')}</div>
  <div class="kgrp">🎯 العمل</div><div class="kpis">${tile('تواصلات الأسبوع',wc+' / 5',wc>=5?'good':'bad',wc>=5?'حققت الهدف ✓':'باقي '+(5-wc))}${tile('عملاء مكتسبون',clients,clients?'good':'','الهدف: أول عميل')}</div></div>
  ${compareCard()}
@@ -774,7 +776,7 @@ const FS=()=>S.finStart||'0000';const FE=()=>S.expenses.filter(e=>e.d>=FS());con
 const preStart=()=>td()<FS();
 const opening=()=>S.opening?+S.opening.a||0:0;
 const cashNow=()=>opening()+sum(FI())-sum(FE());
-const salaryThisMonth=()=>monthInc().some(e=>e.s==='راتب');
+const salaryThisMonth=()=>monthInc().some(e=>isSal(e));
 function openCard(){if(S.opening)return'';return `<div class="card" style="border:2px solid var(--orange)"><h2>الرصيد الافتتاحي</h2><div class="muted">كم معك فعلًا يوم ${new Date(FS()).toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{day:'numeric',month:'long'})}؟ اجمع رصيد البنك + الكاش في يدك. سجّله صباح ذلك اليوم قبل أي صرف.</div><div class="form"><input id="opA" type="number" inputmode="decimal" placeholder="المبلغ بالSAR"><button data-act="setOpen">حفظ الرصيد الافتتاحي</button></div></div>`}
 function recCard(){const r=(S.recs||[]).slice(-1)[0],c=cashNow();return `<div class="card"><h2>مطابقة البنك ${r?`<span class="muted" style="font-weight:400">آخر مطابقة ${r.d.slice(5)}</span>`:''}</h2>
  <div class="muted">كل جمعة: افتح تطبيق البنك واجمع رصيدك + الكاش، واكتبه هنا.</div>
@@ -914,7 +916,7 @@ document.addEventListener('click',async e=>{
  if(a==='smsGo'){const t=document.getElementById('smsT').value;if(!t.trim()){toast('الصق الرسالة أولًا');return}smsP=parseSMS(t);if(!smsP.a)toast('لم أجد المبلغ، اكتبه يدويًا');render();return}
  if(a==='smsX'){smsP=null;render();return}
  if(a==='smsSave'){const am=+v('spa');if(!am){toast('اكتب المبلغ');return}const dd=v('spd')||d,mm=v('spm');undoSnap=JSON.stringify(S);
-  if(smsP.inc){S.income.push({id:Date.now(),d:dd,a:am,s:mm||'دخل'})}else{let cat=v('spc');if(!cat){toast('اختر البند');return}if(!S.budgets.some(x=>x.n===cat))S.budgets.push({n:cat,b:Math.ceil(am/10)*10});
+  if(smsP.inc){S.income.push({id:Date.now(),d:dd,a:am,k:v('spk'),s:mm||v('spk')});if(dd<FS())setTimeout(()=>toast('⚠️ التاريخ قبل بداية المتابعة ('+FS()+')، فلن يظهر في الأرقام'),60)}else{let cat=v('spc');if(!cat){toast('اختر البند');return}if(!S.budgets.some(x=>x.n===cat))S.budgets.push({n:cat,b:Math.ceil(am/10)*10});
    S.expenses.push({id:Date.now(),d:dd,a:am,cat,m:mm,n:mm,raw:smsP.raw,sv:smsP.sv||0});mark(td(),1);
    if(document.getElementById('spr')?.checked&&mm){S.mrules=S.mrules||{};S.mrules[mm.toLowerCase()]=cat}
    if(smsP.sv){const g=S.goals.find(g=>/طوارئ/.test(g.n));if(g)g.c+=smsP.sv}}
@@ -953,7 +955,7 @@ document.addEventListener('click',async e=>{
  if(a==='addExp'){const n=+v('ea');if(!n)return;let cat=v('ec');if(cat==='__w'){cat=v('ecx');if(!cat)return}if(cat==='__b'){cat=v('nbn');if(!cat){toast('اكتب اسم البند');return}if(!S.budgets.some(x=>x.n===cat)){S.budgets.push({n:cat,b:+v('nbb')||n});S.bcat=S.bcat||{};S.bcat[cat]=v('nbg')||'var';setTimeout(()=>toast('أُضيف بند «'+cat+'» للموازنة ✓'),60)}}{const dd=v('ed')||d;S.expenses.push({id:Date.now(),d:dd,a:n,cat,n:v('en')});if(dd<FS())setTimeout(()=>toast('⚠️ التاريخ قبل بداية المتابعة ('+FS()+')، فلن يظهر في الأرقام'),50)}mark(d,1);
   const debt=S.debts.find(x=>x.n.includes('التمويل')&&v('ec')==='قسط التمويل');if(debt){debt.rem=Math.max(0,debt.rem-n);debt.late=Math.max(0,debt.late-n)}}
  if(a==='delE')S.expenses=S.expenses.filter(x=>x.id!==id);
- if(a==='addInc'&&+v('ia')){const dd=v('idt')||d;S.income.push({id:Date.now(),d:dd,a:+v('ia'),s:v('is')});if(dd<FS())setTimeout(()=>toast('⚠️ التاريخ قبل بداية المتابعة ('+FS()+')، فلن يظهر في الأرقام'),50)}
+ if(a==='addInc'&&+v('ia')){const dd=v('idt')||d;S.income.push({id:Date.now(),d:dd,a:+v('ia'),k:v('ik'),s:v('is')||v('ik')});if(dd<FS())setTimeout(()=>toast('⚠️ التاريخ قبل بداية المتابعة ('+FS()+')، فلن يظهر في الأرقام'),50)}
  if(a==='delI')S.income=S.income.filter(x=>x.id!==id);
  if(a==='setSal')S.salary=+v('sal')||S.salary;
  if(a==='addB'&&v('bn')&&+v('bb'))S.budgets.push({n:v('bn'),b:+v('bb')});
@@ -982,7 +984,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v76';
+const APPV='v77';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
