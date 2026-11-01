@@ -155,6 +155,8 @@ nav button{font-size:13px!important;font-weight:500}nav button svg{width:25px!im
 .exp2{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)}.eic{flex:none;width:34px;height:34px;border-radius:10px;background:var(--soft);display:grid;place-items:center;font-size:17px}
 .et{display:block;font-size:14px;line-height:1.5}.exp2 small{display:block;font-size:11px}
 .dayh{display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:var(--navy);background:var(--soft);border-radius:8px;padding:5px 10px;margin-top:6px}
+.dbars{display:flex;align-items:flex-end;gap:4px;height:150px;padding-top:4px}.dbar{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px;height:100%;padding:0;background:none;border-radius:6px}.dbar.on{background:var(--soft)}
+.dstack{width:100%;display:flex;flex-direction:column-reverse;border-radius:4px 4px 1px 1px;overflow:hidden;background:var(--soft)}.dstack i{display:block;min-height:2px}.dv{font-size:9px;color:var(--muted)}.dl{font-size:10px;color:var(--muted)}.dbar.on .dl{color:var(--orange);font-weight:700}
 </style><style>
 .chip{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -682,6 +684,19 @@ function catCard(){const GC={fixed:'#378ADD',debt:'#E24B4A',var:'#F0A030',want:'
  ${x.R.map(c=>`<div style="padding-inline-start:12px"><div class="row" style="font-size:13px"><span>${c.n}</span><span class="num ${c.s>c.b?'bad':''}">${fmt(c.s)} / ${fmt(c.b)} <small class="muted">باقي ${fmt(c.b-c.s)}</small></span></div><div class="bar" style="height:5px"><i style="width:${c.b?Math.min(100,c.s/c.b*100):0}%;background:${c.s>c.b?'var(--bad)':c.s/c.b>=.8?'var(--orange)':'var(--good)'}"></i></div></div>`).join('')}</details>`).join('')}
  <div class="tot"><span>الإجمالي</span><span class="num">${fmt(ts)} من ${fmt(tb)} · ${tb?Math.round(ts/tb*100):0}%</span></div>
  <div class="muted" style="font-size:12px">اضغط أي مجموعة لترى بنودها. أحمر = تجاوز · برتقالي = 80%+</div></div>`}
+function dailyCard(){const GC={fixed:'#378ADD',debt:'#E24B4A',var:'#F0A030',want:'#AF52DE',save:'#1D9E75',out:'#8E8E93'};
+ const D=daysBack(30).filter(d=>d>=FS()),grp=e=>S.budgets.some(b=>b.n===e.cat)?bGroup(e.cat):'out';
+ if(!D.length)return'';const T=D.map(d=>{const E=FE().filter(e=>e.d===d),g={};E.forEach(e=>{const k=grp(e);g[k]=(g[k]||0)+e.a});return{d,E,g,t:sum(E)}});
+ const mx=Math.max(1,...T.map(x=>x.t)),sel=window._sd&&D.includes(window._sd)?window._sd:td(),cur=T.find(x=>x.d===sel)||T[T.length-1],avg=sum(T.map(x=>({a:x.t})))/D.length;
+ const bw=Math.max(14,Math.min(40,300/D.length));const NAMES={fixed:'ثابتة',debt:'ديون',var:'متغيرة',want:'رغبات',save:'ادخار',out:'خارج الموازنة'};
+ const cats={};cur.E.forEach(e=>{cats[e.cat]=(cats[e.cat]||0)+e.a});
+ return `<div class="card"><h2>المصروف اليومي</h2>
+ <div style="overflow-x:auto"><div class="dbars" style="min-width:${D.length*(bw+4)}px">${T.map(x=>`<button class="dbar ${x.d===sel?'on':''}" data-act="sd" data-k="${x.d}" style="width:${bw}px" aria-label="${x.d}"><span class="dv">${x.t?fmt(x.t):''}</span><span class="dstack" style="height:${Math.max(x.t?6:2,x.t/mx*110)}px">${Object.keys(GC).filter(k=>x.g[k]).map(k=>`<i style="flex:${x.g[k]};background:${GC[k]}"></i>`).join('')}</span><span class="dl">${+x.d.slice(8)}</span></button>`).join('')}</div></div>
+ <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:11px">${Object.keys(GC).filter(k=>T.some(x=>x.g[k])).map(k=>`<span><span style="color:${GC[k]}">●</span> ${NAMES[k]}</span>`).join('')}</div>
+ <div class="row muted" style="font-size:12px"><span>متوسط يومي ${fmt(avg)} SAR (${D.length} يوم من بداية المتابعة)</span><span>أعلى يوم ${fmt(mx===1&&!T.some(x=>x.t)?0:mx)}</span></div>
+ <div class="dayh"><span>بنود ${cur.d===td()?'اليوم':cur.d}</span><span class="num bad">−${fmt(cur.t)}</span></div>
+ ${Object.keys(cats).sort((a,b)=>cats[b]-cats[a]).map(c=>`<div><div class="row" style="font-size:13px"><span>${icoOf(c)} ${esc(c)}</span><span class="num bad">${fmt(cats[c])} · ${Math.round(cats[c]/cur.t*100)}%</span></div><div class="bar" style="height:5px"><i style="width:${cats[c]/cur.t*100}%;background:${GC[S.budgets.some(b=>b.n===c)?bGroup(c):'out']}"></i></div></div>`).join('')||'<span class="muted">لا مصاريف في هذا اليوم.</span>'}
+ <div class="muted" style="font-size:12px">اضغط أي عمود لترى بنود ذلك اليوم.</div></div>`}
 function dash(){
  const inc=sum(monthInc()),spent=sum(monthExp()),left=cashNow();
  const d30=daysBack(30),byDay=d30.map(d=>sum(FE().filter(e=>e.d===d)));
@@ -699,11 +714,7 @@ function dash(){
  <div class="kgrp">🕌 العبادات</div><div class="kpis">${tile('مواظبة الصلاة',prRate+'%',prRate>=90?'good':prRate>=70?'warnc':'bad','منذ بدء التسجيل ('+tr.length+' يوم)')}${tile('الاستغفار',fmt(ist30),'','متوسط '+fmt(ist30/Math.max(1,tr.length))+' يوميًا')}</div>
  <div class="kgrp">🎯 العمل</div><div class="kpis">${tile('تواصلات الأسبوع',wc+' / 5',wc>=5?'good':'bad',wc>=5?'حققت الهدف ✓':'باقي '+(5-wc))}${tile('عملاء مكتسبون',clients,clients?'good':'','الهدف: أول عميل')}</div></div>
  ${compareCard()}
- <div class="card"><h2>المصروف اليومي — آخر 30 يومًا</h2>
- <svg viewBox="0 0 ${W} ${H+18}" style="width:100%;height:auto">${[0,.5,1].map(t=>`<line x1="0" x2="${W}" y1="${H-t*H}" y2="${H-t*H}" stroke="var(--line)"/>`).join('')}
- ${byDay.map((v,i)=>`<rect x="${i*bw+1}" y="${H-v/mx*H}" width="${bw-2}" height="${v/mx*H}" rx="1.5" fill="${i===29?'var(--orange)':'var(--navy)'}"/>`).join('')}
- <text x="${W}" y="${H+14}" font-size="9" fill="var(--muted)" text-anchor="end">قبل 30 يوم</text><text x="0" y="${H+14}" font-size="9" fill="var(--muted)">اليوم</text></svg>
- <div class="muted">أعلى يوم: ${fmt(mx===1&&!byDay.some(Boolean)?0:mx)} SAR · متوسط يومي: ${fmt(sum(FE().filter(e=>d30.includes(e.d)))/30)} SAR</div></div>
+ ${dailyCard()}
  ${catCard()}
  <div class="card"><h2>الصلوات — آخر 14 يومًا <span class="num ${pr.reduce((a,b)=>a+b,0)>=63?'good':''}">${Math.round(pr.reduce((a,b)=>a+b,0)/70*100)}%</span></h2><div style="display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:3px;align-items:end;height:80px">${pr.map((n,i)=>`<div title="${d14[i]}" style="display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:2px"><span style="font-size:9px;color:var(--muted)">${n}</span><div style="width:100%;height:${Math.max(4,n*18)}%;background:${n===5?'var(--good)':n>=3?'var(--orange)':'var(--bad)'};border-radius:3px"></div></div>`).join('')}</div><div class="row" style="font-size:10px;color:var(--muted)"><span>قبل أسبوعين</span><span>اليوم</span></div><div class="muted" style="font-size:12px">أخضر 5 · برتقالي 3–4 · أحمر أقل · ${pr.filter(n=>n===5).length} يوم كامل من 14</div></div>
  <div class="card"><h2>الالتزام بالعادات — آخر 30 يومًا</h2>${hab.map(h=>`<div><div class="row"><span>${h.n}</span><span class="num">${h.r} / 30</span></div><div class="bar"><i style="width:${h.r/30*100}%;background:var(--good)"></i></div></div>`).join('')}</div>
@@ -921,6 +932,7 @@ document.addEventListener('click',async e=>{
    if(document.getElementById('spr')?.checked&&mm){S.mrules=S.mrules||{};S.mrules[mm.toLowerCase()]=cat}
    if(smsP.sv){const g=S.goals.find(g=>/طوارئ/.test(g.n));if(g)g.c+=smsP.sv}}
   smsP=null;save();render();toast('سُجّلت العملية ✓');return}
+ if(a==='sd'){window._sd=b.dataset.k;render();return}
  if(a==='rgM'){regMode=b.dataset.k;render();return}
  if(a==='bEdit'){bEdit=!bEdit;render();return}
  if(a==='ipDel'){incPlan().splice(i,1);save();render();return}
@@ -984,7 +996,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v79';
+const APPV='v80';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
