@@ -382,8 +382,6 @@ function dayHome(){const d=td(),p=S.prayers[d]||[],pc=p.filter(Boolean).length,i
  <div class="muted">صرفت ${fmt(A.ts)} من ${fmt(A.allow)} اليوم · باقي على الشهر ${fmt(A.rest)} SAR لـ ${A.dl} يوم</div>
  ${A.left<0?`<div class="alert">تجاوزت مسموح اليوم بـ ${fmt(-A.left)}. يُخصم من مسموح الأيام القادمة.</div>`:''}</div>`}
  ${openCard()}
- <div class="card"><h2>مصروف بضغطة</h2><div class="quick">${S.quick.map((q,i)=>`<button data-act="qx" data-i="${i}">${q.n}<br><span class="num">${q.a}</span></button>`).join('')}</div>
- <details><summary class="muted" style="cursor:pointer">مبلغ آخر أو تعديل الأزرار</summary><div class="list" style="margin-top:8px">${expForm()}${S.quick.map((q,i)=>`<div class="form"><input id="qn${i}" value="${q.n}"><input id="qa${i}" type="number" value="${q.a}"></div>`).join('')}<button class="ghost" data-act="qSave">حفظ الأزرار</button></div></details></div>
  ${salaryCard()}
  ${storyCard()}
  ${bookCard()}`}
@@ -407,9 +405,6 @@ function homeMonth(){
  <div class="kpi"><small>دخل الشهر</small><b>${fmt(inc)}</b></div>
  <div class="kpi"><small>المصروف</small><b>${fmt(spent)}</b></div></div>
  </div>
- <div class="card"><h2>مصروف بضغطة</h2><div class="quick">${S.quick.map((q,i)=>`<button data-act="qx" data-i="${i}">${q.n}<br><span class="num">${q.a}</span></button>`).join('')}</div>
- <details><summary class="muted" style="cursor:pointer">تعديل الأزرار</summary><div class="list" style="margin-top:8px">${S.quick.map((q,i)=>`<div class="form"><input id="qn${i}" value="${q.n}"><input id="qa${i}" type="number" value="${q.a}"></div>`).join('')}<button class="ghost" data-act="qSave">حفظ الأزرار</button></div></details>
- <div class="muted">أو سجّل مبلغًا مختلفًا:</div>${expForm()}</div>
  <div class="step"><span style="font-size:12px">خطوة اليوم · يوم ${Math.max(st.n,0)} من 90 · مرحلة ${st.ph}</span><b>${st.t}</b></div>
  ${salaryCard()}
  ${preStart()?'':fixedCard()}
@@ -486,7 +481,9 @@ function outCard(){const L=monthExp().filter(e=>!S.budgets.some(b=>b.n===e.cat))
  <div class="muted">✏️ لتعديل المبلغ أو التاريخ أو التصنيف. «نقل لهذا البند» ينقل كل عمليات النوع لبند في الموازنة دفعة واحدة.</div></div>`}
 function regCard(){return ` <div class="card"><h2>تسجيل العمليات</h2>
  <div class="seg"><button class="${regMode==='exp'?'on':''}" data-act="rgM" data-k="exp">− مصروف</button><button class="${regMode==='inc'?'on':''}" data-act="rgM" data-k="inc">+ دخل</button></div>
- ${regMode==='exp'?expForm():incForm()}</div>`}
+ ${regMode==='exp'?`<div class="quick">${S.quick.map((q,i)=>`<button data-act="qx" data-i="${i}">${q.n}<br><span class="num">${q.a}</span></button>`).join('')}</div>
+ <details><summary class="muted" style="cursor:pointer">تعديل أزرار المصروف السريع</summary><div class="list" style="margin-top:8px">${S.quick.map((q,i)=>`<div class="form"><input id="qn${i}" value="${q.n}"><input id="qa${i}" type="number" value="${q.a}"></div>`).join('')}<button class="ghost" data-act="qSave">حفظ الأزرار</button></div></details>
+ <div class="muted">أو سجّل مبلغًا آخر:</div>${expForm()}`:incForm()}</div>`}
 function incForm(){return `<div class="muted">أي دخل من الاستشارات أو المنصة، منفصل عن الراتب.</div>
  <div class="form"><input id="ia" type="number" placeholder="المبلغ"><input id="is" placeholder="المصدر"><input id="idt" class="full" type="date" value="${td()}" aria-label="تاريخ الدخل"><button class="full" data-act="addInc">تسجيل دخل</button></div>
  ${monthInc().map(e=>`<div class="exp"><span>${e.s||'دخل'}<br><span class="muted">${e.d}</span></span><span class="num good">${fmt(e.a)} <button class="x" data-act="delI" data-id="${e.id}" aria-label="حذف">✕</button></span></div>`).join('')}${monthInc().length?`<div class="tot"><span>إجمالي دخل الشهر</span><span class="num good">${fmt(sum(monthInc()))}</span></div>`:''}`}
@@ -943,7 +940,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v65';
+const APPV='v66';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
