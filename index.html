@@ -381,7 +381,7 @@ function dayHome(){const d=td(),p=S.prayers[d]||[],pc=p.filter(Boolean).length,i
  const done=T.filter(x=>x[0]).length,A=todayAllow(),pct=A.allow?Math.min(100,A.ts/A.allow*100):100;
  return `<div class="card"><h2>مهام اليوم <span class="num ${done===T.length?'good':''}">${done}/${T.length}</span></h2>
  ${T.map(([ok,t,go,i])=>`<div class="task ${ok?'ok':''}"><span class="tk">${ok?'✓':''}</span><span style="flex:1;min-width:0;line-height:1.6">${t}</span>${go==='nospend'?(ok?'':`<button class="ghost" data-act="noSp" style="padding:6px 10px;font-size:12px">لم أصرف اليوم</button>`):go==='pay'?`<button class="ghost" data-act="bPay" data-i="${i}" style="padding:6px 10px">دفعت</button>`:`<button class="x" data-tab="${go}" aria-label="اذهب">←</button>`}</div>`).join('')}</div>
- ${preStart()?startCard():`<div class="card" style="gap:6px"><span class="muted">المتاح لك اليوم</span><div class="big ${A.left<0?'bad':'good'}">${fmt(A.left)} SAR</div>
+ ${preStart()?startCard():!S.opening&&!monthInc().length?`<div class="card" style="gap:6px;border:2px solid var(--orange)"><span class="muted">المتاح لك اليوم</span><b>يحتاج رصيدك الافتتاحي أولًا</b><div class="muted">التطبيق لا يعرف كم معك الآن، فلا يستطيع حساب ما يمكنك صرفه. سجّل الرصيد الافتتاحي من البطاقة التالية (رصيد البنك + الكاش).</div></div>`:`<div class="card" style="gap:6px"><span class="muted">المتاح لك اليوم</span><div class="big ${A.left<0?'bad':'good'}">${fmt(A.left)} SAR</div>
  <div class="bar"><i style="width:${pct}%;background:${A.left<0?'var(--bad)':'var(--good)'}"></i></div>
  <div class="muted">صرفت ${fmt(A.ts)} من ${fmt(A.allow)} اليوم · باقي على الشهر ${fmt(A.rest)} SAR لـ ${A.dl} يوم</div>
  ${A.left<0?`<div class="alert">تجاوزت مسموح اليوم بـ ${fmt(-A.left)}. يُخصم من مسموح الأيام القادمة.</div>`:''}</div>`}
@@ -984,7 +984,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v77';
+const APPV='v78';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
