@@ -484,9 +484,17 @@ function outCard(){const L=monthExp().filter(e=>!S.budgets.some(b=>b.n===e.cat))
  <div class="form"><select id="om_${c.replace(/\W/g,'_')}">${S.budgets.map(b=>`<option>${esc(b.n)}</option>`).join('')}</select><button class="ghost" data-act="oMove" data-c="${esc(c)}">نقل لهذا البند</button><button class="ghost full" data-act="oMake" data-c="${esc(c)}">➕ اجعله بندًا جديدًا في الموازنة</button></div>
  ${G[c].map(expRow).join('')}</div>`).join('')}
  <div class="muted">✏️ لتعديل المبلغ أو التاريخ أو التصنيف. «نقل لهذا البند» ينقل كل عمليات النوع لبند في الموازنة دفعة واحدة.</div></div>`}
+function regCard(){return ` <div class="card"><h2>تسجيل العمليات</h2>
+ <div class="seg"><button class="${regMode==='exp'?'on':''}" data-act="rgM" data-k="exp">− مصروف</button><button class="${regMode==='inc'?'on':''}" data-act="rgM" data-k="inc">+ دخل</button></div>
+ ${regMode==='exp'?expForm():incForm()}</div>`}
+function incForm(){return `<div class="muted">أي دخل من الاستشارات أو المنصة، منفصل عن الراتب.</div>
+ <div class="form"><input id="ia" type="number" placeholder="المبلغ"><input id="is" placeholder="المصدر"><input id="idt" class="full" type="date" value="${td()}" aria-label="تاريخ الدخل"><button class="full" data-act="addInc">تسجيل دخل</button></div>
+ ${monthInc().map(e=>`<div class="exp"><span>${e.s||'دخل'}<br><span class="muted">${e.d}</span></span><span class="num good">${fmt(e.a)} <button class="x" data-act="delI" data-id="${e.id}" aria-label="حذف">✕</button></span></div>`).join('')}${monthInc().length?`<div class="tot"><span>إجمالي دخل الشهر</span><span class="num good">${fmt(sum(monthInc()))}</span></div>`:''}`}
+let regMode='exp';
 function money(){
  const tb=totalB(),ti=incPlan().reduce((x,y)=>x+(+y.a||0),0),cm=sum(monthExp()),pm=sum(monthExp(mon(-1))),diff=cm-pm;
- return `<div class="card"><h2>الموازنة الشهرية <button class="x" data-act="bEdit" style="font-size:13px">${bEdit?'إغلاق التعديل':'✏️ تعديل البنود'}</button></h2>
+ return regCard()+`<div class="card"><h2>الموازنة الشهرية <button class="x" data-act="bEdit" style="font-size:13px">${bEdit?'إغلاق التعديل':'✏️ تعديل البنود'}</button></h2>
+ <div class="kpis"><div class="kpi"><small>الإيرادات</small><b class="good">${fmt(ti)}</b></div><div class="kpi"><small>المصروفات</small><b>${fmt(tb)}</b></div></div><div class="tot"><span>${ti-tb<0?'العجز':'الفائض'}</span><span class="num ${ti-tb<0?'bad':'good'}">${ti-tb<0?'−':''}${fmt(Math.abs(ti-tb))}</span></div>
  <div style="font-weight:500">الإيرادات</div>
  ${incPlan().map((x,i)=>bEdit?`<div class="form"><input id="ipn${i}" value="${x.n}"><input id="ipa${i}" type="number" inputmode="decimal" value="${x.a}"></div><button class="x" data-act="ipDel" data-i="${i}" style="align-self:flex-start">✕ حذف «${x.n}»</button>`:`<div class="row"><span>${x.n}</span><span class="num good">${fmt(x.a)}</span></div>`).join('')}
  ${bEdit?`<div class="form"><input id="ipnN" placeholder="إيراد جديد (عمل إضافي...)"><input id="ipaN" type="number" placeholder="المبلغ"></div>`:''}
@@ -499,10 +507,6 @@ function money(){
  <div class="tot"><span>${ti-tb<0?'العجز':'الفائض'}</span><span class="num ${ti-tb<0?'bad':'good'}">${ti-tb<0?'−':''}${fmt(Math.abs(ti-tb))}</span></div>
  ${ti-tb<0?`<div class="alert">المصروفات أكبر من الإيرادات بـ ${fmt(tb-ti)} SAR شهريًا. خفّض البنود أو زِد الدخل حتى يصبح الفرق صفرًا أو فائضًا.</div>`:`<div class="ok">${ti-tb?`فائض ${fmt(ti-tb)} SAR. وجّهه للطوارئ أو سداد الديون.`:'كل SAR له وظيفة ✓'}</div>`}</div>
  ${outCard()}
- <div class="card"><h2>تسجيل مصروف</h2>${expForm()}</div>
- <div class="card"><h2>الدخل الإضافي <span class="num good">${fmt(sum(monthInc().filter(e=>e.s!=='راتب')))}</span></h2><div class="muted">أي دخل من الاستشارات أو المنصة، منفصل عن الراتب.</div>
- <div class="form"><input id="ia" type="number" placeholder="المبلغ"><input id="is" placeholder="المصدر"><input id="idt" class="full" type="date" value="${td()}" aria-label="تاريخ الدخل"><button class="full" data-act="addInc">تسجيل دخل</button></div>
- ${monthInc().map(e=>`<div class="exp"><span>${e.s||'دخل'}<br><span class="muted">${e.d}</span></span><span class="num good">${fmt(e.a)} <button class="x" data-act="delI" data-id="${e.id}" aria-label="حذف">✕</button></span></div>`).join('')}${monthInc().length?`<div class="tot"><span>إجمالي دخل الشهر</span><span class="num good">${fmt(sum(monthInc()))}</span></div>`:''}</div>
  <div class="card"><h2>الديون والالتزامات</h2><div class="muted">عدّل المتبقي الفعلي لكل التزام. كل سداد يُخصم مباشرة.</div>
  ${S.debts.map((d,i)=>`<div><div class="row"><b>${d.n}</b><span class="num">${fmt(d.rem)} <button class="x" data-act="delD" data-i="${i}" aria-label="حذف">✕</button></span></div><div class="muted">القسط ${fmt(d.inst)} · ${d.late?`<span class="bad">متأخر ${fmt(d.late)}</span>`:'لا متأخرات'}</div>
  <div class="form" style="margin-top:6px"><input id="dp${i}" type="number" placeholder="مبلغ السداد"><button class="ghost" data-act="pay" data-i="${i}">سداد</button></div></div>`).join('')}
@@ -697,13 +701,14 @@ function budgetTable(ti){const dd=new Date().getDate(),L=S.budgets.map((b,i)=>{c
  const body=BG.map(([g,t])=>{const R=L.filter(x=>x.g===g).sort((a,b)=>(a.du||99)-(b.du||99));if(!R.length)return'';const sb=R.reduce((a,x)=>a+x.b.b,0),sa=R.reduce((a,x)=>a+x.act,0);
   return `<tr class="gh"><td colspan="5">${t} <span style="float:left;font-weight:400">${fmt(sb)} · ${pc(sb)}%</span></td></tr>`+R.map(row).join('')+`<tr class="gsub"><td>إجمالي المجموعة</td><td class="num">${fmt(sb)}</td><td class="num">${fmt(sa)}</td><td class="num ${sb-sa<0?'bad':'good'}">${fmt(sb-sa)}</td><td></td></tr>`}).join('');
  const tb=L.reduce((a,x)=>a+x.b.b,0),ta=L.reduce((a,x)=>a+x.act,0);
- return `<div class="bm">${BM.map(([n,v,t,k])=>`<div class="bmi"><span>${dot(v,t,k)} ${n}</span><b class="num">${v}%</b><small>${k==='max'?'≤':'≥'} ${t}%</small></div>`).join('')}</div>
+ return ` <div style="overflow-x:auto"><table class="bt bt5"><thead><tr><th>البند</th><th>الموازنة</th><th>الفعلي</th><th>الانحراف</th><th>سداد</th></tr></thead><tbody>${body}</tbody>
+ <tfoot><tr><td>الإجمالي</td><td class="num">${fmt(tb)}</td><td class="num">${fmt(ta)}</td><td class="num ${tb-ta<0?'bad':'good'}">${fmt(tb-ta)}</td><td></td></tr><tr><td>المدفوع</td><td class="num good" colspan="4">${fmt(L.reduce((a,x)=>a+Math.min(x.b.b,x.pd),0))}</td></tr><tr><td>المتبقي للسداد</td><td class="num bad" colspan="4">${fmt(L.reduce((a,x)=>a+Math.max(0,x.b.b-x.pd),0))}</td></tr></tfoot></table></div>
+ <div class="muted">الانحراف = الموازنة − الفعلي · أخضر وفر · أحمر تجاوز. التصنيف تلقائي، وتغيّره من ✏️ تعديل البنود.</div>
+ <div style="font-weight:600;margin-top:6px">مؤشرات الصحة المالية</div><div class="bm">${BM.map(([n,v,t,k])=>`<div class="bmi"><span>${dot(v,t,k)} ${n}</span><b class="num">${v}%</b><small>${k==='max'?'≤':'≥'} ${t}%</small></div>`).join('')}</div>
  <div style="font-weight:600;margin-top:4px">قاعدة 50/30/20</div>
  <div class="bar" style="height:14px;display:flex"><i style="width:${need/tot*100}%;background:#378ADD;border-radius:0"></i><i style="width:${want/tot*100}%;background:#F0A030;border-radius:0"></i><i style="width:${sav/tot*100}%;background:#1D9E75;border-radius:0"></i></div>
  <div class="row" style="font-size:12px"><span><span style="color:#378ADD">●</span> احتياجات ${pc(need)}% (الهدف 50)</span><span><span style="color:#F0A030">●</span> رغبات ${pc(want)}% (30)</span><span><span style="color:#1D9E75">●</span> ادخار وديون ${pc(sav)}% (20)</span></div>
- <div style="overflow-x:auto"><table class="bt bt5"><thead><tr><th>البند</th><th>الموازنة</th><th>الفعلي</th><th>الانحراف</th><th>سداد</th></tr></thead><tbody>${body}</tbody>
- <tfoot><tr><td>الإجمالي</td><td class="num">${fmt(tb)}</td><td class="num">${fmt(ta)}</td><td class="num ${tb-ta<0?'bad':'good'}">${fmt(tb-ta)}</td><td></td></tr><tr><td>المدفوع</td><td class="num good" colspan="4">${fmt(L.reduce((a,x)=>a+Math.min(x.b.b,x.pd),0))}</td></tr><tr><td>المتبقي للسداد</td><td class="num bad" colspan="4">${fmt(L.reduce((a,x)=>a+Math.max(0,x.b.b-x.pd),0))}</td></tr></tfoot></table></div>
- <div class="muted">الانحراف = الموازنة − الفعلي · أخضر وفر · أحمر تجاوز. التصنيف تلقائي، وتغيّره من ✏️ تعديل البنود.</div>`}
+`}
 function payLine(i,amt,d){const bb=S.budgets[i],n=bb.n,m=mon();S.paidFixed[m]=S.paidFixed[m]||{};S.payRef=S.payRef||{};S.payRef[m]=S.payRef[m]||{};
  const eid=Date.now();S.expenses.push({id:eid,d,a:amt,cat:n,n:'سداد من الموازنة'});S.paidFixed[m][n]=paidAmt(n)+amt;(S.payRef[m][n]=S.payRef[m][n]||[]).push(eid);mark(d,1);
  if(n==='قسط التمويل'){const debt=S.debts.find(x=>x.n.includes('التمويل'));if(debt){debt.rem=Math.max(0,debt.rem-amt);debt.late=Math.max(0,debt.late-amt)}}
@@ -874,6 +879,7 @@ document.addEventListener('click',async e=>{
  if(a==='oMove'){const c=b.dataset.c,t=document.getElementById('om_'+c.replace(/\W/g,'_')).value;undoSnap=JSON.stringify(S);S.expenses.forEach(e=>{if(e.cat===c&&e.d.startsWith(mon()))e.cat=t});save();render();toast('نُقلت إلى '+t);return}
  if(a==='oMake'){const c=b.dataset.c;undoSnap=JSON.stringify(S);if(!S.budgets.some(x=>x.n===c))S.budgets.push({n:c,b:Math.ceil(sum(monthExp().filter(e=>e.cat===c))/10)*10||100});save();render();toast('أُضيف «'+c+'» للموازنة — عدّل مبلغه');return}
  if(a==='bToDebt'){const bb=S.budgets[i],inst=+v('bti'+i);if(!inst){toast('اكتب القسط الشهري أولًا');return}undoSnap=JSON.stringify(S);S.debts.push({id:Date.now(),n:bb.n,rem:bb.b,inst,late:0});S.debtStart+=bb.b;bb.b=inst;save();render();toast('نُقل إلى الديون، والقسط '+fmt(inst)+' في الموازنة');return}
+ if(a==='rgM'){regMode=b.dataset.k;render();return}
  if(a==='bEdit'){bEdit=!bEdit;render();return}
  if(a==='ipDel'){incPlan().splice(i,1);save();render();return}
  if(a==='bSave'){undoSnap=JSON.stringify(S);
@@ -936,7 +942,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v63';
+const APPV='v64';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
