@@ -855,7 +855,7 @@ document.addEventListener('click',async e=>{
    if(n==='قسط التمويل'||n==='سداد متأخر الإيجار'){const debt=S.debts.find(x=>x.n.includes(n==='قسط التمويل'?'التمويل':'الإيجار'));if(debt)debt.rem+=was}
    if(n==='صندوق الطوارئ'){const g=S.goals.find(g=>g.n.includes('طوارئ'));if(g)g.c=Math.max(0,g.c-was)}
    save();render();toast('أُلغي سداد '+n);return}
-  const amt=Math.max(0,bb.b-paidAmt(n));if(!amt)return;payLine(i,amt,d);partRow=-1;
+  const amt=Math.max(0,bb.b-paidAmt(n));if(!amt)return;const real=S.expenses.some(e=>e.cat===n&&e.d.startsWith(m)&&e.n!=='سداد من الموازنة');if(real){S.paidFixed[m][n]=true;save();render();toast('أُغلق بند '+n+' دون تسجيل مبلغ إضافي');return}payLine(i,amt,d);partRow=-1;
   save();render();toast('تم سداد '+n+' '+fmt(amt));return}
  if(a==='bPartT'){partRow=partRow===i?-1:i;render();setTimeout(()=>{const el=document.getElementById('bpp'+i);if(el)el.focus()},50);return}
  if(a==='bPartPay'){const amt=+v('bpp'+i);if(!amt||amt<=0)return;undoSnap=JSON.stringify(S);payLine(i,amt,d);partRow=-1;save();render();toast('سداد جزئي '+fmt(amt)+' على '+S.budgets[i].n);return}
@@ -940,7 +940,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v68';
+const APPV='v69';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
