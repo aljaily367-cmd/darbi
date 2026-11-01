@@ -729,7 +729,7 @@ function dayScore(){const d=td(),p=(S.prayers[d]||[]).filter(Boolean).length*8;
  const bud=(food<=64?12:0)+(over?0:8),ist=Math.min(1,(S.ist[d]||0)/S.istGoal)*10;return Math.round(p+h+bud+ist)}
 function ring(v){const c=2*Math.PI*30,col=v>=80?'var(--good)':v>=50?'var(--orange)':'var(--bad)';return `<svg class="ring" viewBox="0 0 74 74"><circle cx="37" cy="37" r="30" fill="none" stroke="var(--soft)" stroke-width="8"/><circle cx="37" cy="37" r="30" fill="none" stroke="${col}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c*v/100} ${c}" transform="rotate(-90 37 37)"/><text x="37" y="43" text-anchor="middle" font-size="18" font-weight="700" fill="var(--fg)">${v}</text></svg>`}
 
-function migrate(){if(!S.mig1){S.mig1=1;const car=S.budgets.find(b=>b.n==='السيارة');if(car){car.n='مواصلات';car.b=350}S.fixed=S.fixed.map(n=>n==='السيارة'?'مواصلات':n);
+function migrate(){if(!S.mig2){S.mig2=1;(S.expenses||[]).forEach(e=>{if(/بقالة/.test(e.cat)&&e.cat!=='أكل وشرب'){e.n=e.n||e.cat;e.cat='أكل وشرب'}});S.budgets=(S.budgets||[]).filter(b=>!/بقالة/.test(b.n)||b.n==='أكل وشرب')}if(!S.mig1){S.mig1=1;const car=S.budgets.find(b=>b.n==='السيارة');if(car){car.n='مواصلات';car.b=350}S.fixed=S.fixed.map(n=>n==='السيارة'?'مواصلات':n);
  if(!S.budgets.some(b=>b.n==='سداد متأخر الإيجار'))S.budgets.push({n:'سداد متأخر الإيجار',b:1250});if(!S.budgets.some(b=>b.n==='صندوق الطوارئ'))S.budgets.push({n:'صندوق الطوارئ',b:281});
  ['سداد متأخر الإيجار','صندوق الطوارئ'].forEach(n=>{if(!S.fixed.includes(n))S.fixed.push(n)});
  S.quick=S.quick.map(q=>q.n==='بنزين'?{n:'أوبر',a:25,cat:'مواصلات'}:q);S.recs=S.recs||[]}
@@ -936,7 +936,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v61';
+const APPV='v62';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
