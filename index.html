@@ -497,12 +497,12 @@ function monthList(){const q=(window._mq||'').trim(),fc=window._mc||'';let L=mon
  const sv=sum(monthExp().filter(e=>e.sv).map(e=>({a:e.sv})));
  return `${sv?`<div class="ok">💰 ادّخرت تلقائيًا مع مشترياتك هذا الشهر: ${sv.toFixed(2)} SAR</div>`:''}
  <div class="form"><input id="mq" placeholder="بحث (مثال: STC)" value="${esc(q)}" oninput="window._mq=this.value;clearTimeout(window._mqt);window._mqt=setTimeout(()=>{render();const e=document.getElementById('mq');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length)}},400)"><select id="mc" onchange="window._mc=this.value;render()"><option value="">كل البنود</option>${[...new Set(monthExp().map(e=>e.cat))].map(c=>`<option ${c===fc?'selected':''}>${esc(c)}</option>`).join('')}</select></div>
- ${days.map(d=>{const R=L.filter(e=>e.d===d).slice().reverse();return `<div class="dayh"><span>${lab(d)}</span><span class="num">${fmt(sum(R))}</span></div>${R.map(expRow).join('')}`}).join('')||'<span class="muted">لا عمليات مطابقة.</span>'}`}
+ ${days.map(d=>{const R=L.filter(e=>e.d===d).slice().reverse();return `<div class="dayh"><span>${lab(d)}</span><span class="num bad">−${fmt(sum(R))}</span></div>${R.map(expRow).join('')}`}).join('')||'<span class="muted">لا عمليات مطابقة.</span>'}`}
 let editE=null;
 function catOptions(sel){const custom=[...new Set(S.expenses.map(e=>e.cat).filter(c=>!S.budgets.some(b=>b.n===c)))];return `${S.budgets.map(b=>`<option ${b.n===sel?'selected':''}>${esc(b.n)}</option>`).join('')}${custom.map(c=>`<option ${c===sel?'selected':''}>${esc(c)}</option>`).join('')}<option value="__w">✍️ نوع جديد</option>`}
 function expRow(e){if(editE===e.id)return `<div class="eed"><div class="form"><input id="xa" type="number" inputmode="decimal" value="${e.a}"><input id="xd" type="date" value="${e.d}"><select id="xc" class="full" onchange="document.getElementById('xcx').hidden=this.value!=='__w'">${catOptions(e.cat)}</select><input id="xcx" class="full" placeholder="اكتب النوع" hidden><input id="xn" class="full" value="${esc(e.n||'')}" placeholder="ملاحظة"></div>
  <div class="form"><button data-act="xSave" data-id="${e.id}">حفظ</button><button class="ghost" data-act="xCancel">إلغاء</button><button class="ghost full" data-act="delE" data-id="${e.id}" style="color:var(--bad)">حذف المصروف</button></div></div>`;
- const ttl=e.m||(e.n&&e.n.length<=40?e.n:'')||(e.n?e.n.slice(0,36)+'…':e.cat),long=e.raw||(e.n&&e.n.length>40?e.n:'');return `<div class="exp2"><span class="eic">${icoOf(e.cat)}</span><div style="flex:1;min-width:0">${long?`<details><summary style="list-style:none;cursor:pointer"><b class="et">${esc(ttl)}</b></summary><div class="muted" style="font-size:11px;white-space:pre-wrap">${esc(long)}</div></details>`:`<b class="et">${esc(ttl)}</b>`}<small class="muted">${esc(e.cat)}${e.sv?` · ادخار ${e.sv}`:''}</small></div><span class="num" style="white-space:nowrap">${fmt(e.a)} <button class="x" data-act="xEdit" data-id="${e.id}" aria-label="تعديل">✏️</button></span></div>`}
+ const ttl=e.m||(e.n&&e.n.length<=40?e.n:'')||(e.n?e.n.slice(0,36)+'…':e.cat),long=e.raw||(e.n&&e.n.length>40?e.n:'');return `<div class="exp2"><span class="eic">${icoOf(e.cat)}</span><div style="flex:1;min-width:0">${long?`<details><summary style="list-style:none;cursor:pointer"><b class="et">${esc(ttl)}</b></summary><div class="muted" style="font-size:11px;white-space:pre-wrap">${esc(long)}</div></details>`:`<b class="et">${esc(ttl)}</b>`}<small class="muted">${esc(e.cat)}${e.sv?` · ادخار ${e.sv}`:''}</small></div><span class="num bad" style="white-space:nowrap">−${fmt(e.a)} <button class="x" data-act="xEdit" data-id="${e.id}" aria-label="تعديل">✏️</button></span></div>`}
 function outCard(){const L=monthExp().filter(e=>!S.budgets.some(b=>b.n===e.cat));if(!L.length)return'';const G={};L.forEach(e=>(G[e.cat]=G[e.cat]||[]).push(e));
  return `<div class="card"><h2>مصاريف خارج الموازنة <span class="num bad">${fmt(sum(L))}</span></h2>
  ${Object.keys(G).map(c=>`<div class="ogrp"><div class="row"><b>${esc(c)}</b><span class="num">${fmt(sum(G[c]))} · ${G[c].length} عملية</span></div>
@@ -516,7 +516,7 @@ function regCard(){return ` <div class="card"><h2>تسجيل العمليات</h
  <details><summary class="muted" style="cursor:pointer">تعديل أزرار المصروف السريع</summary><div class="list" style="margin-top:8px">${S.quick.map((q,i)=>`<div class="form"><input id="qn${i}" value="${q.n}"><input id="qa${i}" type="number" value="${q.a}"></div>`).join('')}<button class="ghost" data-act="qSave">حفظ الأزرار</button></div></details>
  <div class="muted">أو سجّل مبلغًا آخر:</div>${expForm()}`:incForm()}</div>`}
 function incForm(){return `<div class="form"><input id="ia" type="number" inputmode="decimal" placeholder="المبلغ">${incSel('ik','دخل إضافي')}<input id="is" class="full" placeholder="المصدر (اختياري)"><input id="idt" class="full" type="date" value="${td()}" aria-label="تاريخ الدخل"><button class="full" data-act="addInc">تسجيل دخل</button></div>
- ${monthInc().map(e=>`<div class="exp"><span>${esc(e.s||e.k||'دخل')} <small class="tcat">${e.k||(isSal(e)?'راتب':'دخل إضافي')}</small><br><span class="muted">${e.d}</span></span><span class="num good">${fmt(e.a)} <button class="x" data-act="delI" data-id="${e.id}" aria-label="حذف">✕</button></span></div>`).join('')}${monthInc().length?`<div class="tot"><span>إجمالي دخل الشهر</span><span class="num good">${fmt(sum(monthInc()))}</span></div>`:''}`}
+ ${monthInc().map(e=>`<div class="exp"><span>${esc(e.s||e.k||'دخل')} <small class="tcat">${e.k||(isSal(e)?'راتب':'دخل إضافي')}</small><br><span class="muted">${e.d}</span></span><span class="num good">+${fmt(e.a)} <button class="x" data-act="delI" data-id="${e.id}" aria-label="حذف">✕</button></span></div>`).join('')}${monthInc().length?`<div class="tot"><span>إجمالي دخل الشهر</span><span class="num good">${fmt(sum(monthInc()))}</span></div>`:''}`}
 const INCT=['راتب','دخل إضافي','استشارات','حوالة واردة','استرداد','أخرى'];
 const isSal=e=>(e.k||(e.s==='راتب'?'راتب':''))==='راتب';
 const incSel=(id,sel)=>`<select id="${id}">${INCT.map(t=>`<option ${t===sel?'selected':''}>${t}</option>`).join('')}</select>`;
@@ -524,7 +524,7 @@ let regMode='exp';
 function money(){
  const tb=totalB(),ti=incPlan().reduce((x,y)=>x+(+y.a||0),0),cm=sum(monthExp()),pm=sum(monthExp(mon(-1))),diff=cm-pm;
  return `<div class="card"><h2>الموازنة الشهرية <button class="x" data-act="bEdit" style="font-size:13px">${bEdit?'إغلاق التعديل':'✏️ تعديل البنود'}</button></h2>
- <div class="kpis"><div class="kpi"><small>الإيرادات</small><b class="good">${fmt(ti)}</b></div><div class="kpi"><small>المصروفات</small><b>${fmt(tb)}</b></div></div><div class="tot"><span>${ti-tb<0?'العجز':'الفائض'}</span><span class="num ${ti-tb<0?'bad':'good'}">${ti-tb<0?'−':''}${fmt(Math.abs(ti-tb))}</span></div>
+ <div class="kpis"><div class="kpi"><small>الإيرادات</small><b class="good">${fmt(ti)}</b></div><div class="kpi"><small>المصروفات</small><b class="bad">${fmt(tb)}</b></div></div><div class="tot"><span>${ti-tb<0?'العجز':'الفائض'}</span><span class="num ${ti-tb<0?'bad':'good'}">${ti-tb<0?'−':''}${fmt(Math.abs(ti-tb))}</span></div>
  <div style="font-weight:500">الإيرادات</div>
  ${incPlan().map((x,i)=>bEdit?`<div class="form"><input id="ipn${i}" value="${x.n}"><input id="ipa${i}" type="number" inputmode="decimal" value="${x.a}"></div><button class="x" data-act="ipDel" data-i="${i}" style="align-self:flex-start">✕ حذف «${x.n}»</button>`:`<div class="row"><span>${x.n}</span><span class="num good">${fmt(x.a)}</span></div>`).join('')}
  ${bEdit?`<div class="form"><input id="ipnN" placeholder="إيراد جديد (عمل إضافي...)"><input id="ipaN" type="number" placeholder="المبلغ"></div>`:''}
@@ -622,7 +622,7 @@ function goals(){goalDefaults();
 
 function monthDays(m){const[y,mo]=m.split('-').map(Number),dim=new Date(y,mo,0).getDate();const cur=m===mon()?new Date().getDate():dim;const r=[];for(let d=1;d<=cur;d++)r.push(m+'-'+String(d).padStart(2,'0'));return r}
 function mStats(m){const ds=monthDays(m),n=ds.length||1,ex=monthExp(m);
- return{m,n,spend:sum(ex),spendD:sum(ex)/n,food:sum(ex.filter(e=>e.cat==='أكل وشرب'))/n,inc:sum(monthInc(m)),
+ return{m,n,spend:sum(ex),spendD:sum(ex)/n,food:sum(ex.filter(e=>e.cat==='أكل وشرب'))/n,inc:sum(monthInc(m).filter(e=>!isSal(e))),sal:sum(monthInc(m).filter(isSal)),
  debt:sum(ex.filter(e=>e.cat==='سداد ديون'||e.cat==='قسط التمويل')),
  pray:Math.round(ds.reduce((a,d)=>a+(S.prayers[d]||[]).filter(Boolean).length,0)/(n*5)*100),
  hab:S.habits.length?Math.round(ds.reduce((a,d)=>a+S.habits.filter(h=>(S.habitLog[d]||{})[h.id]).length,0)/(n*S.habits.length)*100):0,
@@ -635,7 +635,7 @@ function compareCard(){const c=mStats(mon()),p=mStats(mon(-1)),early=c.n<7,finOk
   ['الانضباط والعمل',[['الالتزام بالعادات',c.hab,p.hab,'up','%'],['تواصل مع عملاء',c.ct,p.ct,'up','']]]];
  let better=0,worse=0,total=0;
  const pill=(a,b,dir,fin)=>{if(!has||(fin&&!finOk))return'<span class="pl n">—</span>';const d=a-b;if(!d)return'<span class="pl n">ثابت</span>';const good=dir==='up'?d>0:d<0;good?better++:worse++;const pc=b?Math.round(Math.abs(d)/b*100):100;return `<span class="pl ${good?'g':'r'}">${d>0?'▲':'▼'} ${pc}%</span>`};
- const body=G.map(([t,rows],gi)=>`<tr class="gh"><td colspan="4">${t}${gi===0&&!finOk?' <small style="font-weight:400">(المقارنة المالية تبدأ من الشهر القادم)</small>':''}</td></tr>`+rows.map(([l,a,b,dir,u])=>{const fin=gi===0;if(!(fin&&!finOk))total++;return `<tr><td>${l}</td><td class="num mu">${fin&&!finOk?'—':fmt(b)+(u?' '+u:'')}</td><td class="num"><b>${fmt(a)}${u?' '+u:''}</b></td><td>${pill(a,b,dir,fin)}</td></tr>`}).join('')).join('');
+ const body=G.map(([t,rows],gi)=>`<tr class="gh"><td colspan="4">${t}${gi===0&&!finOk?' <small style="font-weight:400">(المقارنة المالية تبدأ من الشهر القادم)</small>':''}</td></tr>`+rows.map(([l,a,b,dir,u])=>{const fin=gi===0;if(!(fin&&!finOk))total++;return `<tr><td>${l}</td><td class="num mu">${fin&&!finOk?'—':fmt(b)+(u?' '+u:'')}</td><td class="num"><b class="${fin?(dir==='down'?'bad':'good'):''}">${fmt(a)}${u?' '+u:''}</b></td><td>${pill(a,b,dir,fin)}</td></tr>`}).join('')).join('');
  const sc=has?Math.round(better/total*100):0,col=!has?'var(--muted)':better>=worse?'var(--good)':'var(--bad)',C=2*Math.PI*26;
  const hist=[-5,-4,-3,-2,-1,0].map(o=>mStats(mon(o))),mx=Math.max(1,...hist.map(h=>h.spend));
  return `<div class="card cmp"><h2>مقارنة شهرية <span class="muted" style="font-weight:400">${mName(mon(-1))} ← ${mName(mon())}</span></h2>
@@ -651,10 +651,10 @@ function finSummary(){const ti=incPlan().reduce((x,y)=>x+(+y.a||0),0),tb=totalB(
  return `<div class="card"><h2>الصورة المالية <span class="muted" style="font-weight:400">تتحدّث تلقائيًا</span></h2>
  <div class="kpis"><div class="kpi"><small>إجمالي الإيرادات (مخطط)</small><b class="good">${fmt(ti)}</b></div><div class="kpi"><small>إجمالي الديون</small><b class="bad">${fmt(dt)}</b></div></div>
  <div style="font-weight:500;margin-top:4px">هذا الشهر</div>
- ${R('الإيرادات الفعلية',fmt(ai),'good')}${R('المصروفات الفعلية',fmt(ae))}
+ ${R('الإيرادات الفعلية',fmt(ai),'good')}${R('المصروفات الفعلية',fmt(ae),'bad')}
  <div class="tot sub"><span>${ai-ae<0?'عجز فعلي':'فائض فعلي'}</span><span class="num ${ai-ae<0?'bad':'good'}">${fmt(Math.abs(ai-ae))}</span></div>
  <div style="font-weight:500;margin-top:4px">الموازنة</div>
- ${R('المصروفات المخططة',fmt(tb))}<div class="tot sub"><span>${ti-tb<0?'عجز مخطط':'فائض مخطط'}</span><span class="num ${ti-tb<0?'bad':'good'}">${fmt(Math.abs(ti-tb))}</span></div>
+ ${R('المصروفات المخططة',fmt(tb),'bad')}<div class="tot sub"><span>${ti-tb<0?'عجز مخطط':'فائض مخطط'}</span><span class="num ${ti-tb<0?'bad':'good'}">${fmt(Math.abs(ti-tb))}</span></div>
  <div style="font-weight:500;margin-top:4px">الديون</div>
  ${R('الأقساط الشهرية',fmt(inst))}${R('المتأخرات',fmt(late),late?'bad':'')}${R('نسبة الأقساط من الدخل',dti+'%',dti>33?'bad':'good')}
  ${!S.opening?`<div class="muted">رصيدك يُحسب = الرصيد الافتتاحي + الدخل − المصروف، من ${FS()}. لم تسجّل رصيدًا افتتاحيًا بعد، لذلك صافي الثروة = −الديون.</div>`:''}<div class="tot"><span>صافي الثروة (رصيدك − ديونك)</span><span class="num ${nw<0?'bad':'good'}">${nw<0?'−':''}${fmt(Math.abs(nw))}</span></div>
@@ -695,7 +695,7 @@ function dash(){
  const wc=S.contacts.filter(d=>daysBack(7).includes(d)).length,clients=S.leads.filter(l=>l.s===4).length;
  const tile=(l,v,c='',sub='')=>`<div class="kpi"><small>${l}</small><b class="${c}">${v}</b>${sub?`<small class="kps">${sub}</small>`:''}</div>`;
  return finSummary()+forecastCard()+`<div class="card"><h2>لوحة القيادة <span class="muted">${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{month:'long',year:'numeric'})}</span></h2>
- <div class="kgrp">💰 المال</div><div class="kpis">${tile('دخل الشهر',fmt(inc),'','منه إضافي '+fmt(sum(monthInc().filter(e=>!isSal(e)))))}${tile('المصروف',fmt(spent),'',inc?Math.round(spent/inc*100)+'% من الدخل':'')}${tile('الرصيد الحالي',fmt(left),left<0?'bad':'good','رصيد + دخل − مصروف')}${tile('باقي الديون',fmt(debtTotal()),'bad','سُدّد '+Math.round(dp)+'%')}</div>
+ <div class="kgrp">💰 المال</div><div class="kpis">${tile('دخل الشهر',fmt(inc),'good','منه إضافي '+fmt(sum(monthInc().filter(e=>!isSal(e)))))}${tile('المصروف',fmt(spent),'bad',inc?Math.round(spent/inc*100)+'% من الدخل':'')}${tile('الرصيد الحالي',fmt(left),left<0?'bad':'good','رصيد + دخل − مصروف')}${tile('باقي الديون',fmt(debtTotal()),'bad','سُدّد '+Math.round(dp)+'%')}</div>
  <div class="kgrp">🕌 العبادات</div><div class="kpis">${tile('مواظبة الصلاة',prRate+'%',prRate>=90?'good':prRate>=70?'warnc':'bad','منذ بدء التسجيل ('+tr.length+' يوم)')}${tile('الاستغفار',fmt(ist30),'','متوسط '+fmt(ist30/Math.max(1,tr.length))+' يوميًا')}</div>
  <div class="kgrp">🎯 العمل</div><div class="kpis">${tile('تواصلات الأسبوع',wc+' / 5',wc>=5?'good':'bad',wc>=5?'حققت الهدف ✓':'باقي '+(5-wc))}${tile('عملاء مكتسبون',clients,clients?'good':'','الهدف: أول عميل')}</div></div>
  ${compareCard()}
@@ -984,7 +984,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v78';
+const APPV='v79';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
