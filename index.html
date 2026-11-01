@@ -527,6 +527,7 @@ function money(){
  ${incPlan().map((x,i)=>bEdit?`<div class="form"><input id="ipn${i}" value="${x.n}"><input id="ipa${i}" type="number" inputmode="decimal" value="${x.a}"></div><button class="x" data-act="ipDel" data-i="${i}" style="align-self:flex-start">✕ حذف «${x.n}»</button>`:`<div class="row"><span>${x.n}</span><span class="num good">${fmt(x.a)}</span></div>`).join('')}
  ${bEdit?`<div class="form"><input id="ipnN" placeholder="إيراد جديد (عمل إضافي...)"><input id="ipaN" type="number" placeholder="المبلغ"></div>`:''}
  <div class="tot sub"><span>إجمالي الإيرادات</span><span class="num good">${fmt(ti)}</span></div>
+ <div class="row" style="font-size:13px"><span class="muted">المستلم فعليًا هذا الشهر</span><b class="num ${sum(monthInc())>=ti?'good':'warnc'}">${fmt(sum(monthInc()))} من ${fmt(ti)}</b></div>
  <div style="font-weight:500;margin-top:6px">المصروفات</div>
  <div class="bar" style="height:10px;display:flex">${S.budgets.map((b,i)=>`<i style="width:${b.b/Math.max(tb,ti,1)*100}%;background:hsl(${210+i*35} 50% ${45+i*4}%);border-radius:0"></i>`).join('')}</div>
  ${bEdit?S.budgets.map((b,i)=>`<div class="form"><input id="bpn${i}" value="${b.n}"><input id="bpa${i}" type="number" inputmode="decimal" value="${b.b}"><select id="bpg${i}" class="full">${BG.map(([g,t])=>`<option value="${g}" ${bGroup(b.n)===g?'selected':''}>${t}</option>`).join('')}</select><input id="bpd${i}" class="full" type="number" min="1" max="31" inputmode="numeric" placeholder="يوم الاستحقاق في الشهر (اختياري)" value="${(S.due||{})[b.n]||''}"></div>${bGroup(b.n)==='debt'?`<div class="form"><input id="bti${i}" type="number" inputmode="decimal" placeholder="القسط الشهري"><button class="ghost" data-act="bToDebt" data-i="${i}">↪ نقل إلى الديون</button></div><div class="muted" style="font-size:11px">إذا كان ${b.n} إجمالي دين لا قسطًا شهريًا: اكتب قسطه الشهري وانقله، فيبقى القسط فقط في الموازنة.</div>`:''}<button class="x" data-act="delB" data-i="${i}" style="align-self:flex-start">✕ حذف «${b.n}»</button>`).join(''):budgetTable(ti)}
@@ -980,7 +981,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v73';
+const APPV='v74';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
