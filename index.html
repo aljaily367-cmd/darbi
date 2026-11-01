@@ -493,7 +493,7 @@ function incForm(){return `<div class="muted">أي دخل من الاستشار�
 let regMode='exp';
 function money(){
  const tb=totalB(),ti=incPlan().reduce((x,y)=>x+(+y.a||0),0),cm=sum(monthExp()),pm=sum(monthExp(mon(-1))),diff=cm-pm;
- return regCard()+`<div class="card"><h2>الموازنة الشهرية <button class="x" data-act="bEdit" style="font-size:13px">${bEdit?'إغلاق التعديل':'✏️ تعديل البنود'}</button></h2>
+ return `<div class="card"><h2>الموازنة الشهرية <button class="x" data-act="bEdit" style="font-size:13px">${bEdit?'إغلاق التعديل':'✏️ تعديل البنود'}</button></h2>
  <div class="kpis"><div class="kpi"><small>الإيرادات</small><b class="good">${fmt(ti)}</b></div><div class="kpi"><small>المصروفات</small><b>${fmt(tb)}</b></div></div><div class="tot"><span>${ti-tb<0?'العجز':'الفائض'}</span><span class="num ${ti-tb<0?'bad':'good'}">${ti-tb<0?'−':''}${fmt(Math.abs(ti-tb))}</span></div>
  <div style="font-weight:500">الإيرادات</div>
  ${incPlan().map((x,i)=>bEdit?`<div class="form"><input id="ipn${i}" value="${x.n}"><input id="ipa${i}" type="number" inputmode="decimal" value="${x.a}"></div><button class="x" data-act="ipDel" data-i="${i}" style="align-self:flex-start">✕ حذف «${x.n}»</button>`:`<div class="row"><span>${x.n}</span><span class="num good">${fmt(x.a)}</span></div>`).join('')}
@@ -506,6 +506,7 @@ function money(){
  <div class="tot sub"><span>إجمالي المصروفات</span><span class="num">${fmt(tb)}</span></div>
  <div class="tot"><span>${ti-tb<0?'العجز':'الفائض'}</span><span class="num ${ti-tb<0?'bad':'good'}">${ti-tb<0?'−':''}${fmt(Math.abs(ti-tb))}</span></div>
  ${ti-tb<0?`<div class="alert">المصروفات أكبر من الإيرادات بـ ${fmt(tb-ti)} SAR شهريًا. خفّض البنود أو زِد الدخل حتى يصبح الفرق صفرًا أو فائضًا.</div>`:`<div class="ok">${ti-tb?`فائض ${fmt(ti-tb)} SAR. وجّهه للطوارئ أو سداد الديون.`:'كل SAR له وظيفة ✓'}</div>`}</div>
+ ${regCard()}
  ${outCard()}
  <div class="card"><h2>الديون والالتزامات</h2><div class="muted">عدّل المتبقي الفعلي لكل التزام. كل سداد يُخصم مباشرة.</div>
  ${S.debts.map((d,i)=>`<div><div class="row"><b>${d.n}</b><span class="num">${fmt(d.rem)} <button class="x" data-act="delD" data-i="${i}" aria-label="حذف">✕</button></span></div><div class="muted">القسط ${fmt(d.inst)} · ${d.late?`<span class="bad">متأخر ${fmt(d.late)}</span>`:'لا متأخرات'}</div>
@@ -942,7 +943,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v64';
+const APPV='v65';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
