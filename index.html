@@ -732,7 +732,7 @@ function budgetTable(ti){const dd=new Date().getDate(),L=S.budgets.map((b,i)=>{c
   return `<tr class="gh"><td colspan="5">${t} <span style="float:left;font-weight:400">${fmt(sb)} · ${pc(sb)}%</span></td></tr>`+R.map(row).join('')+`<tr class="gsub"><td>إجمالي المجموعة</td><td class="num">${fmt(sb)}</td><td class="num">${fmt(sa)}</td><td class="num ${sb-sa<0?'bad':'good'}">${fmt(sb-sa)}</td><td></td></tr>`}).join('');
  const tb=L.reduce((a,x)=>a+x.b.b,0),ta=L.reduce((a,x)=>a+x.act,0);
  return ` <div style="overflow-x:auto"><table class="bt bt5"><thead><tr><th>البند</th><th>الموازنة</th><th>الفعلي</th><th>الانحراف</th><th>سداد</th></tr></thead><tbody>${body}</tbody>
- <tfoot><tr><td>الإجمالي</td><td class="num">${fmt(tb)}</td><td class="num">${fmt(ta)}</td><td class="num ${tb-ta<0?'bad':'good'}">${fmt(tb-ta)}</td><td></td></tr><tr><td>المدفوع</td><td class="num good" colspan="4">${fmt(L.reduce((a,x)=>a+Math.min(x.b.b,x.pd),0))}</td></tr><tr><td>المتبقي للسداد</td><td class="num bad" colspan="4">${fmt(L.reduce((a,x)=>a+Math.max(0,x.b.b-x.pd),0))}</td></tr></tfoot></table></div>
+ <tfoot><tr><td>الإجمالي</td><td class="num">${fmt(tb)}</td><td class="num">${fmt(ta)}</td><td class="num ${tb-ta<0?'bad':'good'}">${fmt(tb-ta)}</td><td></td></tr><tr><td>المدفوع</td><td class="num good" colspan="4">${fmt(L.reduce((a,x)=>a+x.act,0))}</td></tr><tr><td>المتبقي للسداد <small class="muted" style="font-weight:400">(البنود المفتوحة)</small></td><td class="num bad" colspan="4">${fmt(L.reduce((a,x)=>a+Math.max(0,x.b.b-x.pd),0))}</td></tr></tfoot></table></div>
  <div class="muted">الانحراف = الموازنة − الفعلي · أخضر وفر · أحمر تجاوز. التصنيف تلقائي، وتغيّره من ✏️ تعديل البنود.</div>
  <div style="font-weight:600;margin-top:6px">مؤشرات الصحة المالية</div><div class="bm">${BM.map(([n,v,t,k])=>`<div class="bmi"><span>${dot(v,t,k)} ${n}</span><b class="num">${v}%</b><small>${k==='max'?'≤':'≥'} ${t}%</small></div>`).join('')}</div>
  <div style="font-weight:600;margin-top:4px">قاعدة 50/30/20</div>
@@ -981,7 +981,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v74';
+const APPV='v75';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
