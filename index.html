@@ -743,7 +743,8 @@ function payLine(i,amt,d){const bb=S.budgets[i],n=bb.n,m=mon();S.paidFixed[m]=S.
  const eid=Date.now();S.expenses.push({id:eid,d,a:amt,cat:n,n:'سداد من الموازنة'});S.paidFixed[m][n]=paidAmt(n)+amt;(S.payRef[m][n]=S.payRef[m][n]||[]).push(eid);mark(d,1);
  if(n==='قسط التمويل'){const debt=S.debts.find(x=>x.n.includes('التمويل'));if(debt){debt.rem=Math.max(0,debt.rem-amt);debt.late=Math.max(0,debt.late-amt)}}
  if(n==='سداد متأخر الإيجار'){const debt=S.debts.find(x=>x.n.includes('الإيجار'));if(debt){debt.rem=Math.max(0,debt.rem-amt);debt.late=Math.max(0,debt.late-amt)}}
- if(n==='صندوق الطوارئ'){const g=S.goals.find(g=>g.n.includes('طوارئ'));if(g)g.c+=amt}}
+ if(n==='صندوق الطوارئ'){const g=S.goals.find(g=>g.n.includes('طوارئ'));if(g)g.c+=amt}
+ {const dx=S.debts.find(x=>x.n===n);if(dx){dx.rem=Math.max(0,dx.rem-amt);dx.late=Math.max(0,dx.late-amt)}}}
 let undoSnap=null,toastT=null;
 function toast(msg){let t=document.getElementById('toast');if(!t){t=document.createElement('div');t.id='toast';document.body.appendChild(t)}t.hidden=false;t.innerHTML=`<span>${msg}</span>${undoSnap?'<button data-act="undo">تراجع</button>':''}`;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true;undoSnap=null},5000)}
 let confirmRst=false,showIg=false,PT=null,ptCity=null;
@@ -981,7 +982,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v75';
+const APPV='v76';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
