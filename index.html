@@ -748,7 +748,7 @@ function recCard(){const r=(S.recs||[]).slice(-1)[0],c=cashNow();return `<div cl
  <div class="row"><span>رصيدك حسب التطبيق</span><b class="num">${fmt(c)}</b></div>
  <div class="form"><input id="rcA" type="number" inputmode="decimal" placeholder="رصيدك الفعلي"><button data-act="rec">طابق</button></div><div id="rcBox"></div></div>`}
 function startCard(){const d=Math.ceil((new Date(FS())-new Date(td()))/864e5);return `<div class="card" style="border:2px solid var(--orange);gap:6px"><span class="muted">بداية جديدة للمتابعة المالية</span><div class="big">${new Date(FS()).toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{day:'numeric',month:'long',year:'numeric'})}</div><div class="muted">باقي ${d} ${d===1?'يوم':'أيام'}. من ذلك اليوم سجّل كل مصروف ودخل، وتبدأ الأرقام والموازنة من الصفر. العبادات والعادات تستمر كما هي.</div></div>`}
-const paidAmt=(n,m=mon())=>{const v=(S.paidFixed[m]||{})[n];if(v===true){const b=S.budgets.find(x=>x.n===n);return b?b.b:0}return +v||0};
+const paidAmt=(n,m=mon())=>{const v=(S.paidFixed[m]||{})[n];let p=0;if(v===true){const b=S.budgets.find(x=>x.n===n);p=b?b.b:0}else p=+v||0;const sp=sum(S.expenses.filter(e=>e.cat===n&&e.d.startsWith(m)&&e.d>=FS()));return Math.max(p,sp)};
 const fixedItems=()=>S.budgets.filter(b=>S.fixed.includes(b.n));
 const unpaidFixed=()=>fixedItems().reduce((a,b)=>a+Math.max(0,b.b-paidAmt(b.n)),0);
 function fixedCard(){const items=fixedItems(),done=items.filter(b=>paidAmt(b.n)>=b.b).length,u=unpaidFixed();
@@ -940,7 +940,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v67';
+const APPV='v68';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
 padTop();boot();
