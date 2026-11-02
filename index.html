@@ -199,7 +199,7 @@ let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S)S=structuredClone(seed);
 for(const k in seed)if(S[k]===undefined)S[k]=structuredClone(seed[k]);if(!S.finStart)S.finStart='2026-11-01';
 let tab=(()=>{try{return localStorage.getItem('darbi-tab')||'home'}catch(e){return'home'}})(),sb=null,uid=null,uemail='',sync='local',saveT=null;
-function save(){S.updatedAt=Date.now();S._dirty=1;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+function save(){try{const a=localStorage.getItem('a1');if(a)S.eng=a}catch(_){}S.updatedAt=Date.now();S._dirty=1;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
  if(sb&&uid){clearTimeout(saveT);sync='saving';paintSync();saveT=setTimeout(pushCloud,700)}}
 function mergeIn(c){const byId=(a,b)=>{const m=new Map();(b||[]).forEach(x=>m.set(x.id,x));(a||[]).forEach(x=>m.set(x.id,x));return[...m.values()]};
  const del=new Set(S._del||[]);['expenses','income','todos','notes','debts'].forEach(k=>{S[k]=byId(S[k],c[k]).filter(x=>!del.has(x.id))});
@@ -384,6 +384,15 @@ function notesCard(){S.notes=S.notes||[];const L=S.notes.filter(n=>(noteF==='all
  <div class="seg" style="grid-template-columns:repeat(3,1fr)"><button class="${noteF==='all'?'on':''}" data-act="ntF" data-k="all">الكل</button><button class="${noteF==='note'?'on':''}" data-act="ntF" data-k="note">ملاحظات</button><button class="${noteF==='idea'?'on':''}" data-act="ntF" data-k="idea">أفكار</button></div>
  <input id="ntQ" placeholder="بحث…" value="${esc(noteQ)}" oninput="noteQ=this.value;clearTimeout(window._nq);window._nq=setTimeout(()=>{render();const e=document.getElementById('ntQ');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length)}},400)">
  ${L.map(n=>`<div class="note ${n.k}"><div style="white-space:pre-wrap;line-height:1.7">${esc(n.t)}</div><div class="row muted" style="font-size:12px;align-items:center"><span>${n.pin?'📌 ':''}${n.k==='idea'?'💡 فكرة':'📝 ملاحظة'} · ${n.d}</span><span><button class="x" data-act="ntP" data-id="${n.id}" style="font-size:14px">${n.pin?'إلغاء التثبيت':'📌 تثبيت'}</button><button class="x" data-act="ntTask" data-id="${n.id}" style="font-size:14px">← مهمة</button><button class="x" data-act="ntD" data-id="${n.id}" aria-label="حذف">✕</button></span></div></div>`).join('')||'<span class="muted">لا شيء بعد.</span>'}</details>`}
+function engS(){try{return JSON.parse(localStorage.getItem('a1')||'{}')}catch(e){return{}}}
+function engCard(){const x=engS(),dn=Object.keys(x.done||{}).length,kw=Object.keys(x.known||{}).length,days=(x.days||[]),tdy=days.includes(new Date().toLocaleDateString('en-CA'));
+ const st=(()=>{let n=0;const d=new Date();if(!days.includes(d.toLocaleDateString('en-CA')))d.setDate(d.getDate()-1);while(days.includes(d.toLocaleDateString('en-CA'))){n++;d.setDate(d.getDate()-1)}return n})();
+ const pc=Math.round((dn/20*0.5+Math.min(1,kw/381)*0.5)*100);
+ return `<div class="card"><h2>📚 محترف الإنجليزية <span class="num ${tdy?'good':'bad'}" style="font-size:14px">${tdy?'درست اليوم ✓':'لم تدرس اليوم'}</span></h2>
+ <div class="row" style="font-size:14px"><span>تقدّم المستوى A1</span><span class="num">${pc}%</span></div><div class="bar"><i style="width:${Math.max(2,pc)}%;background:var(--orange)"></i></div>
+ <div class="kpis"><div class="kpi"><small>الدروس</small><b>${dn}/20</b></div><div class="kpi"><small>الكلمات</small><b>${kw}/381</b></div><div class="kpi"><small>أيام الدراسة</small><b>${days.length}</b></div><div class="kpi"><small>السلسلة 🔥</small><b>${st}</b></div></div>
+ <a href="english.html" class="btnlink" style="display:block;text-align:center;background:var(--navy);color:#fff;border-radius:12px;padding:12px;text-decoration:none;font-weight:700">${dn?'▶ أكمل الدرس '+(dn+1):'▶ ابدأ الدرس الأول'}</a>
+ <div class="muted" style="font-size:13px">20 دقيقة يوميًا = A1 خلال 3 أشهر. الإنجليزية هي العائق الأول أمام CMA.</div></div>`}
 function dayHome(){const d=td(),p=S.prayers[d]||[],pc=p.filter(Boolean).length,ist=S.ist[d]||0,q=(S.qLog||{})[d]||0,lg=S.expenses.some(e=>e.d===d)||!!(S.noSpend||{})[d],st=dayStep();loadPT();
  const T=[],nx=PT?nextPrayer():-1,miss=PT?[0,1,2,3,4].filter(i=>!p[i]&&prayState(i)):[];
  T.push([pc===5,`صلوات ${pc}/5${miss.length?`<div class="bad" style="font-size:14px">⚠️ لم تُسجَّل: ${miss.map(i=>prayNames[i]).join('، ')}</div>`:pc<5&&nx>=0?` — القادمة ${prayNames[nx]} بعد ${untilNext(nx)}`:''}`,'pray',miss]);
@@ -392,9 +401,10 @@ function dayHome(){const d=td(),p=S.prayers[d]||[],pc=p.filter(Boolean).length,i
  T.push([ist>=S.istGoal,`الاستغفار ${fmt(ist)}/${fmt(S.istGoal)}`,'ist']);
  S.work=S.work||{};const wm=Math.floor(((S.work[d]||0)+(S.workOn?Date.now()-S.workOn:0))/60000),wkM=Math.floor(daysBack(7).reduce((a,k)=>a+(S.work[k]||0),0)/60000)+(S.workOn?Math.floor((Date.now()-S.workOn)/60000):0);
  T.push([wm>=90,`خطوة اليوم: ${st.t}<div class="muted" style="font-size:13px">⏱️ ${wm} من 90 دقيقة اليوم · ${Math.floor(wkM/60)} س ${wkM%60} د هذا الأسبوع</div>`,'work']);
+ {const ex=engS();T.push([(ex.days||[]).includes(new Date().toLocaleDateString('en-CA')),'درس الإنجليزية (20 دقيقة)','eng'])}
  T.push([lg,lg?'سجّلت مصاريف اليوم':'سجّل مصاريفك قبل النوم','nospend']);
  const done=T.filter(x=>x[0]).length,A=todayAllow(),pct=A.allow?Math.min(100,A.ts/A.allow*100):100,left=T.length-done,late=new Date().getHours()>=20;
- const btn=(go,i)=>go==='nospend'?`<button class="ghost" data-act="noSp" style="padding:6px 10px;font-size:14px">لم أصرف اليوم</button>`:go==='pay'?`<button class="ghost" data-act="bPay" data-i="${i}" style="padding:6px 10px">دفعت</button>`:go==='pray'?(i&&i.length?i.map(k=>`<button class="ghost" data-act="pray" data-i="${k}" style="padding:6px 8px;font-size:13px">✓ ${prayNames[k]}</button>`).join(''):''):go==='quran'?`<button class="ghost" data-act="qDone" style="padding:6px 10px;font-size:14px">+ صفحة</button>`:go==='ist'?`<button class="ghost" data-act="istH" style="padding:6px 10px;font-size:14px">+10</button>`:go==='work'?`<button class="${S.workOn?'':'ghost'}" data-act="wkT" style="padding:6px 10px;font-size:14px">${S.workOn?'⏸ أوقف':'▶ ابدأ'}</button>`:'';
+ const btn=(go,i)=>go==='nospend'?`<button class="ghost" data-act="noSp" style="padding:6px 10px;font-size:14px">لم أصرف اليوم</button>`:go==='pay'?`<button class="ghost" data-act="bPay" data-i="${i}" style="padding:6px 10px">دفعت</button>`:go==='pray'?(i&&i.length?i.map(k=>`<button class="ghost" data-act="pray" data-i="${k}" style="padding:6px 8px;font-size:13px">✓ ${prayNames[k]}</button>`).join(''):''):go==='quran'?`<button class="ghost" data-act="qDone" style="padding:6px 10px;font-size:14px">+ صفحة</button>`:go==='ist'?`<button class="ghost" data-act="istH" style="padding:6px 10px;font-size:14px">+10</button>`:go==='eng'?`<a href="english.html" class="ghost" style="padding:6px 10px;font-size:14px;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:inherit">▶ ادرس</a>`:go==='work'?`<button class="${S.workOn?'':'ghost'}" data-act="wkT" style="padding:6px 10px;font-size:14px">${S.workOn?'⏸ أوقف':'▶ ابدأ'}</button>`:'';
  const allowCard=preStart()?startCard():!S.opening&&!monthInc().length?`<div class="card" style="gap:6px;border:2px solid var(--orange)"><span class="muted">المتاح لك اليوم</span><b>يحتاج رصيدك الافتتاحي أولًا</b><div class="muted">التطبيق لا يعرف كم معك الآن، فلا يستطيع حساب ما يمكنك صرفه. سجّل الرصيد الافتتاحي من البطاقة التالية (رصيد البنك + الكاش).</div></div>`:`<div class="card" style="gap:6px"><div class="row"><span class="muted">المتاح لك اليوم</span><span class="muted" style="font-size:14px">صرفت ${fmt(A.ts)} من ${fmt(A.allow)}</span></div><div class="big ${A.left<0?'bad':'good'}">${fmt(A.left)} SAR</div>
  <div class="bar"><i style="width:${pct}%;background:${A.left<0?'var(--bad)':'var(--good)'}"></i></div>
  <div class="muted">باقي على الشهر ${fmt(A.rest)} SAR لـ ${A.dl} يوم</div>
@@ -404,6 +414,7 @@ function dayHome(){const d=td(),p=S.prayers[d]||[],pc=p.filter(Boolean).length,i
  ${late&&left?`<div class="alert">⏰ باقي ${left} ${left===1?'مهمة':'مهام'} قبل أن ينتهي يومك.</div>`:''}
  ${T.filter(x=>!x[0]).map(([ok,t,go,i])=>`<div class="task"><span class="tk"></span><span style="flex:1;min-width:0;line-height:1.6">${t}${go==='pray'&&i&&i.length?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${btn(go,i)}</div>`:''}</span>${go==='pray'?'':`<span style="flex:none">${btn(go,i)}</span>`}</div>`).join('')}
  ${done?`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">${T.filter(x=>x[0]).map(([ok,t])=>`<span class="bs" style="background:var(--goodbg,#e6f4ea);color:var(--good)">✓ ${t.replace(/<[^>]+>.*$/s,'').split(' — ')[0]}</span>`).join('')}</div>`:''}</div>
+ ${engCard()}
  ${openCard()}
  ${salaryCard()}
  ${storyCard()}
@@ -1073,9 +1084,9 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v86';
+const APPV='v87';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
-checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();render()}}});
+checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();try{const loc=JSON.parse(localStorage.getItem('a1')||'{}'),cl=S.eng?JSON.parse(S.eng):null;if(cl&&(cl.days||[]).length>(loc.days||[]).length)localStorage.setItem('a1',S.eng);else if(localStorage.getItem('a1')&&localStorage.getItem('a1')!==S.eng)save()}catch(_){}render()}}});
 padTop();boot();
 </script>
 </body></html>

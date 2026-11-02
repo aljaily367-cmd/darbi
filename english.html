@@ -1,0 +1,674 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><a href="./" style="position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));left:14px;z-index:50;background:#1D3A5F;color:#fff;text-decoration:none;font:600 15px -apple-system,sans-serif;padding:10px 16px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.25)">← دربي وكفاحي</a>
+<title>محترف الإنجليزية</title><meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Lexend:wght@500;700&display=swap">
+<style>
+/* Layout: navy course header; sticky rail with 5 views (dashboard, lessons, vocabulary, listening, reading); one panel at a time */
+:root{
+  --bg:#f5f7fa;--surface:#ffffff;--ink:#14243a;--muted:#5d6b7e;--line:#dfe5ec;
+  --navy:#0f3a5c;--gold:#f0a320;--gold-soft:#fdf1da;--onnavy:#ffffff;--ok:#1f8a4c;--ok-soft:#e3f4ea;--bad:#c2412d;--bad-soft:#fbe7e3;
+  --ar:"IBM Plex Sans Arabic",Tahoma,sans-serif;--en:"Lexend","Segoe UI",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1622;--surface:#152131;--ink:#e8eef5;--muted:#9aa9bb;--line:#26364a;--navy:#0b2a44;--gold:#f3b13f;--gold-soft:#2e2615;
+  --ok:#5fcf8d;--ok-soft:#14301f;--bad:#f08670;--bad-soft:#3a1c17;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1622;--surface:#152131;--ink:#e8eef5;--muted:#9aa9bb;--line:#26364a;--navy:#0b2a44;--gold:#f3b13f;--gold-soft:#2e2615;
+  --ok:#5fcf8d;--ok-soft:#14301f;--bad:#f08670;--bad-soft:#3a1c17;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ar);direction:rtl;margin:0;line-height:1.7}
+.en{font-family:var(--en);direction:ltr;unicode-bidi:isolate}
+.muted{color:var(--muted)}
+.wrap{max-width:960px;margin:0 auto;padding-inline:16px}
+header{background:var(--navy);color:var(--onnavy);padding-block:24px 20px}
+.brand{font-weight:700;color:var(--gold)} .brand span{color:#cfdbe7;font-weight:400;font-size:.9rem}
+h1{font-size:clamp(1.5rem,4.5vw,2.2rem);margin:8px 0 4px;line-height:1.3;text-wrap:balance}
+header p{margin:0;color:#cfdbe7;max-width:62ch}
+.prog{margin-top:12px;display:flex;align-items:center;gap:10px;font-size:.85rem;color:#dbe6f0}
+.track{flex:1;max-width:260px;height:8px;background:#2a5070;border-radius:99px;overflow:hidden}
+.fill{height:100%;background:var(--gold);width:0;transition:width .3s}
+.rail{position:sticky;top:env(safe-area-inset-top,0px);background:var(--surface);border-bottom:1px solid var(--line);z-index:5}
+.views,.chips{display:flex;gap:8px;overflow-x:auto;padding-block:10px;scrollbar-width:thin}
+.chips{padding-top:0}
+button{font:inherit;cursor:pointer;color:inherit}
+.view{flex:none;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:7px 12px;font-weight:600;font-size:.9rem}
+.view.on{background:var(--navy);color:var(--onnavy);border-color:var(--navy)}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:.82rem;white-space:nowrap}
+.chip.on{background:var(--gold-soft);border-color:var(--gold);font-weight:700}
+.chip.done::after{content:" ✓";color:var(--ok);font-weight:700}
+.tools{display:flex;flex-wrap:wrap;gap:8px;padding-bottom:10px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:.88rem}
+.btn.on,.btn.pri{background:var(--gold-soft);border-color:var(--gold)}
+.btn.pri{font-weight:700}
+.btn:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+main{padding-block:20px 40px;display:flex;flex-direction:column;gap:18px}
+.eyebrow{color:var(--gold);font-weight:700;font-size:.85rem}
+h2{font-size:1.4rem;margin:2px 0 0;line-height:1.35}
+h3{font-size:1.05rem;margin:0 0 10px;display:flex;gap:8px;align-items:center}
+h3::before{content:"";width:4px;height:1.1em;background:var(--gold);border-radius:2px;flex:none}
+section{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.rule p{margin:0 0 10px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+td{border-bottom:1px solid var(--line);padding:7px 6px;vertical-align:top}
+td.en{font-weight:600}
+.say{display:flex;flex-direction:column;gap:8px}
+.line{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:start;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 12px}
+.line .spk{flex:none;color:var(--gold)}
+.line div{min-width:0;display:flex;flex-direction:column}
+.line b{font-family:var(--en);direction:ltr;text-align:left;font-weight:500}
+.line small{color:var(--muted)}
+.line .who{flex:none;font-family:var(--en);font-weight:700;color:var(--navy);width:1.4em}
+.speaking{border-color:var(--gold)!important;background:var(--gold-soft)!important}
+.vocab{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.v{position:relative;border:1px solid transparent;background:var(--gold-soft);border-radius:10px;padding:9px 8px;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0}
+.v b{font-family:var(--en);font-size:1rem;overflow-wrap:anywhere}
+.v small{color:var(--muted);text-align:center}
+.v.known{background:var(--ok-soft)}
+.kn{position:absolute;top:4px;inset-inline-start:6px;font-size:.75rem;color:var(--ok);font-weight:700}
+.alpha{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.a{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px;display:flex;flex-direction:column;align-items:center}
+.a .L{font-family:var(--en);font-size:1.8rem;font-weight:700;line-height:1.2}
+.a small{color:var(--muted)}
+.q{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.q:first-child{border:0;margin:0;padding:0}
+.q p{margin:0 0 8px;font-weight:600}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:6px 14px;font-family:var(--en)}
+.opt.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:700}
+.opt.bad{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.why{font-size:.85rem;color:var(--muted);margin-top:6px}
+.score{margin-top:14px;padding:12px;border-radius:10px;background:var(--gold-soft);font-weight:600}
+textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg);color:var(--ink);font-family:var(--en);font-size:1rem;direction:ltr;text-align:left;resize:vertical}
+textarea.short{min-height:70px}
+.task{background:var(--gold-soft);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:600}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.res{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.res .box{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg)}
+.err{display:flex;flex-direction:column;gap:2px;border-top:1px dashed var(--line);padding-top:6px}
+.err:first-child{border:0;padding:0}
+.x{color:var(--bad);text-decoration:line-through}.y{color:var(--ok);font-weight:700}
+.words{font-family:var(--en);direction:ltr;text-align:left;font-size:1.05rem;line-height:2}
+.wd{padding:1px 5px;border-radius:5px;margin-inline:1px}
+.wd.hit{background:var(--ok-soft);color:var(--ok)}.wd.miss{background:var(--bad-soft);color:var(--bad)}
+.pick{display:flex;flex-direction:column;gap:6px}
+.pick .line.sel{border-color:var(--navy)}
+.steps{margin:0;padding-inline-start:1.2em;color:var(--muted);font-size:.9rem}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.kpi small{color:var(--muted);display:block;font-size:.8rem}
+.kpi b{font-size:1.45rem;font-family:var(--en);font-variant-numeric:tabular-nums}
+.big{width:100%;padding:12px!important;font-weight:700;font-size:1rem!important}
+.skills{display:flex;flex-direction:column;gap:12px}
+.sk{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center}
+.sk .mini{grid-column:1/-1}
+.sk b{font-weight:600}
+.sk span{font-family:var(--en);font-variant-numeric:tabular-nums;font-size:.85rem;color:var(--muted)}
+.sk small{grid-column:1/-1;color:var(--muted);font-size:.82rem}
+.sk.ok b::after{content:" ✓";color:var(--ok)}
+.road{display:flex;flex-direction:column}
+.stop{display:grid;grid-template-columns:56px 1fr;gap:14px;position:relative;padding-bottom:24px}
+.stop::before{content:"";position:absolute;inset-inline-start:26px;top:56px;bottom:0;width:4px;background:var(--line);border-radius:2px}
+.stop.done::before{background:var(--ok)}
+.stop:last-child{padding-bottom:0}.stop:last-child::before{display:none}
+.node{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-family:var(--en);font-weight:700;font-size:1.1rem;border:3px solid var(--line);background:var(--surface);color:var(--muted)}
+.stop.done .node{background:var(--ok);border-color:var(--ok);color:#fff;font-size:1.5rem}
+.stop.cur .node{border-color:var(--gold);color:var(--ink);box-shadow:0 0 0 6px var(--gold-soft)}
+.stop .body{min-width:0;display:flex;flex-direction:column;gap:2px}
+.stop h4{margin:6px 0 0;font-size:1.05rem}
+.stop.lock h4{color:var(--muted)}
+.badge{display:inline-block;font-size:.72rem;border-radius:99px;padding:1px 10px;margin-inline-start:6px;vertical-align:middle}
+.b-done{background:var(--ok-soft);color:var(--ok)}.b-cur{background:var(--gold-soft);color:var(--ink)}.b-lock{border:1px solid var(--line);color:var(--muted)}
+.mini{height:7px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:4px}
+.mini i{display:block;height:100%;background:var(--gold)}
+.mini.ok i{background:var(--ok)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.card{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--surface);text-align:start;display:flex;flex-direction:column;gap:4px}
+.card.done{border-color:var(--ok)}
+.card b{font-size:1rem}
+.flash{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px 12px;border:2px dashed var(--line);border-radius:14px;background:var(--bg)}
+.flash .fw{font-family:var(--en);font-size:2rem;font-weight:700}
+.flash .fa{font-size:1.2rem;min-height:1.7em}
+.tip{background:var(--gold-soft);border-radius:10px;padding:12px 14px}
+.nav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.nav .btn{padding:10px 16px;font-size:.95rem}
+.rw{border-radius:4px;padding:0 1px;transition:background .1s}
+.rep{width:5.5em;text-align:center;font-family:var(--en);font-size:1rem}
+.trl{display:flex;flex-direction:column;gap:4px;margin-top:8px;border-top:1px dashed var(--line);padding-top:8px}
+.trs{padding:3px 8px;border-radius:6px;color:var(--muted)}
+.trs.on{background:var(--ok-soft);color:var(--ok);font-weight:700}
+.rw.on{background:var(--ok-soft);color:var(--ok);font-weight:700}
+.passage{font-family:var(--en);direction:ltr;text-align:left;line-height:1.9;font-size:1.05rem;margin:0}
+footer{color:var(--muted);font-size:.85rem;text-align:center;padding-bottom:32px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<header><div class="wrap">
+  <div class="brand">محترف الإنجليزية <span>· المستوى A1 وفق CEFR</span></div>
+  <h1>رحلتك من A1 إلى B2</h1>
+  <p>منهج A1 كامل بالمهارات الأربع: قواعد، و500 كلمة، واستماع، وقراءة، وكتابة يصححها Claude، وتدريب نطق.</p>
+  <div class="prog"><div class="track"><div class="fill" id="fill"></div></div><span id="ptxt"></span></div>
+</div></header>
+
+<div class="rail"><div class="wrap">
+  <div class="views" id="views"></div>
+  <div id="lesbar">
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="tools">
+    <button class="btn" id="vslow" type="button">🐌 بطيء جدًا</button>
+    <button class="btn on" id="slow" type="button">🐢 بطيء</button>
+    <button class="btn" id="normal" type="button">سرعة عادية</button>
+    <button class="btn" id="hideAr" type="button">إخفاء الترجمة</button>
+  </div>
+</div></div>
+
+<main class="wrap" id="main"></main>
+<footer>تقدّمك محفوظ في هذا المتصفح على هذا الجهاز. ادرس من نفس الجوال ونفس المتصفح.</footer>
+
+<script>
+/* ===================== DATA ===================== */
+const AL=[["A","إيه","Account"],["B","بي","Bank"],["C","سي","Cash"],["D","دي","Date"],["E","إي","Expense"],["F","إف","File"],["G","جي","Goods"],["H","إتش","Hour"],["I","آي","Invoice"],["J","جيه","Job"],["K","كيه","Key"],["L","إل","Loan"],["M","إم","Money"],["N","إن","Net"],["O","أو","Order"],["P","بي","Profit"],["Q","كيو","Quarter"],["R","آر","Revenue"],["S","إس","Sales"],["T","تي","Tax"],["U","يو","Unit"],["V","في","Value"],["W","دبليو","Week"],["X","إكس","Box"],["Y","واي","Year"],["Z","زِد","Zero"]];
+
+const L=[
+{w:"الأسبوع 1",t:"الحروف الإنجليزية",alpha:1,
+ r:`<p>الإنجليزي 26 حرفًا، ولكل حرف شكل <b>كبير</b> يأتي أول الجملة وأول الأسماء، وشكل <b>صغير</b> لبقية الكلام.</p><p>اسم الحرف يختلف أحيانًا عن صوته: <span class="en">C</span> اسمه «سي» لكنه في <span class="en">Cash</span> يُنطق «ك».</p><p>الحروف المتحركة (Vowels) خمسة: <span class="en">A E I O U</span>، وبقية الحروف ساكنة.</p>`,
+ s:[["My name is Ahmed.","اسمي أحمد."],["Riyadh is in Saudi Arabia.","الرياض في السعودية."],["Please spell your name.","من فضلك تهجَّ اسمك."]],
+ v:[["letter","حرف"],["word","كلمة"],["capital","حرف كبير"],["small","صغير"],["spell","يتهجّى"]],
+ wr:"اكتب اسمك الكامل، ثم أسماء 3 مدن سعودية. ابدأ كل اسم بحرف كبير.",
+ q:[["كم عدد الحروف الإنجليزية؟",["24","26","28"],1,"26 حرفًا من A إلى Z."],["الكلمة الصحيحة الكتابة:",["riyadh","Riyadh","RIyadh"],1,"اسم مدينة، فيبدأ بحرف كبير."],["أي حرف متحرك (Vowel)؟",["B","E","K"],1,"المتحركة: A E I O U."],["Cash تُنطق بصوت:",["س","ك","ش"],1,"C قبل a تُنطق ك."]]},
+{w:"الأسبوع 1",t:"التحية والتعريف بالنفس",
+ r:`<p>جمل جاهزة تستخدمها من أول يوم. احفظها كما هي، والقاعدة تأتي لاحقًا.</p><div class="tbl"><table><tr><td class="en">Good morning</td><td>صباح الخير (حتى الظهر)</td></tr><tr><td class="en">Good afternoon</td><td>مساء الخير (بعد الظهر)</td></tr><tr><td class="en">Good evening</td><td>مساء الخير (ليلًا)</td></tr><tr><td class="en">Nice to meet you</td><td>تشرفت بمعرفتك</td></tr></table></div>`,
+ s:[["Good morning. My name is Abdul-Qadir.","صباح الخير. اسمي عبدالقادر."],["I am a financial manager.","أنا مدير مالي."],["Nice to meet you.","تشرفت بمعرفتك."],["How are you? I am fine, thank you.","كيف حالك؟ أنا بخير، شكرًا."],["See you tomorrow.","أراك غدًا."]],
+ v:[["hello","مرحبًا"],["thank you","شكرًا"],["please","من فضلك"],["sorry","آسف"],["fine","بخير"],["tomorrow","غدًا"]],
+ wr:"اكتب تحية، ثم عرّف بنفسك في 3 جمل: اسمك، وظيفتك، ومدينتك.",
+ q:[["الساعة 9 صباحًا تقول:",["Good evening","Good morning","Good night"],1,"Morning للصباح حتى الظهر."],["الرد على How are you?",["I am fine, thank you.","My name is fine.","Nice to meet."],0,"الجملة الكاملة: I am fine, thank you."],["«تشرفت بمعرفتك»:",["See you","Nice to meet you","Thank you"],1,""]]},
+{w:"الأسبوع 1",t:"فعل الكينونة am / is / are",
+ r:`<p>العربي يقول «أنا محاسب» بلا فعل، أما الإنجليزي فلا بد من فعل يربط:</p><div class="tbl"><table><tr><td class="en">I am</td><td>أنا</td></tr><tr><td class="en">He / She / It is</td><td>هو / هي / لغير العاقل</td></tr><tr><td class="en">You / We / They are</td><td>أنت / نحن / هم</td></tr></table></div><p>الاختصار: <span class="en">I'm · he's · they're</span></p>`,
+ s:[["I am a financial manager.","أنا مدير مالي."],["The report is ready.","التقرير جاهز."],["The invoices are late.","الفواتير متأخرة."],["We are busy today.","نحن مشغولون اليوم."],["She is an accountant.","هي محاسبة."]],
+ v:[["manager","مدير"],["company","شركة"],["ready","جاهز"],["late","متأخر"],["busy","مشغول"],["branch","فرع"]],
+ wr:"اكتب 4 جمل عن نفسك وعن عملك، واستخدم am و is و are.",
+ q:[["I ___ busy today.",["is","am","are"],1,"I تأخذ دائمًا am."],["The company ___ in Riyadh.",["is","am","are"],0,"The company = it ← is."],["We ___ ready.",["is","am","are"],2,"We تأخذ are."],["The branches ___ open.",["is","are","am"],1,"جمع ← are."],["She ___ an accountant.",["are","am","is"],2,"She ← is."]]},
+{w:"الأسبوع 1",t:"النفي والسؤال مع am / is / are",
+ r:`<p><b>النفي:</b> أضف <span class="en">not</span> بعد الفعل: <span class="en">I am not · he is not (isn't) · they are not (aren't)</span></p><p><b>السؤال:</b> قدّم الفعل على الفاعل: <span class="en">You are busy ← Are you busy?</span></p><p>الإجابة القصيرة: <span class="en">Yes, I am. / No, I'm not.</span></p>`,
+ s:[["The report is not ready.","التقرير ليس جاهزًا."],["Is the manager here?","هل المدير هنا؟"],["Yes, he is.","نعم، هو هنا."],["Are the invoices correct?","هل الفواتير صحيحة؟"],["No, they aren't.","لا، ليست صحيحة."]],
+ v:[["here","هنا"],["correct","صحيح"],["wrong","خطأ"],["open","مفتوح"],["closed","مغلق"]],
+ wr:"اكتب سؤالين يبدآن بـ Is أو Are، وجملتين منفيتين عن مكتبك.",
+ q:[["حوّل للسؤال: You are ready.",["You are ready?","Are you ready?","Ready you are?"],1,"قدّم are على you."],["النفي: The bank is open.",["The bank not is open.","The bank is not open.","The bank no open."],1,"not بعد is."],["Is she busy? — No, she ___.",["isn't","aren't","not"],0,"she ← isn't."]]},
+{w:"الأسبوع 1",t:"الأرقام والمبالغ",
+ r:`<p>0–12 تُحفظ كما هي. 13–19 تنتهي بـ <span class="en">-teen</span>. العشرات تنتهي بـ <span class="en">-ty</span>: <span class="en">twenty, thirty, forty, fifty</span>.</p><p>انتبه: <span class="en">thirteen (13)</span> النبر في الآخر، و<span class="en">thirty (30)</span> النبر في الأول.</p><p>المبالغ: <span class="en">SAR 250 = two hundred and fifty riyals</span></p>`,
+ s:[["One, two, three, four, five.","1، 2، 3، 4، 5"],["Thirteen. Thirty.","13. 30."],["Fifteen. Fifty.","15. 50."],["The invoice is ninety-five riyals.","الفاتورة 95 ريالًا."],["We have three branches.","عندنا 3 فروع."]],
+ v:[["zero","صفر"],["eleven","11"],["twelve","12"],["twenty","20"],["hundred","مئة"],["thousand","ألف"],["riyal","ريال"]],
+ wr:"اكتب بالحروف الإنجليزية: عدد الفروع، وعدد السيارات، ومبلغ فاتورة. مثال: We have three branches.",
+ q:[["40 تُكتب:",["fourty","forty","fourteen"],1,"forty بدون u."],["Fifteen = ",["15","50","5"],0,""],["عندنا 3 فروع:",["We have three branch.","We have three branches.","We are three branches."],1,"الجمع يأخذ s/es."]]},
+{w:"الأسبوع 2",t:"الضمائر والملكية",
+ r:`<div class="tbl"><table><tr><td class="en">I → my</td><td>أنا ← ـي</td></tr><tr><td class="en">you → your</td><td>أنت ← ـك</td></tr><tr><td class="en">he → his</td><td>هو ← ـه</td></tr><tr><td class="en">she → her</td><td>هي ← ـها</td></tr><tr><td class="en">it → its</td><td>لغير العاقل</td></tr><tr><td class="en">we → our</td><td>نحن ← ـنا</td></tr><tr><td class="en">they → their</td><td>هم ← ـهم</td></tr></table></div><p>ملكية الأسماء: <span class="en">the manager's office</span> = مكتب المدير.</p>`,
+ s:[["My office is on the second floor.","مكتبي في الدور الثاني."],["Her name is Sara.","اسمها سارة."],["Our company has three branches.","شركتنا لها ثلاثة فروع."],["Their invoice is late.","فاتورتهم متأخرة."],["This is the manager's report.","هذا تقرير المدير."]],
+ v:[["office","مكتب"],["name","اسم"],["team","فريق"],["client","عميل"],["supplier","مورّد"],["colleague","زميل"]],
+ wr:"صف فريق عملك في 4 جمل، واستخدم my و our و his و her.",
+ q:[["___ name is Abdul-Qadir. (أنا)",["I","My","Me"],1,""],["شركتنا:",["We company","Our company","Us company"],1,""],["مكتب المدير:",["the manager office","the manager's office","the office manager's"],1,"'s للملكية."]]},
+{w:"الأسبوع 2",t:"a / an / the والجمع",
+ r:`<p><span class="en">a</span> قبل صوت ساكن: <span class="en">a bank, a report</span>. <span class="en">an</span> قبل صوت متحرك: <span class="en">an invoice, an hour</span>.</p><p><span class="en">the</span> = «الـ» لشيء معروف ومحدد.</p><p>الجمع: <span class="en">+s</span> (invoices)، <span class="en">+es</span> بعد s/x/ch/sh (taxes, branches)، و<span class="en">y→ies</span> (company→companies).</p>`,
+ s:[["I have a meeting at ten.","عندي اجتماع الساعة العاشرة."],["This is an invoice.","هذه فاتورة."],["The meeting is in an hour.","الاجتماع بعد ساعة."],["The companies pay taxes.","الشركات تدفع الضرائب."]],
+ v:[["meeting","اجتماع"],["receipt","إيصال"],["account","حساب"],["employee","موظف"],["customer","عميل/زبون"],["car","سيارة"]],
+ wr:"اكتب 4 أشياء على مكتبك مع a أو an، ثم جملة واحدة فيها the.",
+ q:[["___ invoice",["a","an","the a"],1,"invoice تبدأ بصوت متحرك."],["___ bank",["an","a"],1,""],["جمع company:",["companys","companies","companyes"],1,"y بعد حرف ساكن ← ies."],["جمع tax:",["taxs","taxes"],1,"بعد x نضيف es."]]},
+{w:"الأسبوع 2",t:"this / that / these / those",
+ r:`<div class="tbl"><table><tr><td class="en">this</td><td>هذا/هذه (قريب، مفرد)</td></tr><tr><td class="en">these</td><td>هذه (قريب، جمع)</td></tr><tr><td class="en">that</td><td>ذلك/تلك (بعيد، مفرد)</td></tr><tr><td class="en">those</td><td>تلك (بعيد، جمع)</td></tr></table></div>`,
+ s:[["This file is important.","هذا الملف مهم."],["These receipts are from the bank.","هذه الإيصالات من البنك."],["That car is new.","تلك السيارة جديدة."],["Those cars are for rent.","تلك السيارات للإيجار."]],
+ v:[["important","مهم"],["new","جديد"],["old","قديم"],["rent","إيجار"],["for sale","للبيع"]],
+ wr:"اكتب 4 جمل عن أشياء حولك: جملة بـ this، وجملة بـ these، وجملة بـ that، وجملة بـ those.",
+ q:[["___ invoices are correct. (قريبة)",["This","These","That"],1,""],["___ car is mine. (بعيدة)",["Those","That","These"],1,""],["This files",["صحيحة","خطأ، الصحيح These files"],1,"جمع ← these."]]},
+{w:"الأسبوع 2",t:"have / has",
+ r:`<p><span class="en">I / you / we / they <b>have</b></span>، و<span class="en">he / she / it <b>has</b></span>. وتعني «عندي / يملك».</p>`,
+ s:[["I have a meeting today.","عندي اجتماع اليوم."],["The company has fifty cars.","الشركة عندها خمسون سيارة."],["She has a question.","عندها سؤال."],["We have a problem with the bank.","عندنا مشكلة مع البنك."]],
+ v:[["question","سؤال"],["problem","مشكلة"],["answer","جواب"],["contract","عقد"],["balance","رصيد"]],
+ wr:"اكتب 4 جمل بـ have و has عن شركتك وزملائك.",
+ q:[["The bank ___ a new system.",["have","has"],1,"The bank = it ← has."],["We ___ two contracts.",["has","have"],1,""],["She ___ a question.",["have","has"],1,""]]},
+{w:"الأسبوع 2",t:"الأيام والشهور والوقت",
+ r:`<p>الأيام والشهور تبدأ بحرف كبير دائمًا. نستخدم <span class="en">on</span> مع الأيام، و<span class="en">in</span> مع الشهور، و<span class="en">at</span> مع الساعة.</p><p>الوقت: <span class="en">It's nine o'clock · half past nine (9:30)</span></p>`,
+ s:[["Sunday, Monday, Tuesday, Wednesday, Thursday.","الأحد، الاثنين، الثلاثاء، الأربعاء، الخميس."],["Friday and Saturday are the weekend.","الجمعة والسبت نهاية الأسبوع."],["The meeting is on Monday at ten o'clock.","الاجتماع يوم الاثنين الساعة العاشرة."],["The audit is in December.","المراجعة في ديسمبر."],["What time is it? It's half past nine.","كم الساعة؟ التاسعة والنصف."]],
+ v:[["January","يناير"],["March","مارس"],["June","يونيو"],["September","سبتمبر"],["December","ديسمبر"],["weekend","نهاية الأسبوع"],["month-end","نهاية الشهر"]],
+ wr:"اكتب جدول أسبوعك في 4 جمل: ماذا عندك يوم الأحد والاثنين وغيرها، ومتى. استخدم on و at.",
+ q:[["The meeting is ___ Sunday.",["in","on","at"],1,"on مع الأيام."],["Payment is due ___ March.",["in","on","at"],0,"in مع الشهور."],["See you ___ 8 o'clock.",["in","on","at"],2,"at مع الساعة."]]},
+{w:"الأسبوع 3",t:"المضارع البسيط",
+ r:`<p>للعادات والحقائق. مع <span class="en">he / she / it</span> نضيف <span class="en">s</span> للفعل:</p><p><span class="en">I work → she work<b>s</b> · I go → he go<b>es</b> · I pay → it pay<b>s</b></span></p><p>هذا كان خطأك في اختبار المستوى (she go ← she goes).</p>`,
+ s:[["I work in a car rental company.","أعمل في شركة تأجير سيارات."],["She goes to work every day.","هي تذهب للعمل كل يوم."],["The accountant checks the invoices.","المحاسب يراجع الفواتير."],["We close the books every month.","نقفل الدفاتر كل شهر."],["The customer pays by card.","العميل يدفع بالبطاقة."]],
+ v:[["work","يعمل"],["check","يراجع"],["pay","يدفع"],["send","يرسل"],["prepare","يُعِدّ"],["every day","كل يوم"]],
+ wr:"اكتب 5 جمل عن روتينك اليومي في العمل. اكتب جملتين منها عن زميل (he / she).",
+ q:[["She ___ to work every day.",["go","goes","going"],1,"she ← goes."],["They ___ the report.",["prepare","prepares"],0,"They بدون s."],["The bank ___ at 8.",["open","opens"],1,"The bank = it."],["He ___ emails.",["send","sends"],1,""]]},
+{w:"الأسبوع 3",t:"المضارع البسيط: النفي والسؤال",
+ r:`<p><b>النفي:</b> <span class="en">don't</span> مع I/you/we/they، و<span class="en">doesn't</span> مع he/she/it، والفعل يرجع بدون s.</p><p><b>السؤال:</b> <span class="en">Do you…? / Does she…?</span></p><p><span class="en">She works ← She doesn't work ← Does she work?</span></p>`,
+ s:[["I don't work on Friday.","لا أعمل يوم الجمعة."],["He doesn't pay in cash.","هو لا يدفع نقدًا."],["Do you use Excel?","هل تستخدم Excel؟"],["Does the client pay on time?","هل العميل يدفع في الوقت؟"],["Yes, he does. No, he doesn't.","نعم. لا."]],
+ v:[["use","يستخدم"],["on time","في الوقت"],["cash","نقدًا"],["card","بطاقة"],["transfer","تحويل"]],
+ wr:"اكتب 3 أشياء لا تفعلها (don't / doesn't)، وسؤالين لزميلك يبدآن بـ Do أو Does.",
+ q:[["She ___ like meetings.",["don't","doesn't"],1,""],["___ you work on Saturday?",["Do","Does"],0,""],["He doesn't ___ cash.",["pays","pay"],1,"بعد doesn't الفعل بدون s."]]},
+{w:"الأسبوع 3",t:"there is / there are",
+ r:`<p>«يوجد»: <span class="en">there is</span> للمفرد، و<span class="en">there are</span> للجمع.</p><p>السؤال: <span class="en">Is there…? / Are there…?</span></p>`,
+ s:[["There is a problem in the report.","يوجد خطأ في التقرير."],["There are ten cars in the branch.","يوجد عشر سيارات في الفرع."],["Is there a meeting today?","هل يوجد اجتماع اليوم؟"],["There are no unpaid invoices.","لا توجد فواتير غير مدفوعة."]],
+ v:[["unpaid","غير مدفوع"],["difference","فرق"],["error","خطأ"],["entry","قيد"],["statement","كشف"]],
+ wr:"صف فرع الشركة أو مكتبك في 4 جمل باستخدام there is و there are.",
+ q:[["There ___ two errors.",["is","are"],1,""],["There ___ a difference.",["is","are"],0,""],["___ there a meeting?",["Are","Is"],1,""]]},
+{w:"الأسبوع 3",t:"حروف الجر in / on / at / from / to",
+ r:`<div class="tbl"><table><tr><td class="en">in</td><td>في (داخل، مدينة، شهر)</td></tr><tr><td class="en">on</td><td>على، ومع الأيام</td></tr><tr><td class="en">at</td><td>عند، ومع الساعة</td></tr><tr><td class="en">from … to</td><td>من … إلى</td></tr><tr><td class="en">next to</td><td>بجانب</td></tr></table></div>`,
+ s:[["The file is on the desk.","الملف على المكتب."],["I live in Riyadh.","أسكن في الرياض."],["I am at the bank.","أنا في البنك."],["I work from eight to four.","أعمل من الثامنة إلى الرابعة."],["Send the report to the manager.","أرسل التقرير إلى المدير."]],
+ v:[["desk","طاولة المكتب"],["live","يسكن"],["floor","دور"],["near","قريب من"],["next to","بجانب"]],
+ wr:"صف مكتبك وأين تضع أشياءك في 4 جمل باستخدام in و on و next to.",
+ q:[["I live ___ Jeddah.",["on","in","at"],1,""],["The pen is ___ the table.",["on","in"],0,""],["from 9 ___ 5",["at","to","in"],1,""]]},
+{w:"الأسبوع 3",t:"can / can't",
+ r:`<p><span class="en">can</span> = يستطيع / ممكن. لا يتغير مع he/she، والفعل بعده بدون s.</p><p><span class="en">She can speak English. · Can you help me?</span></p>`,
+ s:[["I can read English.","أستطيع قراءة الإنجليزي."],["I can't speak English well.","لا أستطيع التحدث بالإنجليزي جيدًا."],["Can you send me the file?","ممكن ترسل لي الملف؟"],["Can I pay by transfer?","ممكن أدفع بتحويل؟"]],
+ v:[["help","يساعد"],["speak","يتحدث"],["read","يقرأ"],["write","يكتب"],["well","جيدًا"]],
+ wr:"اكتب 3 أشياء تستطيع فعلها، وشيئين لا تستطيع فعلهما، وطلبًا مهذبًا يبدأ بـ Can you.",
+ q:[["She can ___ Excel.",["uses","use"],1,"بعد can الفعل بدون s."],["طلب مهذب:",["You send the file.","Can you send the file?"],1,""],["He ___ come today. (لا يستطيع)",["can't","don't can"],0,""]]},
+{w:"الأسبوع 4",t:"المضارع المستمر",
+ r:`<p>لما يحدث الآن: <span class="en">am/is/are + الفعل + ing</span></p><p><span class="en">I am checking the bank statement now.</span></p>`,
+ s:[["I am working now.","أنا أعمل الآن."],["She is preparing the report.","هي تُعِدّ التقرير."],["We are waiting for the payment.","ننتظر الدفعة."],["Are you using the system?","هل تستخدم النظام الآن؟"]],
+ v:[["now","الآن"],["wait for","ينتظر"],["system","نظام"],["payment","دفعة"],["at the moment","في هذه اللحظة"]],
+ wr:"ماذا تفعل الآن؟ وماذا يفعل زملاؤك؟ اكتب 4 جمل بالمضارع المستمر.",
+ q:[["I ___ the invoices now.",["check","am checking"],1,""],["They ___ waiting.",["is","are"],1,""],["She is ___ a report.",["write","writing"],1,""]]},
+{w:"الأسبوع 4",t:"الماضي: was / were",
+ r:`<p>ماضي am/is هو <span class="en">was</span>، وماضي are هو <span class="en">were</span>.</p><p><span class="en">I was · he was · we were · they were</span>، والنفي: <span class="en">wasn't / weren't</span>.</p>`,
+ s:[["I was at the bank yesterday.","كنت في البنك أمس."],["The meeting was long.","الاجتماع كان طويلًا."],["The invoices were wrong.","الفواتير كانت خاطئة."],["Was the manager there?","هل كان المدير هناك؟"]],
+ v:[["yesterday","أمس"],["last week","الأسبوع الماضي"],["last month","الشهر الماضي"],["long","طويل"],["there","هناك"]],
+ wr:"اكتب 3 جمل عن أمس باستخدام was و were.",
+ q:[["Yesterday I ___ busy.",["was","were"],0,""],["The cars ___ in the branch.",["was","were"],1,""],["She ___ not at work.",["were","was"],1,""]]},
+{w:"الأسبوع 4",t:"الماضي البسيط",
+ r:`<p><b>منتظم:</b> نضيف <span class="en">ed</span>: <span class="en">finish→finished · check→checked</span>.</p><p><b>شاذ:</b> يُحفظ: <span class="en">go→went · pay→paid · send→sent · have→had · make→made</span>.</p><p>النفي والسؤال: <span class="en">didn't + الفعل الأصلي · Did you…?</span></p>`,
+ s:[["We finished the report yesterday.","أنهينا التقرير أمس."],["The customer paid last week.","العميل دفع الأسبوع الماضي."],["I sent the email this morning.","أرسلت الإيميل هذا الصباح."],["Did you check the statement?","هل راجعت الكشف؟"],["No, I didn't.","لا، لم أراجعه."]],
+ v:[["finished","أنهى"],["paid","دفع"],["sent","أرسل"],["went","ذهب"],["had","كان عنده"],["received","استلم"]],
+ wr:"اكتب 5 جمل عمّا فعلته أمس في العمل.",
+ q:[["We ___ the report yesterday.",["finish","finished","have finish"],1,"yesterday ← ماضي."],["ماضي pay:",["payed","paid"],1,"شاذ."],["Did you ___ the email?",["sent","send"],1,"بعد did الفعل الأصلي."]]},
+{w:"الأسبوع 4",t:"أدوات السؤال",
+ r:`<div class="tbl"><table><tr><td class="en">What</td><td>ماذا / ما</td></tr><tr><td class="en">Where</td><td>أين</td></tr><tr><td class="en">When</td><td>متى</td></tr><tr><td class="en">Who</td><td>مَن</td></tr><tr><td class="en">Why</td><td>لماذا</td></tr><tr><td class="en">How much</td><td>كم (مبلغ)</td></tr><tr><td class="en">How many</td><td>كم (عدد)</td></tr></table></div>`,
+ s:[["What is the total?","كم الإجمالي؟"],["Where is the receipt?","أين الإيصال؟"],["When is the deadline?","متى الموعد النهائي؟"],["How much is the invoice?","كم مبلغ الفاتورة؟"],["How many cars do we have?","كم سيارة عندنا؟"],["Why is the balance different?","لماذا الرصيد مختلف؟"]],
+ v:[["total","إجمالي"],["deadline","موعد نهائي"],["different","مختلف"],["amount","مبلغ"],["due date","تاريخ الاستحقاق"]],
+ wr:"اكتب 5 أسئلة لعميل جديد، كل سؤال بأداة مختلفة.",
+ q:[["___ is the meeting? (متى)",["Where","When","Who"],1,""],["___ cars? (عدد)",["How much","How many"],1,""],["___ is the file? (أين)",["Where","What"],0,""]]},
+{w:"الأسبوع 4",t:"أول إيميل عمل + مراجعة A1",
+ r:`<p>هيكل الإيميل البسيط: تحية ← الطلب ← شكر ← توقيع.</p><div class="tip"><span class="en">Dear Mr. Ali,<br>Please send me the bank statement for September.<br>Thank you.<br>Best regards,<br>Abdul-Qadir</span></div>`,
+ s:[["Dear Mr. Ali,","عزيزي السيد علي،"],["Please send me the bank statement for September.","أرجو إرسال كشف البنك لشهر سبتمبر."],["The invoice is attached.","الفاتورة مرفقة."],["Thank you. Best regards.","شكرًا. مع التحية."]],
+ v:[["dear","عزيزي"],["attached","مرفق"],["regards","تحيات"],["urgent","عاجل"],["reply","رد"]],
+ wr:"اكتب إيميلًا قصيرًا لمورّد تطلب فيه فاتورة شهر أكتوبر. اتبع الهيكل: تحية، طلب، شكر، توقيع.",
+ q:[["مراجعة: I ___ a manager.",["is","am","are"],1,""],["مراجعة: She ___ in Riyadh.",["work","works"],1,""],["مراجعة: We ___ the file yesterday.",["send","sent"],1,""],["مراجعة: ___ invoice",["a","an"],1,""],["مراجعة: There ___ three branches.",["is","are"],1,""],["الفاتورة مرفقة:",["The invoice is attached.","The invoice attach."],0,""]]}
+];
+
+const TOPICS=[
+["التحية والعبارات","hello=مرحبًا|hi=أهلًا|goodbye=مع السلامة|bye=باي|please=من فضلك|thank you=شكرًا|thanks=شكرًا|sorry=آسف|excuse me=لو سمحت|yes=نعم|no=لا|okay=حسنًا|welcome=أهلًا وسهلًا|good morning=صباح الخير|good night=تصبح على خير|see you=أراك لاحقًا|nice=لطيف|fine=بخير|great=رائع|of course=بالتأكيد"],
+["المعلومات الشخصية","name=اسم|first name=الاسم الأول|surname=اسم العائلة|age=العمر|address=عنوان|phone number=رقم الجوال|email=بريد إلكتروني|country=دولة|city=مدينة|nationality=جنسية|Saudi=سعودي|married=متزوج|single=أعزب|born=مولود|live=يسكن|from=من|job=وظيفة|birthday=يوم الميلاد|ID card=بطاقة الهوية|signature=توقيع"],
+["العائلة والناس","family=عائلة|father=أب|mother=أم|parents=والدان|brother=أخ|sister=أخت|son=ابن|daughter=ابنة|children=أطفال|child=طفل|husband=زوج|wife=زوجة|grandfather=جد|grandmother=جدة|uncle=عم / خال|aunt=عمة / خالة|cousin=ابن العم|baby=رضيع|friend=صديق|people=ناس"],
+["الأرقام","one=1|two=2|three=3|four=4|five=5|six=6|seven=7|eight=8|nine=9|ten=10|eleven=11|twelve=12|thirteen=13|fourteen=14|fifteen=15|sixteen=16|seventeen=17|eighteen=18|nineteen=19|twenty=20|thirty=30|forty=40|fifty=50|sixty=60|seventy=70|eighty=80|ninety=90|hundred=مئة|thousand=ألف|million=مليون|first=الأول|second=الثاني|third=الثالث|half=نصف|percent=بالمئة"],
+["الوقت","time=وقت|hour=ساعة|minute=دقيقة|day=يوم|week=أسبوع|month=شهر|year=سنة|today=اليوم|tomorrow=غدًا|yesterday=أمس|morning=صباح|afternoon=بعد الظهر|evening=مساء|night=ليل|now=الآن|later=لاحقًا|early=مبكر|late=متأخر|always=دائمًا|usually=عادةً|sometimes=أحيانًا|never=أبدًا|weekend=نهاية الأسبوع"],
+["الأيام والشهور","Sunday=الأحد|Monday=الاثنين|Tuesday=الثلاثاء|Wednesday=الأربعاء|Thursday=الخميس|Friday=الجمعة|Saturday=السبت|January=يناير|February=فبراير|March=مارس|April=أبريل|May=مايو|June=يونيو|July=يوليو|August=أغسطس|September=سبتمبر|October=أكتوبر|November=نوفمبر|December=ديسمبر|summer=صيف|winter=شتاء"],
+["الألوان والأشكال","red=أحمر|blue=أزرق|green=أخضر|yellow=أصفر|black=أسود|white=أبيض|brown=بني|grey=رمادي|orange=برتقالي|pink=وردي|purple=بنفسجي|gold=ذهبي|color=لون|big=كبير|small=صغير|long=طويل|short=قصير|round=دائري|square=مربع"],
+["الطعام والشراب","food=طعام|water=ماء|coffee=قهوة|tea=شاي|milk=حليب|juice=عصير|bread=خبز|rice=أرز|chicken=دجاج|meat=لحم|fish=سمك|egg=بيضة|fruit=فاكهة|apple=تفاحة|dates=تمر|vegetables=خضار|sugar=سكر|salt=ملح|breakfast=فطور|lunch=غداء|dinner=عشاء|restaurant=مطعم|menu=قائمة الطعام|hungry=جائع|thirsty=عطشان"],
+["البيت","house=بيت|home=المنزل|apartment=شقة|room=غرفة|bedroom=غرفة نوم|kitchen=مطبخ|bathroom=حمام|door=باب|window=نافذة|table=طاولة|chair=كرسي|bed=سرير|sofa=كنبة|lamp=مصباح|key=مفتاح|wall=جدار|garden=حديقة|stairs=درج|TV=تلفاز|fridge=ثلاجة"],
+["المدينة والأماكن","street=شارع|road=طريق|bank=بنك|hospital=مستشفى|mosque=مسجد|school=مدرسة|university=جامعة|market=سوق|shop=محل|mall=مجمع تجاري|pharmacy=صيدلية|hotel=فندق|airport=مطار|station=محطة|park=حديقة عامة|office=مكتب|building=مبنى|left=يسار|right=يمين|straight=إلى الأمام|near=قريب|far=بعيد|map=خريطة|center=مركز"],
+["المواصلات والسفر","car=سيارة|bus=حافلة|taxi=تاكسي|train=قطار|plane=طائرة|ticket=تذكرة|drive=يقود|driver=سائق|ride=يركب|parking=موقف سيارات|traffic=زحمة السير|fuel=وقود|license=رخصة|rental=تأجير|trip=رحلة|flight=رحلة طيران|arrive=يصل|leave=يغادر|fast=سريع|slow=بطيء"],
+["المهن والعمل","work=عمل|manager=مدير|accountant=محاسب|employee=موظف|engineer=مهندس|doctor=طبيب|nurse=ممرض|teacher=معلم|student=طالب|lawyer=محامٍ|salesman=مندوب مبيعات|cashier=أمين صندوق|secretary=سكرتير|boss=المدير المباشر|owner=مالك|partner=شريك|company=شركة|team=فريق|salary=راتب|career=مسار مهني"],
+["المكتب","desk=طاولة المكتب|computer=حاسوب|laptop=حاسوب محمول|printer=طابعة|paper=ورق|pen=قلم|file=ملف|folder=مجلد|meeting=اجتماع|message=رسالة|phone=هاتف|call=مكالمة|report=تقرير|document=مستند|stamp=ختم|copy=نسخة|deadline=موعد نهائي|task=مهمة|schedule=جدول|break=استراحة|password=كلمة المرور|system=نظام"],
+["المال والمحاسبة","money=مال|cash=نقد|card=بطاقة|price=سعر|cost=تكلفة|pay=يدفع|buy=يشتري|sell=يبيع|invoice=فاتورة|receipt=إيصال|account=حساب|balance=رصيد|bank transfer=تحويل بنكي|tax=ضريبة|VAT=ضريبة القيمة المضافة|total=إجمالي|amount=مبلغ|discount=خصم|profit=ربح|loss=خسارة|expense=مصروف|revenue=إيراد|budget=ميزانية|debt=دَين|loan=قرض|payment=دفعة|customer=عميل|supplier=مورّد|cheap=رخيص|expensive=غالٍ"],
+["الجسم والصحة","head=رأس|eye=عين|ear=أذن|nose=أنف|mouth=فم|hand=يد|arm=ذراع|leg=ساق|foot=قدم|back=ظهر|heart=قلب|sick=مريض|tired=متعب|pain=ألم|headache=صداع|medicine=دواء|healthy=صحي|clinic=عيادة|appointment=موعد"],
+["الملابس","clothes=ملابس|shirt=قميص|trousers=بنطلون|shoes=حذاء|jacket=جاكيت|dress=فستان|hat=قبعة|bag=حقيبة|watch=ساعة يد|glasses=نظارة|thobe=ثوب|size=مقاس|wear=يلبس|new=جديد|old=قديم"],
+["الطقس","weather=طقس|hot=حار|cold=بارد|warm=دافئ|sunny=مشمس|rain=مطر|wind=رياح|cloudy=غائم|dust=غبار|temperature=درجة الحرارة|degree=درجة|sky=سماء|sun=شمس"],
+["أفعال شائعة","be=يكون|have=يملك|do=يفعل|go=يذهب|come=يأتي|get=يحصل على|make=يصنع|take=يأخذ|give=يعطي|see=يرى|look=ينظر|listen=يستمع|hear=يسمع|speak=يتحدث|say=يقول|tell=يخبر|talk=يتكلم|ask=يسأل|answer=يجيب|read=يقرأ|write=يكتب|know=يعرف|think=يفكر|want=يريد|need=يحتاج|like=يحب|love=يحب كثيرًا|eat=يأكل|drink=يشرب|sleep=ينام|open=يفتح|close=يغلق|start=يبدأ|finish=ينهي|help=يساعد|use=يستخدم|send=يرسل|check=يراجع|wait=ينتظر|learn=يتعلم|study=يدرس|understand=يفهم|remember=يتذكر|forget=ينسى|find=يجد|put=يضع|bring=يُحضر|sit=يجلس|stand=يقف|walk=يمشي"],
+["صفات شائعة","good=جيد|bad=سيئ|happy=سعيد|sad=حزين|easy=سهل|difficult=صعب|important=مهم|ready=جاهز|busy=مشغول|free=متفرغ / مجاني|correct=صحيح|wrong=خطأ|same=نفس|different=مختلف|full=ممتلئ|empty=فارغ|clean=نظيف|dirty=متسخ|beautiful=جميل|young=صغير السن|strong=قوي|true=صحيح (حقيقي)|high=مرتفع|low=منخفض|many=كثير (عدد)|much=كثير (كمية)|little=قليل|all=كل|every=كل (واحد)|other=آخر"],
+["كلمات الربط والسؤال","and=و|or=أو|but=لكن|because=لأن|so=لذلك|with=مع|without=بدون|for=لِـ / من أجل|about=عن|in=في|on=على|at=عند|to=إلى|of=من (إضافة)|before=قبل|after=بعد|here=هنا|there=هناك|this=هذا|that=ذلك|very=جدًا|also=أيضًا|only=فقط|again=مرة أخرى|what=ماذا|where=أين|when=متى|who=مَن|why=لماذا|how=كيف"]
+].map(([t,s])=>[t,s.split('|').map(p=>p.split('='))]);
+const ALLW=TOPICS.reduce((n,t)=>n+t[1].length,0);
+
+const DIA=[
+{t:"أول يوم في المكتب",l:[["A","Good morning. I'm Sara. I'm the new accountant.","صباح الخير. أنا سارة، المحاسبة الجديدة."],["B","Good morning, Sara. Nice to meet you. I'm Abdul-Qadir, the financial manager.","صباح الخير يا سارة. تشرفت بمعرفتك. أنا عبدالقادر، المدير المالي."],["A","Nice to meet you too. Where is my desk?","وأنا كذلك. أين مكتبي؟"],["B","Your desk is next to the window.","مكتبك بجانب النافذة."],["A","Thank you very much.","شكرًا جزيلًا."],["B","You're welcome. The team meeting is at ten o'clock.","العفو. اجتماع الفريق الساعة العاشرة."]],
+ q:[["What is Sara's job?",["manager","accountant","driver"],1],["When is the meeting?",["9:00","10:00","12:00"],1]]},
+{t:"في البنك",l:[["A","Hello. Can I help you?","مرحبًا. هل أستطيع مساعدتك؟"],["B","Yes, please. I want a bank statement for September.","نعم من فضلك. أريد كشف حساب لشهر سبتمبر."],["A","Can I see your ID card?","ممكن أرى بطاقة الهوية؟"],["B","Here you are.","تفضل."],["A","Thank you. It's ready in five minutes.","شكرًا. يكون جاهزًا خلال خمس دقائق."],["B","Great, thank you.","ممتاز، شكرًا."]],
+ q:[["What does he want?",["a loan","a bank statement","a new card"],1],["When is it ready?",["in five minutes","tomorrow"],0]]},
+{t:"مكالمة مع مورّد",l:[["A","Hello, this is Abdul-Qadir from Kanaz Company.","مرحبًا، معك عبدالقادر من شركة كناز."],["B","Hello. How can I help you?","مرحبًا. كيف أساعدك؟"],["A","I have a question about invoice number two hundred and five.","عندي سؤال عن الفاتورة رقم 205."],["B","Yes. What is the problem?","نعم. ما المشكلة؟"],["A","The total is wrong. It is one thousand five hundred riyals, not one thousand eight hundred.","الإجمالي خطأ. هو 1,500 ريال وليس 1,800."],["B","Sorry. I can send a new invoice today.","آسف. أستطيع إرسال فاتورة جديدة اليوم."]],
+ q:[["What is the correct total?",["1,800","1,500"],1],["What will the supplier do?",["send a new invoice","call the bank"],0]]},
+{t:"في المقهى",l:[["A","Good afternoon. What would you like?","مساء الخير. ماذا تحب أن تطلب؟"],["B","A coffee, please.","قهوة من فضلك."],["A","Small or big?","صغيرة أم كبيرة؟"],["B","Small, please. How much is it?","صغيرة من فضلك. كم سعرها؟"],["A","It's twelve riyals.","اثنا عشر ريالًا."],["B","Can I pay by card?","ممكن أدفع بالبطاقة؟"],["A","Yes, of course.","نعم بالتأكيد."]],
+ q:[["What does B order?",["tea","coffee","juice"],1],["How much is it?",["12 riyals","20 riyals","2 riyals"],0]]},
+{t:"السؤال عن الطريق",l:[["A","Excuse me. Where is the bank?","لو سمحت. أين البنك؟"],["B","Go straight, then turn left.","امشِ مباشرة، ثم انعطف يسارًا."],["A","Is it far?","هل هو بعيد؟"],["B","No, it's near. It's next to the pharmacy.","لا، قريب. بجانب الصيدلية."],["A","Thank you.","شكرًا."],["B","No problem.","لا مشكلة."]],
+ q:[["Where is the bank?",["next to the pharmacy","next to the mosque"],0],["Is it far?",["yes","no"],1]]},
+{t:"مع عميل تأجير",l:[["A","Good evening. I want to rent a car.","مساء الخير. أريد استئجار سيارة."],["B","For how many days?","لكم يوم؟"],["A","For three days.","لثلاثة أيام."],["B","OK. The price is two hundred riyals a day.","حسنًا. السعر مئتا ريال في اليوم."],["A","Does the price include VAT?","هل السعر يشمل ضريبة القيمة المضافة؟"],["B","No. The VAT is fifteen percent.","لا. الضريبة 15 بالمئة."],["A","OK. Here is my license.","حسنًا. هذه رخصتي."]],
+ q:[["How many days?",["2","3","5"],1],["Is VAT included in the price?",["yes","no"],1]]}
+];
+
+const RD=[
+{t:"وظيفتي",p:"My name is Omar. I am an accountant at a car rental company in Jeddah. The company has three branches. I work from Sunday to Thursday. I start work at eight o'clock in the morning. Every day, I check the bank accounts and the invoices. I like my job, but it is very busy.",
+ tr:[["My name is Omar.","اسمي عمر."],["I am an accountant at a car rental company in Jeddah.","أنا محاسب في شركة تأجير سيارات في جدة."],["The company has three branches.","الشركة لديها ثلاثة فروع."],["I work from Sunday to Thursday.","أعمل من الأحد إلى الخميس."],["I start work at eight o'clock in the morning.","أبدأ العمل الساعة الثامنة صباحًا."],["Every day, I check the bank accounts and the invoices.","كل يوم أراجع الحسابات البنكية والفواتير."],["I like my job, but it is very busy.","أحب عملي، لكنه مزدحم جدًا."]],
+ q:[["How many branches does the company have?",["two","three","four"],1],["When does Omar start work?",["at seven","at eight","at nine"],1],["Does Omar work on Friday?",["Yes, he does.","No, he doesn't."],1]]},
+{t:"إيميل من مورّدة",p:"Dear Ahmed,\nThank you for your email. The invoice for October is attached. The total is four thousand six hundred riyals, and it includes VAT. Please pay before 30 October.\nBest regards,\nSara",
+ tr:[["Dear Ahmed,","عزيزي أحمد،"],["Thank you for your email.","شكرًا على إيميلك."],["The invoice for October is attached.","فاتورة شهر أكتوبر مرفقة."],["The total is four thousand six hundred riyals, and it includes VAT.","الإجمالي أربعة آلاف وستمئة ريال، وهو يشمل ضريبة القيمة المضافة."],["Please pay before 30 October.","يرجى الدفع قبل 30 أكتوبر."],["Best regards,","مع أطيب التحيات،"],["Sara","سارة"]],
+ q:[["Which month is the invoice for?",["September","October"],1],["Does the total include VAT?",["yes","no"],0],["When must Ahmed pay?",["before 30 October","after 1 November"],0]]},
+{t:"عائلة خالد",p:"Khalid lives in Riyadh with his family. His wife is a teacher. They have two children, a son and a daughter. His son is ten years old and his daughter is seven. On Friday, they visit Khalid's parents. His mother makes a big lunch.",
+ tr:[["Khalid lives in Riyadh with his family.","خالد يسكن في الرياض مع عائلته."],["His wife is a teacher.","زوجته معلمة."],["They have two children, a son and a daughter.","لديهم طفلان، ولد وبنت."],["His son is ten years old and his daughter is seven.","ابنه عمره عشر سنوات وابنته سبع."],["On Friday, they visit Khalid's parents.","يوم الجمعة يزورون والدي خالد."],["His mother makes a big lunch.","أمه تُعِدّ غداءً كبيرًا."]],
+ q:[["What is Khalid's wife's job?",["doctor","teacher"],1],["How many children do they have?",["two","three"],0],["What do they do on Friday?",["visit his parents","go to work"],0]]},
+{t:"فرع التأجير",p:"The branch is open from 8 a.m. to 10 p.m. There are forty cars in the branch. Most cars are white. A small car costs 150 riyals a day, and a big car costs 300 riyals a day. Customers can pay by cash or card. On weekends, the branch is very busy.",
+ tr:[["The branch is open from 8 a.m. to 10 p.m.","الفرع مفتوح من 8 صباحًا إلى 10 مساءً."],["There are forty cars in the branch.","يوجد أربعون سيارة في الفرع."],["Most cars are white.","أغلب السيارات بيضاء."],["A small car costs 150 riyals a day, and a big car costs 300 riyals a day.","السيارة الصغيرة بـ150 ريالًا في اليوم، والكبيرة بـ300 ريال في اليوم."],["Customers can pay by cash or card.","يستطيع العملاء الدفع نقدًا أو بالبطاقة."],["On weekends, the branch is very busy.","في نهاية الأسبوع يكون الفرع مزدحمًا جدًا."]],
+ q:[["How many cars are in the branch?",["fourteen","forty"],1],["How much is a small car?",["150 riyals a day","300 riyals a day"],0],["When is the branch very busy?",["on weekdays","on weekends"],1]]}
+];
+
+const CAN=[
+["الاستماع","أفهم كلمات وجملًا مألوفة عن نفسي وعملي إذا كان الكلام بطيئًا وواضحًا."],
+["القراءة","أفهم أسماء وكلمات وجملًا بسيطة في إيميل قصير أو إعلان."],
+["المحادثة","أسأل وأجيب عن أمور يومية بسيطة إذا تكلّم الطرف الآخر ببطء."],
+["التحدث","أصف بجمل بسيطة أين أعمل وماذا أفعل."],
+["الكتابة","أكتب رسالة قصيرة وأملأ نموذجًا ببياناتي."]];
+
+const LV=[["A1","مبتدئ","جمل بسيطة جدًا، تعريف بالنفس","الشهر 1"],["A2","أساسي","محادثات يومية، إيميل قصير","الشهران 2–3"],["B1","متوسط","تفهم الفكرة العامة، تتكلم بأخطاء","الشهور 4–7"],["B2","فوق المتوسط","تقرأ مواد CMA، اجتماعات عمل بثقة","الشهور 8–12"],["C1","متقدم","طلاقة مهنية، تقارير معقدة","بعد السنة الأولى"],["C2","إتقان","قريب من المتحدث الأصلي","مدى طويل"]];
+
+const QUOTES=[
+["Small steps every day.","خطوات صغيرة كل يوم تصنع فرقًا كبيرًا."],
+["Mistakes mean you are learning.","الخطأ دليل أنك تتعلّم، لا أنك فشلت."],
+["One lesson today is better than ten tomorrow.","درس اليوم أفضل من عشرة دروس مؤجلة."],
+["You are closer than yesterday.","أنت اليوم أقرب من أمس."],
+["Every word is a new key.","كل كلمة جديدة مفتاح لباب جديد."],
+["Speak, even if it is not perfect.","تكلّم حتى لو لم يكن كلامك مثاليًا."],
+["Your future self will thank you.","نفسك بعد سنة ستشكرك على ساعة اليوم."],
+["Consistency beats talent.","الاستمرار يهزم الموهبة."],
+["Read it, hear it, say it, write it.","اقرأها، اسمعها، قلها، اكتبها… وستبقى معك."],
+["The CMA door opens with English.","باب CMA يُفتح بالإنجليزية، وأنت تصنع المفتاح الآن."],
+["Progress, not perfection.","المهم التقدّم، لا الكمال."],
+["You started. That is the hardest part.","بدأت، وهذا أصعب جزء في الطريق."],
+["One hour after Fajr, every day.","ساعة بعد الفجر كل يوم، والنتيجة تأتي."],
+["Learn like a manager: plan, do, review.","تعلّم بعقلية مدير: خطّط، نفّذ، راجع."],
+["Today A1, tomorrow B2.","اليوم A1، وغدًا B2 بإذن الله."]];
+const pickQ=()=>QUOTES[Math.floor(Math.random()*QUOTES.length)];
+const quoteHTML=q=>`<button type="button" class="tip qt" data-q="${q[0].replace(/"/g,'&quot;')}" style="display:flex;flex-direction:column;gap:2px;border:0;width:100%;text-align:start"><span class="muted" style="font-size:.8rem">🔊 اضغط لتسمعها</span><b class="en" style="font-size:1.05rem;text-align:left">“${q[0]}”</b><span>${q[1]}</span></button>`;
+/* targets to complete A1 */
+const GOAL={les:L.length,voc:Math.round(ALLW*.8),lis:DIA.length,rd:RD.length,wr:15,sp:40};
+
+/* ===================== STATE ===================== */
+const S={trOpen:{},rep:1,rate:.75,view:'dash',cur:0,topic:0,done:{},hideAr:false,lv:0,st:{a:0,r:0},days:[],known:{},lis:{},rd:{},wr:{},sp:{},drafts:{}};
+try{const x=JSON.parse(localStorage.getItem('a1')||'{}');for(const k in x)if(k in S)S[k]=x[k]}catch(e){}
+const save=()=>{try{const o={...S};localStorage.setItem('a1',JSON.stringify(o))}catch(e){}};
+const today=()=>{const t=new Date().toLocaleDateString('en-CA');if(!S.days.includes(t))S.days.push(t)};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let samp=null;
+try{if(window.claude&&claude.use)claude.use('sample').then(s=>{samp=s}).catch(()=>{})}catch(e){}
+
+/* ===================== SPEECH ===================== */
+let voices=[];
+function loadVoices(){try{voices=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang))}catch(e){}}
+if('speechSynthesis' in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}
+function speak(t,el,done,who,onb){
+  if(!('speechSynthesis' in window)){toast('متصفحك لا يدعم القراءة الصوتية. افتح الصفحة في Chrome أو Safari.');return}
+  const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=S.rate;
+  const us=voices.filter(v=>/en-US/i.test(v.lang));const pool=us.length?us:voices;
+  if(pool.length)u.voice=who==='B'&&pool.length>1?pool[1]:pool[0];
+  if(who==='B'&&pool.length<2)u.pitch=.75;
+  if(onb)u.onboundary=e=>{if(!e.name||e.name==='word')onb(e.charIndex)};
+  u.onstart=()=>el&&el.classList.add('speaking');
+  u.onend=u.onerror=()=>{el&&el.classList.remove('speaking');done&&done()};
+  speechSynthesis.speak(u);
+}
+let RR=0;
+function hush(){RR++;try{speechSynthesis.cancel()}catch(e){}document.querySelectorAll('.speaking').forEach(e=>e.classList.remove('speaking'))}
+function toast(m){const d=document.createElement('div');d.className='tip';d.textContent=m;$('main').prepend(d);setTimeout(()=>d.remove(),6000)}
+
+/* ===================== METRICS ===================== */
+function metrics(){
+  const c=o=>Object.keys(o).length;
+  const wr=Object.values(S.wr).filter(s=>s>=6).length;
+  return {les:c(S.done),voc:c(S.known),lis:c(S.lis),rd:c(S.rd),wr,sp:c(S.sp)};
+}
+function a1Done(m){return Object.keys(GOAL).every(k=>m[k]>=GOAL[k])}
+function header(){
+  const m=metrics();const parts=Object.keys(GOAL).map(k=>Math.min(1,m[k]/GOAL[k]));
+  const p=Math.round(parts.reduce((a,b)=>a+b,0)/parts.length*100);
+  $('fill').style.width=p+'%';$('ptxt').textContent='إنجاز A1: '+p+'%';
+  if(a1Done(m)&&S.lv<1){S.lv=1;save()}
+}
+
+/* ===================== SHELL ===================== */
+const VIEWS=[['dash','🧭 لوحة التحكم'],['les','📘 الدروس'],['voc','🔤 المفردات'],['lis','🎧 الاستماع'],['rd','📖 القراءة']];
+function render(){
+  hush();header();
+  $('views').innerHTML='';
+  VIEWS.forEach(([k,t])=>{const b=document.createElement('button');b.type='button';b.className='view'+(S.view===k?' on':'');b.textContent=t;
+    b.onclick=()=>{S.view=k;save();render();window.scrollTo({top:0})};$('views').appendChild(b)});
+  $('lesbar').hidden=S.view!=='les';
+  ({dash:drawDash,les:drawLesson,voc:drawVocab,lis:drawListen,rd:drawRead})[S.view]();
+}
+function chips(){
+  $('chips').innerHTML='';
+  L.forEach((l,i)=>{const b=document.createElement('button');b.type='button';
+    b.className='chip'+(i===S.cur?' on':'')+(S.done[i]?' done':'');b.textContent=i+'. '+l.t;
+    b.onclick=()=>{S.cur=i;save();render();window.scrollTo({top:0})};$('chips').appendChild(b)});
+  $('chips').children[S.cur]?.scrollIntoView({inline:'center',block:'nearest'});
+}
+function quizHTML(qs){
+  return qs.map((q,k)=>`<div class="q" data-k="${k}"><p class="${/^[A-Za-z_]/.test(q[0])?'en':''}">${k+1}. ${esc(q[0])}</p><div class="opts">`+q[1].map((o,j)=>`<button class="opt" type="button" data-j="${j}">${esc(o)}</button>`).join('')+`</div><div class="why" hidden></div></div>`).join('')+`<div class="score" hidden></div>`;
+}
+function wireQuiz(box,qs,onPass){
+  let ans=0,right=0;
+  box.querySelectorAll('.q').forEach(qd=>{const q=qs[qd.dataset.k];
+    qd.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(qd.dataset.a)return;qd.dataset.a=1;ans++;S.st.a++;
+      const j=+b.dataset.j;
+      if(j===q[2]){b.classList.add('ok');right++;S.st.r++}else{b.classList.add('bad');qd.querySelectorAll('.opt')[q[2]].classList.add('ok')}
+      if(q[3]){const w=qd.querySelector('.why');w.textContent=q[3];w.hidden=false}
+      if(q[0].includes('___'))speak(q[0].replace(/_+/,q[1][q[2]]).replace(/\s*\(.*\)$/,''));
+      if(ans===qs.length){const sc=box.querySelector('.score');sc.hidden=false;const pass=right>=Math.ceil(qs.length*.7);
+        sc.textContent=`النتيجة: ${right} من ${qs.length}. `+(pass?'ممتاز، أنجزت هذا الجزء ✓ ':'أعد المحاولة بعد مراجعة القاعدة. ')+pickQ()[1];
+        if(pass){today();onPass()}}
+      save();header();
+    })});
+}
+
+/* ===================== DASHBOARD ===================== */
+function drawDash(){
+  const m=metrics(),acc=S.st.a?Math.round(S.st.r/S.st.a*100)+'%':'—';
+  const nx=L.findIndex((_,i)=>!S.done[i]);
+  let h=`<div><div class="eyebrow">لوحة التحكم</div><h2>طريقك إلى B2</h2></div>`+quoteHTML(pickQ());
+  h+=`<div class="kpis"><div class="kpi"><small>مستواك الحالي</small><b>${LV[Math.min(S.lv,5)][0]}</b></div>
+   <div class="kpi"><small>دقة التمارين</small><b>${acc}</b></div>
+   <div class="kpi"><small>كلمات حفظتها</small><b>${m.voc}</b></div>
+   <div class="kpi"><small>أيام الدراسة</small><b>${S.days.length}</b></div></div>`;
+  if(nx>=0)h+=`<button class="btn pri big" id="go" type="button">▶ أكمل: الدرس ${nx} · ${L[nx].t}</button>`;
+  const SK=[['les','القواعد (الدروس)','دروس'],['voc','المفردات','كلمة'],['lis','الاستماع','حوارات'],['rd','القراءة','نصوص'],['wr','الكتابة (درجة 6 من 10 فأكثر)','مهام'],['sp','التحدث (جمل نطقتها صح)','جملة']];
+  h+=`<section><h3>شروط إكمال A1 حسب CEFR</h3><div class="skills">`+SK.map(([k,t,u])=>{const v=Math.min(m[k],GOAL[k]),ok=m[k]>=GOAL[k];
+    return `<div class="sk ${ok?'ok':''}"><b>${t}</b><span>${m[k]} / ${GOAL[k]} ${u}</span><div class="mini ${ok?'ok':''}"><i style="width:${v/GOAL[k]*100}%"></i></div></div>`}).join('')+
+    `</div><p class="muted" style="margin:12px 0 0">يكتمل A1 تلقائيًا ويظهر عليه ✓ عندما تحقق الشروط الستة كلها.</p></section>`;
+  h+=`<section><h3>ماذا تستطيع في نهاية A1</h3><div class="skills">`+CAN.map(c=>`<div class="sk"><b>${c[0]}</b><small>${c[1]}</small></div>`).join('')+`</div></section>`;
+  h+=`<section><h3>خريطة الطريق</h3><div class="road">`+LV.map((l,i)=>{
+    const st=i<S.lv?'done':i===S.lv?'cur':'lock';let ex='';
+    if(st==='cur'){
+      if(i===0){const p=Math.round(Object.keys(GOAL).reduce((a,k)=>a+Math.min(1,m[k]/GOAL[k]),0)/6*100);
+        ex=`<div class="mini" style="max-width:300px"><i style="width:${p}%"></i></div><small class="muted">${p}% من شروط المستوى</small>`}
+      else ex=`<small class="muted">منهج ${l[0]} يُبنى بنفس الإطار: قواعد ومفردات واستماع وقراءة وكتابة ونطق. اطلب من معلّمك «صفحة ${l[0]}».</small>`}
+    const lab=st==='done'?'مكتمل':st==='cur'?'أنت هنا':'مقفل';
+    return `<div class="stop ${st}"><div class="node">${st==='done'?'✓':l[0]}</div><div class="body"><h4><span class="en">${l[0]}</span> · ${l[1]}<span class="badge b-${st}">${lab}</span>${i===3?'<span class="badge b-cur">🎯 هدف السنة</span>':''}</h4><div class="muted">${l[2]}</div><small class="muted">${l[3]}</small>${ex}</div></div>`}).join('')+`</div></section>`;
+  $('main').innerHTML=h;
+  if($('go'))$('go').onclick=()=>{S.cur=nx;S.view='les';save();render();window.scrollTo({top:0})};
+}
+
+/* ===================== LESSON ===================== */
+function drawLesson(){
+  chips();const l=L[S.cur],i=S.cur,m=$('main');
+  let h=`<div><div class="eyebrow">${l.w} · الدرس ${i}</div><h2>${l.t}</h2></div>`+quoteHTML(pickQ());
+  h+=`<section class="rule"><h3>القاعدة</h3>${l.r}</section>`;
+  if(l.alpha)h+=`<section><h3>اضغط الحرف لتسمع اسمه وكلمته</h3><button class="btn" type="button" id="playA">▶ اقرأ كل الحروف</button><div class="alpha" style="margin-top:12px">`+
+    AL.map((a,k)=>`<button class="a" type="button" data-k="${k}"><span class="L en">${a[0]} ${a[0].toLowerCase()}</span><small>${a[1]}</small><span class="en">${a[2]}</span></button>`).join('')+`</div></section>`;
+  h+=`<section><h3>اسمع وكرّر</h3><div class="say">`+l.s.map(s=>`<button class="line" type="button" data-t="${esc(s[0])}"><span class="spk">🔊</span><div><b>${esc(s[0])}</b>${S.hideAr?'':`<small>${s[1]}</small>`}</div></button>`).join('')+`</div></section>`;
+  h+=`<section><h3>كلمات الدرس</h3><div class="vocab">`+l.v.map(v=>`<button class="v" type="button" data-t="${esc(v[0])}"><b>${esc(v[0])}</b>${S.hideAr?'':`<small>${v[1]}</small>`}</button>`).join('')+`</div></section>`;
+  h+=`<section id="quiz"><h3>تمرين القواعد</h3>${quizHTML(l.q)}</section>`;
+  h+=`<section><h3>✍️ الكتابة ${S.wr[i]!=null?`<span class="badge ${S.wr[i]>=6?'b-done':'b-cur'}">آخر درجة ${S.wr[i]}/10</span>`:''}</h3>
+    <div class="task">${l.wr}</div>
+    <textarea id="wtext" placeholder="Write here in English…" spellcheck="false" autocapitalize="sentences">${esc(S.drafts[i]||'')}</textarea>
+    <div class="row"><button class="btn pri" type="button" id="wbtn">صحّح كتابتي</button><span class="muted" id="wstat"></span></div>
+    <div class="res" id="wres"></div></section>`;
+  h+=`<section><h3>🎙️ تدريب النطق</h3>
+    <ol class="steps"><li>اختر جملة واضغط 🔊 لتسمعها.</li><li>اضغط داخل المربع، ثم زر الميكروفون في كيبورد جوالك، وانطق الجملة.</li><li>اضغط «قيّم نطقي». الكلمات الخضراء فهمها الجوال منك، والحمراء تحتاج تدريبًا.</li></ol>
+    <div class="pick" id="spick" style="margin-top:10px">`+l.s.map((s,k)=>`<div class="line${k===0?' sel':''}" data-k="${k}" role="button" tabindex="0"><span class="spk" data-say="${k}">🔊</span><div><b>${esc(s[0])}</b>${S.sp[i+':'+k]?'<small style="color:var(--ok)">✓ نطقتها صح</small>':''}</div></div>`).join('')+`</div>
+    <textarea class="short" id="stext" placeholder="Tap here, then use the keyboard microphone…" spellcheck="false" style="margin-top:10px"></textarea>
+    <div class="row"><button class="btn pri" type="button" id="sbtn">قيّم نطقي</button><button class="btn" type="button" id="sclr">امسح</button></div>
+    <div class="res" id="sres"></div></section>`;
+  h+=`<div class="nav">${i>0?`<button class="btn" type="button" id="prev">→ الدرس السابق</button>`:'<span></span>'}${i<L.length-1?`<button class="btn pri" type="button" id="next">الدرس التالي ←</button>`:''}</div>`;
+  m.innerHTML=h;
+  m.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{hush();speak(b.dataset.t,b)});
+  m.querySelectorAll('.a').forEach(b=>b.onclick=()=>{hush();const a=AL[b.dataset.k];speak(a[0],b,()=>speak(a[2],b))});
+  if($('playA'))$('playA').onclick=()=>{hush();let k=0;const nx=()=>{if(k>=AL.length)return;const b=m.querySelector(`.a[data-k="${k}"]`),a=AL[k++];b.scrollIntoView({block:'nearest'});speak(a[0],b,()=>speak(a[2],b,()=>setTimeout(nx,400)))};nx()};
+  wireQuiz($('quiz'),l.q,()=>{S.done[i]=1});
+  /* writing */
+  $('wtext').oninput=e=>{S.drafts[i]=e.target.value;save()};
+  $('wbtn').onclick=()=>correct(i);
+  /* speaking */
+  let sel=0;
+  m.querySelectorAll('#spick .line').forEach(d=>{const pickIt=()=>{sel=+d.dataset.k;m.querySelectorAll('#spick .line').forEach(x=>x.classList.toggle('sel',x===d))};
+    d.onclick=e=>{pickIt();if(e.target.dataset.say!=null){hush();speak(l.s[sel][0],d)}};
+    d.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pickIt();hush();speak(l.s[sel][0],d)}}});
+  $('sclr').onclick=()=>{$('stext').value='';$('sres').innerHTML=''};
+  $('sbtn').onclick=()=>{
+    const said=$('stext').value.trim();if(!said){$('sres').innerHTML='<div class="box muted">انطق الجملة أولًا عبر ميكروفون الكيبورد.</div>';return}
+    const r=compare(l.s[sel][0],said),pct=Math.round(r.score*100);
+    let msg;
+    if(pct>=80){S.sp[i+':'+sel]=1;today();save();header();msg=`ممتاز! ${pct}%. الجوال فهم جملتك ✓`}
+    else if(pct>=50)msg=`${pct}%. قريب، أعد الكلمات الحمراء ببطء بعد سماعها.`;
+    else msg=`${pct}%. اسمع الجملة مرة ثانية بالسرعة البطيئة، ثم انطقها كلمة كلمة.`;
+    $('sres').innerHTML=`<div class="box"><div class="words">${r.html}</div></div><div class="box"><b>${msg}</b><div class="muted" style="font-size:.85rem">ما فهمه الجوال: <span class="en">${esc(said)}</span></div></div>`+
+      (r.miss.length?`<div class="row">`+r.miss.map(w=>`<button class="btn" type="button" data-w="${esc(w)}">🔊 ${esc(w)}</button>`).join('')+`</div>`:'');
+    $('sres').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{hush();speak(b.dataset.w,b)});
+  };
+  if($('prev'))$('prev').onclick=()=>{S.cur--;save();render();window.scrollTo({top:0})};
+  if($('next'))$('next').onclick=()=>{S.cur++;save();render();window.scrollTo({top:0})};
+}
+const norm=s=>s.toLowerCase().replace(/[’']/g,"'").replace(/[^a-z0-9' ]+/g,' ').split(/\s+/).filter(Boolean);
+function compare(target,said){
+  const T=target.split(/\s+/).filter(Boolean),tn=T.map(w=>norm(w).join('')),U=norm(said);
+  const n=tn.length,mm=U.length,dp=Array.from({length:n+1},()=>new Array(mm+1).fill(0));
+  for(let a=n-1;a>=0;a--)for(let b=mm-1;b>=0;b--)dp[a][b]=tn[a]&&tn[a]===U[b]?dp[a+1][b+1]+1:Math.max(dp[a+1][b],dp[a][b+1]);
+  const hit=new Array(n).fill(false);let a=0,b=0;
+  while(a<n&&b<mm){if(tn[a]&&tn[a]===U[b]){hit[a]=true;a++;b++}else if(dp[a+1][b]>=dp[a][b+1])a++;else b++}
+  const valid=tn.filter(Boolean).length||1,got=hit.filter(Boolean).length;
+  return {score:got/valid,html:T.map((w,k)=>`<span class="wd ${hit[k]||!tn[k]?'hit':'miss'}">${esc(w)}</span>`).join(' '),miss:T.filter((w,k)=>!hit[k]&&tn[k]).map(w=>w.replace(/[.,?!]/g,''))};
+}
+async function correct(i){
+  const l=L[i],text=$('wtext').value.trim(),out=$('wres'),st=$('wstat');
+  if(text.length<5){out.innerHTML='<div class="box muted">اكتب جملة واحدة على الأقل.</div>';return}
+  if(!samp){out.innerHTML='<div class="box">التصحيح الآلي غير متاح في هذا العرض. انسخ نصك وأرسله لمعلّمك في المحادثة مع كلمة «صحّح».</div>';return}
+  $('wbtn').disabled=true;st.textContent='Claude يصحح كتابتك…';out.innerHTML='';
+  const prompt=`You are a kind, precise English teacher. The student is an Arabic-speaking adult (a Saudi financial manager) at CEFR level A1.
+Lesson grammar focus: ${l.t}
+Writing task (in Arabic): ${l.wr}
+Student text:
+"""${text.slice(0,2000)}"""
+Correct grammar, spelling, capitalization and word choice. Judge against what A1 learners should do; do not ask for advanced language.
+Reply with only JSON in this shape:
+{"score": 7, "corrected": "full corrected text", "errors": [{"wrong": "she go", "right": "she goes", "why": "سبب قصير بالعربية"}], "good": "جملة قصيرة بالعربية تمدح شيئًا محددًا", "tip": "نصيحة قصيرة واحدة بالعربية للخطوة التالية", "task_done": true}
+score is an integer 0-10. task_done says whether the text answers the task. errors is [] if there are none.`;
+  try{
+    const r=await samp.json(prompt,{cache:false});
+    const sc=Math.max(0,Math.min(10,parseInt(r.score)||0));
+    S.wr[i]=Math.max(S.wr[i]||0,sc);if(sc>=6)today();save();header();
+    const errs=Array.isArray(r.errors)?r.errors:[];
+    out.innerHTML=`<div class="box"><b>الدرجة: ${sc} / 10</b>${r.task_done===false?' · <span style="color:var(--bad)">النص لا يجيب على المهمة كاملة</span>':''}</div>
+      <div class="box"><div class="muted" style="font-size:.85rem">النص المصحَّح</div><p class="passage" style="white-space:pre-wrap">${esc(r.corrected||'')}</p><div class="row"><button class="btn" type="button" id="hearC">🔊 اسمع النص الصحيح</button></div></div>`+
+      (errs.length?`<div class="box">`+errs.map(e=>`<div class="err"><div class="en"><span class="x">${esc(e.wrong||'')}</span> → <span class="y">${esc(e.right||'')}</span></div><small class="muted">${esc(e.why||'')}</small></div>`).join('')+`</div>`:`<div class="box" style="color:var(--ok)">لا توجد أخطاء ✓</div>`)+
+      (r.good?`<div class="box">👍 ${esc(r.good)}</div>`:'')+(r.tip?`<div class="tip">💡 ${esc(r.tip)}</div>`:'');
+    if($('hearC'))$('hearC').onclick=()=>{hush();speak(r.corrected||'',$('hearC'))};
+    st.textContent='';
+  }catch(e){
+    const msg={not_granted:'لم تسمح للصفحة باستخدام Claude. يمكنك إرسال نصك لمعلّمك في المحادثة.',rate_limited:'طلبات كثيرة الآن. حاول بعد قليل.',invalid_json:'لم يصل التصحيح بالشكل الصحيح. اضغط «صحّح كتابتي» مرة ثانية.',session_expired:'سجّل الدخول من جديد ثم حاول.'}[e&&e.code]||'تعذّر التصحيح الآن. حاول مرة ثانية.';
+    out.innerHTML=`<div class="box">${msg}</div>`;st.textContent='';
+    if(e&&['not_granted','sampling_disabled','not_declared','capability_disabled'].includes(e.code))samp=null;
+  }finally{$('wbtn').disabled=false}
+}
+
+/* ===================== VOCAB ===================== */
+let flash=null;
+function drawVocab(){
+  const m=$('main'),t=TOPICS[S.topic];
+  const kn=TOPICS.map(tp=>tp[1].filter(w=>S.known[w[0]]).length);
+  let h=`<div><div class="eyebrow">المفردات · ${metrics().voc} من ${ALLW} كلمة</div><h2>بنك كلمات A1</h2></div>
+   <p class="muted" style="margin:0">اضغط الكلمة لتسمعها، وتدرّب عليها في «بطاقات التدريب» لتسجيلها كلمة محفوظة. المطلوب لإكمال A1: ${GOAL.voc} كلمة.</p>`;
+  h+=`<div class="chips" style="padding-block:4px">`+TOPICS.map((tp,k)=>`<button class="chip${k===S.topic?' on':''}${kn[k]===tp[1].length?' done':''}" type="button" data-tp="${k}">${tp[0]} ${kn[k]}/${tp[1].length}</button>`).join('')+`</div>`;
+  if(flash){
+    const w=flash.list[flash.k];
+    h+=`<section><h3>بطاقات التدريب · ${t[0]}</h3>${w?`<div class="flash"><small class="muted">${flash.k+1} / ${flash.list.length}</small><button class="fw en" type="button" id="fw" style="border:0;background:none">${esc(w[0])}</button><div class="fa" id="fa"></div>
+      <div class="row"><button class="btn" type="button" id="fshow">أظهر المعنى</button><button class="btn" type="button" id="fagain">مرة أخرى</button><button class="btn pri" type="button" id="fknow">حفظتها ✓</button></div></div>`
+      :`<div class="tip">انتهت البطاقات. أحسنت!</div>`}<div class="row"><button class="btn" type="button" id="fexit">رجوع للقائمة</button></div></section>`;
+  }else{
+    h+=`<section><h3>${t[0]}</h3><div class="row" style="margin:0 0 12px"><button class="btn pri" type="button" id="fstart">🃏 بطاقات التدريب</button><button class="btn" type="button" id="fall">▶ اسمع الكل</button></div><div class="vocab">`+
+      t[1].map((w,k)=>`<button class="v${S.known[w[0]]?' known':''}" type="button" data-k="${k}">${S.known[w[0]]?'<span class="kn">✓</span>':''}<b>${esc(w[0])}</b>${S.hideAr?'':`<small>${esc(w[1])}</small>`}</button>`).join('')+`</div>
+      <p class="muted" style="font-size:.85rem;margin:10px 0 0">نقرتان سريعتان على الكلمة تعلّمها «حفظتها» أو تلغي العلامة.</p></section>`;
+  }
+  m.innerHTML=h;
+  m.querySelectorAll('[data-tp]').forEach(b=>b.onclick=()=>{S.topic=+b.dataset.tp;flash=null;save();render()});
+  if(flash){
+    const w=flash.list[flash.k];
+    if(w){speak(w[0],$('fw'));$('fw').onclick=()=>{hush();speak(w[0],$('fw'))};
+      $('fshow').onclick=()=>{$('fa').textContent=w[1]};
+      $('fagain').onclick=()=>{flash.list.push(w);flash.k++;render()};
+      $('fknow').onclick=()=>{S.known[w[0]]=1;today();save();flash.k++;render()};}
+    $('fexit').onclick=()=>{flash=null;render()};
+  }else{
+    m.querySelectorAll('.v').forEach(b=>{const w=t[1][b.dataset.k];let last=0;
+      b.onclick=()=>{const now=Date.now();if(now-last<350){if(S.known[w[0]])delete S.known[w[0]];else{S.known[w[0]]=1;today()}save();render();return}last=now;hush();speak(w[0],b)}});
+    $('fstart').onclick=()=>{const un=t[1].filter(w=>!S.known[w[0]]);flash={list:(un.length?un:t[1]).slice(),k:0};render()};
+    $('fall').onclick=()=>{hush();let k=0;const bs=m.querySelectorAll('.v');const nx=()=>{if(k>=t[1].length)return;const b=bs[k];speak(t[1][k++][0],b,()=>setTimeout(nx,350))};nx()};
+  }
+}
+
+/* ===================== LISTENING ===================== */
+let showText={};
+function drawListen(){
+  const m=$('main');
+  let h=`<div><div class="eyebrow">الاستماع · ${metrics().lis} من ${DIA.length} حوارات</div><h2>حوارات من الحياة والعمل</h2></div>
+    <p class="muted" style="margin:0">اسمع الحوار أولًا بدون نص، ثم جاوب. إذا صعب عليك، أظهر النص واسمع مرة ثانية.</p>`;
+  h+=DIA.map((d,k)=>`<section id="d${k}"><h3>${d.t} ${S.lis[k]?'<span class="badge b-done">✓</span>':''}</h3>
+    <div class="row" style="margin:0 0 10px"><button class="btn pri" type="button" data-play="${k}">▶ شغّل الحوار</button><button class="btn" type="button" data-txt="${k}">${showText[k]?'إخفاء النص':'أظهر النص'}</button></div>
+    <div class="say" ${showText[k]?'':'hidden'}>`+d.l.map(x=>`<button class="line" type="button" data-t="${esc(x[1])}" data-who="${x[0]}"><span class="who">${x[0]}</span><div><b>${esc(x[1])}</b>${S.hideAr?'':`<small>${x[2]}</small>`}</div></button>`).join('')+`</div>
+    <div class="qz" style="margin-top:12px">${quizHTML(d.q)}</div></section>`).join('');
+  m.innerHTML=h;
+  m.querySelectorAll('.line[data-t]').forEach(b=>b.onclick=()=>{hush();speak(b.dataset.t,b,null,b.dataset.who)});
+  m.querySelectorAll('[data-txt]').forEach(b=>b.onclick=()=>{const k=b.dataset.txt;showText[k]=!showText[k];render();$('d'+k).scrollIntoView({block:'start'})});
+  m.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>{hush();const k=+b.dataset.play,d=DIA[k],lines=$('d'+k).querySelectorAll('.line');let n=0;
+    const nx=()=>{if(n>=d.l.length)return;const x=d.l[n];speak(x[1],lines[n++],()=>setTimeout(nx,450),x[0])};nx()});
+  DIA.forEach((d,k)=>wireQuiz($('d'+k).querySelector('.qz'),d.q,()=>{S.lis[k]=1}));
+}
+
+/* ===================== READING ===================== */
+function wrapWords(p){let o='',last=0;p.replace(/\S+/g,(w,i)=>{o+=esc(p.slice(last,i))+`<span class="rw" data-s="${i}">${esc(w)}</span>`;last=i+w.length});return o+esc(p.slice(last))}
+function drawRead(){
+  const m=$('main');
+  let h=`<div><div class="eyebrow">القراءة · ${metrics().rd} من ${RD.length} نصوص</div><h2>نصوص قصيرة</h2></div>
+    <p class="muted" style="margin:0">اقرأ النص مرتين بدون مساعدة، ثم جاوب. زر 🔊 يقرأ لك النص لو احتجت.</p>`;
+  h+=RD.map((r,k)=>`<section id="r${k}"><h3>${r.t} ${S.rd[k]?'<span class="badge b-done">✓</span>':''}</h3>
+    <p class="passage" style="white-space:pre-line" id="pp${k}">${wrapWords(r.p)}</p>
+    <div class="row"><button class="btn" type="button" data-tr="${k}">${S.trOpen&&S.trOpen[k]?'إخفاء الترجمة':'🌐 أظهر الترجمة'}</button></div>
+    <div class="trl" id="tr${k}" ${S.trOpen&&S.trOpen[k]?'':'hidden'}>${r.tr.map((t,j)=>`<div class="trs" data-j="${j}">${t[1]}</div>`).join('')}</div>
+    <div class="row"><button class="btn pri" type="button" data-rd="${k}">🔊 اقرأ لي النص</button>
+      <label class="muted" for="rep${k}">عدد التكرار</label>
+      <input id="rep${k}" class="btn rep" data-rep="${k}" type="number" inputmode="numeric" min="1" max="100" value="${S.rep||1}" aria-label="عدد التكرار">
+      <button class="btn" type="button" data-stop="${k}" hidden>■ إيقاف</button>
+      <span class="muted" id="cnt${k}"></span></div>
+    <div class="qz" style="margin-top:12px">${quizHTML(r.q)}</div></section>`).join('');
+  m.innerHTML=h;
+  const stopAll=()=>{hush();m.querySelectorAll('[data-stop]').forEach(x=>x.hidden=true);m.querySelectorAll('[id^="cnt"]').forEach(x=>x.textContent='')};
+  const clampRep=v=>Math.max(1,Math.min(100,parseInt(v)||1));
+  m.querySelectorAll('[data-rep]').forEach(s=>s.onchange=()=>{const v=clampRep(s.value);S.rep=v;save();m.querySelectorAll('[data-rep]').forEach(o=>o.value=v)});
+  m.querySelectorAll('[data-stop]').forEach(b=>b.onclick=stopAll);
+  m.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{const k=b.dataset.tr;S.trOpen=S.trOpen||{};S.trOpen[k]=!S.trOpen[k];save();$('tr'+k).hidden=!S.trOpen[k];b.textContent=S.trOpen[k]?'إخفاء الترجمة':'🌐 أظهر الترجمة'});
+  m.querySelectorAll('[data-rd]').forEach(b=>b.onclick=()=>{
+    stopAll();const k=b.dataset.rd,me=RR,total=clampRep($('rep'+k).value),txt=RD[k].p.replace(/\n/g,' ');
+    const cnt=$('cnt'+k),st=m.querySelector(`[data-stop="${k}"]`);st.hidden=false;let i=0;
+    const nx=()=>{if(me!==RR)return;if(i>=total){cnt.textContent=`✓ انتهت ${total} مرات`;st.hidden=true;return}
+      i++;cnt.textContent=`القراءة ${i} from ${total}`.replace('from','من');const ws=[...$('pp'+k).querySelectorAll('.rw')];
+      const ts=[...$('tr'+k).querySelectorAll('.trs')],st0=RD[k].tr.map(t=>RD[k].p.indexOf(t[0]));
+      const lit=c=>{let w=null;for(const x of ws){if(+x.dataset.s<=c)w=x;else break}ws.forEach(x=>x.classList.toggle('on',x===w));w&&w.scrollIntoView({block:'nearest'});
+        let si=-1;st0.forEach((o,j)=>{if(o>=0&&o<=c)si=j});ts.forEach((x,j)=>x.classList.toggle('on',j===si))};
+      speak(txt,b,()=>{ws.forEach(x=>x.classList.remove('on'));ts.forEach(x=>x.classList.remove('on'));if(me===RR)setTimeout(nx,1200)},null,lit)};
+    nx();});
+  RD.forEach((r,k)=>wireQuiz($('r'+k).querySelector('.qz'),r.q,()=>{S.rd[k]=1}));
+}
+
+/* ===================== TOOLS ===================== */
+function setRate(r){S.rate=r;save();[['vslow',.5],['slow',.75],['normal',1]].forEach(([id,v])=>$(id).classList.toggle('on',v===r))}
+$('vslow').onclick=()=>setRate(.5);$('slow').onclick=()=>setRate(.75);$('normal').onclick=()=>setRate(1);
+function arBtn(){$('hideAr').classList.toggle('on',S.hideAr);$('hideAr').textContent=S.hideAr?'إظهار الترجمة':'إخفاء الترجمة'}
+$('hideAr').onclick=()=>{S.hideAr=!S.hideAr;arBtn();save();render()};
+$('main').addEventListener('click',e=>{const b=e.target.closest('.qt');if(b){hush();speak(b.dataset.q,b)}});
+setRate([.5,.75,1].includes(S.rate)?S.rate:.75);arBtn();render();
+</script>
+
+</body></html>
