@@ -514,10 +514,10 @@ const icoOf=c=>(ICO.find(x=>x[0].test(c||''))||[0,'🧾'])[1];
 function parseSMS(t){const r={raw:t.trim()};const num=x=>+String(x).replace(/,/g,'');
  let m=t.match(/(?:SAR|ر\.س|ريال)\s*([\d,]+(?:\.\d+)?)/i)||t.match(/([\d,]+(?:\.\d+)?)\s*(?:SAR|ر\.س|ريال)/i)||t.match(/مبلغ\s*:?\s*([\d,]+(?:\.\d+)?)/);if(m)r.a=num(m[1]);
  m=t.match(/ادخار\s*(?:SAR|ر\.س)?\s*([\d.]+)/);if(m)r.sv=num(m[1]);
- m=t.match(/(20\d\d)-(\d\d)-(\d\d)/);if(m)r.d=`${m[1]}-${m[2]}-${m[3]}`;else{m=t.match(/\b(\d\d)[-\/](\d\d)[-\/](\d\d)\b/);if(m){const a=+m[1],c=+m[3];r.d=+m[3]>31?`20${m[1]}-${m[2]}-${m[3]}`:+m[1]>31?`20${m[1]}-${m[2]}-${m[3]}`:`20${m[3]}-${m[2]}-${m[1]}`}}
+ m=t.match(/(20\d\d)-(\d\d)-(\d\d)/);if(m)r.d=`${m[1]}-${m[2]}-${m[3]}`;else{m=t.match(/\b(\d\d)[-\/](\d\d)[-\/](\d\d)\b/);if(m){const a=+m[1],c=+m[3];{const T=td(),c=[`20${m[1]}-${m[2]}-${m[3]}`,`20${m[3]}-${m[2]}-${m[1]}`].filter(x=>!isNaN(new Date(x))&&+x.slice(8)<=31&&+x.slice(5,7)<=12);const ok=c.filter(x=>x<=T);r.d=(ok.length?ok:c).sort((x,y)=>Math.abs(new Date(T)-new Date(x))-Math.abs(new Date(T)-new Date(y)))[0]||T}}}
  m=t.match(/(?:من|لدى|عند|at)\s+([^\s]+(?:\s[^\s0-9*]+)?)\s+(?:في|بتاريخ|on)(?=\s|$)/);if(m)r.m=m[1].replace(/^www\./,'').replace(/\.(com|sa|net)(\.sa)?$/,'');
  if(!r.m){const h=t.split(/\s(?:مبلغ|SAR|ر\.س|بطاقة)(?=\s|$)/)[0].replace(/^(شراء|عملية شراء|دفع)\s*/,'').trim();if(h&&h.length<60)r.m=h}
- if(r.d&&r.d>td())r.d=td();
+ if(r.d&&(r.d>td()||r.d<FS()&&(new Date(td())-new Date(r.d))>200*864e5))r.d=td();
  r.inc=/إيداع|حوالة واردة|راتب|استلام|وارد/.test(t)&&!/شراء|خصم|سحب/.test(t);
  const key=(r.m||'').toLowerCase();r.cat=(S.mrules||{})[key]||(/tawuniya|تأمين|bupa|ميدغلف/i.test(t)?'تأمين':/stc|موبايلي|mobily|zain|زين|انترنت|إنترنت/i.test(t)?(S.budgets.find(b=>/انترنت|إنترنت|جوال|اتصال/.test(b.n))||{}).n:/تأشير|جواز|مرور|أبشر|حكوم|المقيمين|absher/i.test(t)?(S.budgets.find(b=>/حكوم/.test(b.n))||{}).n:/مطعم|كافيه|بقالة|سوبرماركت|هايبر|تموينات|restaurant|cafe|market/i.test(t)?'أكل وشرب':/بنزين|محطة|petrol|aldrees|ساسكو|نفط/i.test(t)?(S.budgets.find(b=>/محروقات|بنزين/.test(b.n))||{}).n:'')||'';return r}
 let smsP=null;
@@ -1091,7 +1091,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v90';
+const APPV='v91';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();try{const loc=JSON.parse(localStorage.getItem('a1')||'{}'),cl=S.eng?JSON.parse(S.eng):null;if(cl&&(cl.days||[]).length>(loc.days||[]).length)localStorage.setItem('a1',S.eng);else if(localStorage.getItem('a1')&&localStorage.getItem('a1')!==S.eng)save()}catch(_){}render()}}});
 padTop();boot();
