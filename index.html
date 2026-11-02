@@ -467,9 +467,11 @@ function repData(){const w=(repF&&repT&&repF<=repT)?rangeDays(repF,repT):daysBac
  const hab=S.habits.length?Math.round(w.reduce((a,d)=>a+S.habits.filter(h=>hDone(h,d)).length,0)/(N*S.habits.length)*100):0;
  const tb=S.budgets.reduce((a,b)=>a+b.b,0),pd=S.budgets.reduce((a,b)=>a+Math.min(b.b,paidAmt(b.n)),0);
  const P=(v,t)=>t?Math.min(100,Math.round(v/t*100)):0;
+ const ex=engS(),eDays=(ex.days||[]).filter(inW).length,eLes=Object.keys(ex.done||{}).length,eW=Object.keys(ex.known||{}).length,wMin=Math.round(w.reduce((a,d)=>a+((S.work||{})[d]||0),0)/60000);
  const sec=[['💰 المالي',[['تسجيل المصاريف',logged+' يوم',N+' يوم',P(logged,N)],['الأكل',fmt(food),'≤ '+fmt(64*N),food<=64*N?100:Math.round(64*N/food*100)],['سداد مستحقات الشهر',fmt(pd),fmt(tb),P(pd,tb)],['إجمالي المصروف',fmt(all),'—',null],['الدخل الإضافي',fmt(inc),'—',null],['باقي الديون',fmt(debtTotal()),'0',null]]],
   ['🕌 العبادات',[['الصلوات',pr,String(5*N),P(pr,5*N)],['الاستغفار',fmt(ist),fmt(S.istGoal*N),P(ist,S.istGoal*N)],['ورد القرآن',q+' صفحة',String(N),P(q,N)]]],
-  ['🎯 العمل والعادات',[['التواصل مع عملاء',ct,String(Math.max(1,Math.round(5*N/7))),P(ct,Math.max(1,Math.round(5*N/7)))],['أيام العمل على المشروع',proj,String(Math.max(1,Math.round(5*N/7))),P(proj,Math.max(1,Math.round(5*N/7)))],['الالتزام بالعادات',hab+'%','100%',hab]]]];
+  ['🎯 العمل والعادات',[['التواصل مع عملاء',ct,String(Math.max(1,Math.round(5*N/7))),P(ct,Math.max(1,Math.round(5*N/7)))],['أيام العمل على المشروع',proj,String(Math.max(1,Math.round(5*N/7))),P(proj,Math.max(1,Math.round(5*N/7)))],['الالتزام بالعادات',hab+'%','100%',hab],['وقت المشروع',Math.floor(wMin/60)+' س '+(wMin%60)+' د',(Math.round(90*N/60*10)/10)+' س',P(wMin,90*N)]]],
+  ['📚 التعلّم',[['أيام دراسة الإنجليزية',eDays+' يوم',N+' يوم',P(eDays,N)],['الدروس المنجزة (تراكمي)',eLes,'20',P(eLes,20)],['الكلمات المحفوظة (تراكمي)',eW,'381',P(eW,381)]]]];
  const secP=sec.map(([t,r])=>{const x=r.filter(y=>y[3]!==null);return Math.round(x.reduce((a,y)=>a+y[3],0)/(x.length||1))});
  const overall=Math.round(secP.reduce((a,b)=>a+b,0)/secP.length);return{w,sec,secP,overall}}
 function repHTML(){const r=repData(),col=p=>p>=80?'good':p>=50?'warnc':'bad';
@@ -492,6 +494,7 @@ function report(){const w=daysBack(7),inW=d=>w.includes(d);
 6. دخل إضافي: ${fmt(inc)} SAR
 7. الصلوات: ${pr} من 35 · الاستغفار: ${fmt(ist)}
 8. باقي على صفر ديون: ${fmt(debtTotal())} SAR
+9. دراسة الإنجليزية: ${(engS().days||[]).filter(inW).length} من 7 أيام
 ما لم أنفّذه وسببه:
 الإجراء التصحيحي للأسبوع القادم: `}
 function expForm(){const custom=[...new Set(FE().map(e=>e.cat).filter(c=>!S.budgets.some(b=>b.n===c)))];return `<div class="form"><input id="ea" type="number" inputmode="decimal" placeholder="المبلغ"><select id="ec" class="full" onchange="document.getElementById('ecx').hidden=this.value!=='__w';document.getElementById('enb').hidden=this.value!=='__b'">${S.budgets.map(b=>`<option>${b.n}</option>`).join('')}${custom.map(c=>`<option>${c}</option>`).join('')}<option value="__b">➕ إضافة بند جديد للموازنة</option><option value="__w">✍️ مصروف خارج الموازنة</option></select><input id="ecx" class="full" placeholder="نوع المصروف (مثال: ملابس، هدية، علاج)" hidden><div id="enb" class="form full" hidden><input id="nbn" placeholder="اسم البند (مثال: تأمين)"><input id="nbb" type="number" inputmode="decimal" placeholder="موازنته الشهرية"><select id="nbg" class="full">${BG.map(([g,t])=>`<option value="${g}" ${g==='var'?'selected':''}>${t}</option>`).join('')}</select></div><input id="en" placeholder="ملاحظة (اختياري)"><input id="ed" type="date" value="${td()}" aria-label="تاريخ المصروف"><button class="full" data-act="addExp">تسجيل</button></div>`}
@@ -1088,7 +1091,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v89';
+const APPV='v90';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();try{const loc=JSON.parse(localStorage.getItem('a1')||'{}'),cl=S.eng?JSON.parse(S.eng):null;if(cl&&(cl.days||[]).length>(loc.days||[]).length)localStorage.setItem('a1',S.eng);else if(localStorage.getItem('a1')&&localStorage.getItem('a1')!==S.eng)save()}catch(_){}render()}}});
 padTop();boot();
