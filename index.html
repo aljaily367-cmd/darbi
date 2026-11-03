@@ -164,6 +164,14 @@ textarea{font:inherit;font-size:16px;width:100%;box-sizing:border-box;border:1px
 nav button{font-size:12px!important}
 #app.learn{padding:0!important;max-width:none!important}
 .lf{position:fixed;left:0;right:0;bottom:var(--navH,64px);border:0;width:100%;background:var(--bg);z-index:3}
+@media (min-width:760px){
+ main{max-width:720px}
+ header{padding-left:calc((100vw - 720px)/2 + 16px)!important;padding-right:calc((100vw - 720px)/2 + 16px)!important}
+ nav::after{display:none}
+ nav{left:50%!important;right:auto!important;width:720px;transform:translateX(-50%);bottom:12px!important;border-radius:20px!important;padding-bottom:4px!important}
+ .lf{left:50%!important;right:auto!important;width:720px!important;transform:translateX(-50%)}
+ body{font-size:16px}
+}
 </style><style>
 .chip{font-size:12px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -1091,7 +1099,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v91';
+const APPV='v92';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();try{const loc=JSON.parse(localStorage.getItem('a1')||'{}'),cl=S.eng?JSON.parse(S.eng):null;if(cl&&(cl.days||[]).length>(loc.days||[]).length)localStorage.setItem('a1',S.eng);else if(localStorage.getItem('a1')&&localStorage.getItem('a1')!==S.eng)save()}catch(_){}render()}}});
 padTop();boot();
