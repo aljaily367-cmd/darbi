@@ -172,10 +172,12 @@ nav button{font-size:12px!important}
  header{padding-left:24px!important;padding-right:24px!important}
  nav{left:24px!important;right:24px!important;bottom:10px!important;border-radius:20px!important;padding-bottom:4px!important}
  nav::after{display:none}
- .lf{left:24px!important;right:24px!important;width:auto!important}
+ .lf{left:24px!important;right:auto!important;width:calc(100vw - 48px)!important;transform:none!important}
  body{font-size:16px}
 }
 @media (min-width:1500px){main{column-count:3}}
+main.learn{column-count:1!important}main.learn>.lf{display:block!important;margin:0!important;position:fixed!important}
+
 </style><style>
 .chip{font-size:12px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-weight:400}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -965,7 +967,7 @@ function render(){
  document.getElementById('nav').classList.remove('kb');tick();requestAnimationFrame(padTop);
  document.getElementById('today').innerHTML=`<div class="hdr"><span>${new Date().toLocaleDateString('ar-SA-u-ca-gregory-nu-latn',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</span><span class="chip" id="sync"></span></div>`;
  paintSync();
- document.getElementById('app').innerHTML=views[tab]();decorate();
+ document.getElementById('app').classList.toggle('learn',tab==='learn');document.getElementById('app').innerHTML=views[tab]();decorate();
  const BD=badges();document.getElementById('nav').innerHTML=tabs.map(([k,l])=>`<button class="${k===tab?'act':''}" data-tab="${k}" aria-label="${l}${BD[k]?' ('+BD[k]+')':''}">${BD[k]?`<span class="nb">${BD[k]>9?'9+':BD[k]}</span>`:''}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">${ic[k]}</svg>${l}</button>`).join('');
 }
 const v=id=>document.getElementById(id)?.value?.trim();
@@ -1103,7 +1105,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v93';
+const APPV='v94';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();try{const loc=JSON.parse(localStorage.getItem('a1')||'{}'),cl=S.eng?JSON.parse(S.eng):null;if(cl&&(cl.days||[]).length>(loc.days||[]).length)localStorage.setItem('a1',S.eng);else if(localStorage.getItem('a1')&&localStorage.getItem('a1')!==S.eng)save()}catch(_){}render()}}});
 padTop();boot();
