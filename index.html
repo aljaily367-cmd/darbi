@@ -175,6 +175,14 @@ nav button{font-size:12px!important}
 pre.rep{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;font-size:15px;margin:0;user-select:all}
 .step{background:var(--goodbg);color:var(--good);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px}
 .step b{font-size:18px}
+/* v92: desktop layout — align header & nav with content column */
+@media (min-width:900px){
+:root{--col:820px}
+main{max-width:var(--col)!important}
+header{padding-left:max(24px,calc((100vw - var(--col))/2 + 16px))!important;padding-right:max(24px,calc((100vw - var(--col))/2 + 16px))!important}
+nav{left:50%!important;right:auto!important;transform:translateX(-50%);width:min(var(--col),100vw);border-radius:20px 20px 0 0}
+nav::after{display:none}
+}
 </style>
 </head><body>
 
@@ -1091,7 +1099,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v91';
+const APPV='v92';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();try{const loc=JSON.parse(localStorage.getItem('a1')||'{}'),cl=S.eng?JSON.parse(S.eng):null;if(cl&&(cl.days||[]).length>(loc.days||[]).length)localStorage.setItem('a1',S.eng);else if(localStorage.getItem('a1')&&localStorage.getItem('a1')!==S.eng)save()}catch(_){}render()}}});
 padTop();boot();
