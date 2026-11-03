@@ -517,8 +517,9 @@ function shopCard(){S.shop=S.shop||[];S.shopOn=S.shopOn||{};S.trips=S.trips||[];
  const on=S.shop.filter((x,i)=>S.shopOn[i]),tot=on.reduce((a,x)=>a+(+x.p||0),0),tm=(S.trips||[]).filter(t=>t.d>=FS()).filter(t=>t.d.startsWith(mon()));
  let op=false;try{op=localStorage.getItem('darbi-shop')==='1'}catch(e){}
  return `<details class="card shopd" ${op?'open':''} ontoggle="try{localStorage.setItem('darbi-shop',this.open?'1':'0')}catch(e){}"><summary><h2 style="margin:0">قائمة المشتريات <span class="muted" style="font-weight:400">${on.length?`${on.length} مختار · `:''}مشاوير الشهر: ${tm.length}</span></h2></summary>
- <div class="muted">في المول: أشّر ✓ على ما اشتريته، واكتب سعره، ثم اضغط «إنهاء المشوار».</div>
- <div class="list">${S.shop.map((x,i)=>`<div class="habit"><button class="chk ${S.shopOn[i]?'on':''}" data-act="shT" data-i="${i}" aria-label="${x.n}">✓</button><span style="flex:1;min-width:0;${S.shopOn[i]?'text-decoration:line-through;color:var(--muted)':''}">${x.n}</span><input id="sp${i}" type="number" inputmode="decimal" value="${x.p||''}" placeholder="السعر" style="width:84px;padding:6px 8px" onchange="S.shop[${i}].p=+this.value||0;save()"><button class="x" data-act="shD" data-i="${i}" aria-label="حذف">✕</button></div>`).join('')}</div>
+ <div class="muted">في المول: أشّر ✓ على ما اشتريته — السعر يتعبّأ تلقائيًا من آخر شراء، عدّله لو تغيّر — ثم اضغط «إنهاء المشوار».</div>
+ <div class="form"><button class="ghost" data-act="shCopy">📋 نسخ آخر مشوار (أصناف + أسعار)</button><button class="ghost" data-act="shClr">مسح الاختيار</button></div>
+ <div class="list">${S.shop.map((x,i)=>`<div class="habit"><button class="chk ${S.shopOn[i]?'on':''}" data-act="shT" data-i="${i}" aria-label="${x.n}">✓</button><span style="flex:1;min-width:0;${S.shopOn[i]?'text-decoration:line-through;color:var(--muted)':''}">${x.n}</span><input id="sp${i}" type="number" inputmode="decimal" value="${x.p||''}" placeholder="${x.last?'آخر '+fmt(x.last):'السعر'}" style="width:96px;padding:6px 8px" onchange="S.shop[${i}].p=+this.value||0;save()"><button class="x" data-act="shD" data-i="${i}" aria-label="حذف">✕</button></div>`).join('')}</div>
  <div class="form"><input id="shN" class="full" placeholder="أضف صنفًا (مثال: عدس، صابون)"><button class="full ghost" data-act="shA">إضافة للقائمة</button></div>
  <div class="row"><b>مجموع المختار (${on.length} صنف)</b><b class="num">${fmt(tot)} SAR</b></div>
  <button data-act="shDone">إنهاء المشوار وتسجيله على «أكل وشرب»</button>
@@ -984,12 +985,14 @@ document.addEventListener('click',async e=>{
   boot();return}
  if(a==='rst'){if(!confirmRst){confirmRst=true;render();setTimeout(()=>{if(confirmRst){confirmRst=false;if(tab==='faith')render()}},3000);return}confirmRst=false;dhSet0(curDh);save();render();return}
  if(a==='qDone'||a==='qMore'){S.qLog=S.qLog||{};S.qLog[d]=(S.qLog[d]||0)+1;S.qPage=(S.qPage||1)>=604?1:(S.qPage||1)+1;mark(d,3);save();render();scrollTo(0,0);return}
- if(a==='shT'){S.shopOn[i]=!S.shopOn[i];save();render();return}
+ if(a==='shT'){const x=S.shop[i],el=document.getElementById('sp'+i);if(el)x.p=+el.value||0;S.shopOn[i]=!S.shopOn[i];if(S.shopOn[i]&&!x.p&&x.last)x.p=x.last;save();render();return}
+ if(a==='shCopy'){const lt=(S.trips||[]).slice(-1)[0];const names=lt&&lt.it?lt.it.map(y=>y.n):null;S.shopOn={};let k=0;S.shop.forEach((x,j)=>{if(names?names.includes(x.n):x.last){S.shopOn[j]=true;x.p=(names?lt.it.find(y=>y.n===x.n).p:x.last)||x.last||0;k++}});if(!k){toast('لا يوجد مشوار سابق بعد');return}save();render();toast('نُسخ آخر مشوار: '+k+' صنف بأسعاره ✓');return}
+ if(a==='shClr'){S.shopOn={};S.shop.forEach(x=>x.p=0);save();render();return}
  if(a==='shA'){const n=v('shN');if(n){S.shop.push({n,p:0});save();render()}return}
  if(a==='shD'){S.shop.splice(i,1);S.shopOn={};save();render();return}
  if(a==='shDone'){S.shop.forEach((x,k)=>{const el=document.getElementById('sp'+k);if(el)x.p=+el.value||0});const on=S.shop.filter((x,k)=>S.shopOn[k]);if(!on.length){toast('أشّر على الأصناف التي اشتريتها أولًا');return}
   const tot=on.reduce((a2,x)=>a2+(+x.p||0),0);if(!tot){toast('اكتب أسعار الأصناف أولًا');return}
-  undoSnap=JSON.stringify(S);S.expenses.push({id:Date.now(),d,a:tot,cat:'أكل وشرب',n:'مشوار المول: '+on.map(x=>x.n).join('، ')});S.trips.push({d,a:tot,k:on.length});S.shopOn={};mark(d,1);save();render();toast('سُجّل المشوار '+fmt(tot)+' SAR');return}
+  undoSnap=JSON.stringify(S);S.expenses.push({id:Date.now(),d,a:tot,cat:'أكل وشرب',n:'مشوار المول: '+on.map(x=>x.n).join('، ')});on.forEach(x=>{x.last=+x.p||x.last||0;x.lastD=d;x.p=0});S.trips.push({d,a:tot,k:on.length,it:on.map(x=>({n:x.n,p:x.last}))});S.shopOn={};mark(d,1);save();render();toast('سُجّل المشوار '+fmt(tot)+' SAR');return}
  if(a==='qPrev'||a==='qNext'){S.qPage=Math.min(604,Math.max(1,(S.qPage||1)+(a==='qNext'?1:-1)));save();render();scrollTo(0,0);return}
  if(a==='qGo'){const n=+v('qp');if(n>=1&&n<=604){S.qPage=n;save();render()}return}
  if(a==='pickDh'){curDh=b.dataset.k;confirmRst=false;render();return}
@@ -1105,7 +1108,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea'))document.getElementById('nav').classList.add('kb')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('input,textarea'))document.getElementById('nav').classList.remove('kb')},100));
-const APPV='v95';
+const APPV='v96';
 async function checkUpdate(){try{const t=await (await fetch('./?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='(v\d+)'/);if(m&&m[1]!==APPV)location.replace('./?r='+Date.now())}catch(e){}}
 checkUpdate();document.addEventListener('visibilitychange',async()=>{if(!document.hidden){checkUpdate();if(sb&&uid&&sync!=='saving'){await loadCloud();try{const loc=JSON.parse(localStorage.getItem('a1')||'{}'),cl=S.eng?JSON.parse(S.eng):null;if(cl&&(cl.days||[]).length>(loc.days||[]).length)localStorage.setItem('a1',S.eng);else if(localStorage.getItem('a1')&&localStorage.getItem('a1')!==S.eng)save()}catch(_){}render()}}});
 padTop();boot();
